@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Syscaf.Common\Syscaf.Common.csproj" />
     <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
     <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
     <ProjectReference Include="..\Syscaf.Service\Syscaf.Service.csproj" />

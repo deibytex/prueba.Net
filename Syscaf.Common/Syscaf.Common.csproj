@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Remove="Helpers\MailNotification.cs" />
+    <Compile Remove="Integrate\PegasoServiceConn.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
-﻿using MiX.Integrate.API.Client;
+﻿using Microsoft.Extensions.Options;
+using MiX.Integrate.API.Client;
 using MiX.Integrate.Shared.Entities.Events;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Models;
@@ -18,11 +19,11 @@ namespace Syscaf.Common.Services
 
         private string _user = "";
         private string _pws = "";
-        public MixServiceConn()
+        private readonly MixCredenciales _options;
+      
+        public MixServiceConn(IOptions<MixCredenciales> options ,string _user, string _pws)
         {
-        }
-        public MixServiceConn(string _user, string _pws)
-        {
+            this._options = options.Value;
             this._user = _user;
             this._pws = _pws;
         }
@@ -31,7 +32,7 @@ namespace Syscaf.Common.Services
         {
             get
             {
-                return ConfigurationManager.AppSettings["ApiUrl"];
+                return _options.ApiUrl;
             }
         }
 
@@ -49,12 +50,12 @@ namespace Syscaf.Common.Services
             {
                 return new IdServerResourceOwnerClientSettings()
                 {
-                    BaseAddress = ConfigurationManager.AppSettings["IdentityServerBaseAddress"],
-                    ClientId = ConfigurationManager.AppSettings["IdentityServerClientId"],
-                    ClientSecret = ConfigurationManager.AppSettings["IdentityServerClientSecret"],
+                    BaseAddress = _options.IdentityServerBaseAddress,
+                    ClientId = _options.IdentityServerClientId,
+                    ClientSecret = _options.IdentityServerClientSecret,
                     UserName = _user.Trim(),
                     Password = _pws.Trim(),
-                    Scopes = ConfigurationManager.AppSettings["IdentityServerScopes"]
+                    Scopes = _options.IdentityServerScopes
                 };
             }
         }
@@ -378,8 +379,8 @@ namespace Syscaf.Common.Services
         {
             try
             {
-                _user = ConfigurationManager.AppSettings["IdentityServerUserName"];
-                _pws = ConfigurationManager.AppSettings["IdentityServerPassword"];
+                _user = _options.IdentityServerUserName;
+                _pws = _options.IdentityServerPassword;
                 //   MobileUnitDeviceConfiguration
                 // groupid = -5205654157038870688;
                 var deviceCofiguration = new DeviceConfigurationClient(ApiBaseUrl, ClientSettings);
@@ -405,8 +406,7 @@ namespace Syscaf.Common.Services
                     // taremes la configuration sate
                     var configuracionstate = deviceCofiguration.GetConfigurationState(groupid, assetsClientes);
 
-                    var diagnostic = assets.GetDiagnosticAssets(groupid, assetsClientes);
-
+                    var diagnostic = assets.GetAssetDiagnostics(groupid, assetsClientes);                  
                     // traemos los ultimos viajes de cliente
                     var ultimosViajes = lastTrip.GetLatestForAssets(assetsClientes).ToList();
 

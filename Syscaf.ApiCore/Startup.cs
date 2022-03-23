@@ -14,7 +14,7 @@ using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
 using Syscaf.ApiCore.ViewModels;
-
+using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
 using Syscaf.Data.Interface;
@@ -45,10 +45,15 @@ namespace Syscaf.ApiCore
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
             services.AddOptions();
+            // variables para ITS ebus
             services.Configure<PubsubOptions>(
                 Configuration.GetSection("Pubsub"));
+            // variables globales de la aplicacion 
             services.Configure<GlobalVariables>(
                 Configuration.GetSection("Constants"));
+            // variables de las credenciales de mix
+            services.Configure<MixCredenciales>(
+                Configuration.GetSection("MixCredenciales"));
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();

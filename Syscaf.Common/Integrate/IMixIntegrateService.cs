@@ -28,7 +28,7 @@ namespace SyscafWebApi.Service
         Task<List<Position>> getPositionsByGroups(List<long> groupsIds, int ClienteIds);
         Task<List<LibraryEvent>> getTipoEventos(long clienteId, int ClienteIds);
         Task<List<TripRibasMetrics>> GetMetricasPorDriver(List<long> drivers, DateTime FechaInicio, DateTime FechaFinal, int ClienteIds);
-        Task<List<Trip>> GetUltimosViajesCreadosByOrganization(long organizacion, int ClienteIds, string methodP = null);
+        Task<List<Trip>> GetUltimosViajesCreadosByOrganization(long organizacion, int ClienteIds, string methodP );
         Task<List<Event>> GetEventosCliente(List<long> ll, DateTime fechaInicial, DateTime fechaFinal, List<long> eventosImportantes, int ClienteIds);
         Task<List<ActiveEvent>> GetEventosActivosCreadosPorVehiculos(List<long> organizacion, int ClienteIds);
         Task<List<Position>> getLastPositionsByGroups(List<long> organizacion, int ClienteIds);

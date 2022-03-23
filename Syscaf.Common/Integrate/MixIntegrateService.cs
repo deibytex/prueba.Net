@@ -170,7 +170,7 @@ namespace SyscafWebApi.Service
             return (result.Exitoso) ? (List<TripRibasMetrics>)result.Data : null;
         }
 
-        public async Task<List<Trip>> GetUltimosViajesCreadosByOrganization(long organizacion, int ClienteIds, string methodP = null)
+        public async Task<List<Trip>> GetUltimosViajesCreadosByOrganization(long organizacion, int ClienteIds, string methodP)
         {
             string method = methodP == null ? "Trips.GetCreatedSinceForOrganisation" : methodP;
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
