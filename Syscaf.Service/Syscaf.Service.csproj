@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
+    <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Auth\" />
+  </ItemGroup>
+
+</Project>

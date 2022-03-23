@@ -1,0 +1,4 @@
+﻿CREATE TYPE [dbo].[UDT_TableIdentity] AS TABLE (
+    [Id] BIGINT NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC));
+

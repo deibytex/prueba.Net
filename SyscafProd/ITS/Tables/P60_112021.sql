@@ -1,0 +1,28 @@
+﻿CREATE TABLE [ITS].[P60_112021] (
+    [temperaturaMotor]          DECIMAL (18, 2) NULL,
+    [presionAceiteMotor]        DECIMAL (18, 3) NULL,
+    [velocidadVehiculo]         DECIMAL (18, 3) NULL,
+    [aceleracionVehiculo]       DECIMAL (18, 3) NULL,
+    [revolucionesMotor]         DECIMAL (18, 3) NULL,
+    [estadoDesgasteFrenos]      DECIMAL (18, 2) NULL,
+    [kilometrosOdometro]        DECIMAL (18, 3) NULL,
+    [consumoCombustible]        DECIMAL (18, 3) NULL,
+    [nivelTanqueCombustible]    DECIMAL (18, 2) NULL,
+    [consumoEnergia]            DECIMAL (18, 3) NULL,
+    [regeneracionEnergia]       DECIMAL (18, 3) NULL,
+    [nivelRestanteEnergia]      DECIMAL (18, 2) NULL,
+    [porcentajeEnergiaGenerada] DECIMAL (18, 2) NULL,
+    [temperaturaSts]            DECIMAL (18, 2) NULL,
+    [usoCpuSts]                 INT             NULL,
+    [memRamSts]                 INT             NULL,
+    [memDiscoSts]               DECIMAL (18, 2) NULL,
+    [temperaturaBaterias]       DECIMAL (18, 2) NULL,
+    [sentidoMarcha]             INT             NULL,
+    [idRegistro]                INT             NOT NULL,
+    [codigoPeriodica]           VARCHAR (10)    NULL,
+    [tipoTrama]                 INT             NULL,
+    [Esprocesado]               BIT             DEFAULT ((0)) NOT NULL,
+    [fechasistema]              DATETIME        NOT NULL,
+    PRIMARY KEY CLUSTERED ([idRegistro] ASC)
+);
+

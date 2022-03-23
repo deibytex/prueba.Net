@@ -1,0 +1,21 @@
+﻿CREATE TYPE [PORTAL].[UDT_Event] AS TABLE (
+    [EventId]                 BIGINT          NOT NULL,
+    [assetId]                 BIGINT          NOT NULL,
+    [driverId]                BIGINT          NOT NULL,
+    [EventTypeId]             BIGINT          NOT NULL,
+    [TotalTimeSeconds]        INT             NOT NULL,
+    [TotalOccurances]         INT             NOT NULL,
+    [StartDateTime]           DATETIME        NOT NULL,
+    [EndDateTime]             DATETIME        NULL,
+    [FuelUsedLitres]          DECIMAL (10, 4) NULL,
+    [Value]                   DECIMAL (11, 4) NULL,
+    [Latitud]                 DECIMAL (12, 9) NULL,
+    [Longitud]                DECIMAL (12, 9) NULL,
+    [StartOdometerKilometres] DECIMAL (11, 4) NULL,
+    [EndOdometerKilometres]   DECIMAL (11, 4) NULL,
+    [AltitudMeters]           INT             NULL,
+    [ClienteIds]              INT             NULL,
+    [IsEbus]                  BIT             NOT NULL,
+    [fechasistema]            DATETIME        NOT NULL,
+    PRIMARY KEY CLUSTERED ([EventId] ASC));
+
