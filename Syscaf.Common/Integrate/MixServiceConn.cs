@@ -20,10 +20,10 @@ namespace Syscaf.Common.Services
         private string _user = "";
         private string _pws = "";
         private readonly MixCredenciales _options;
-      
-        public MixServiceConn(IOptions<MixCredenciales> options ,string _user, string _pws)
+       
+        public MixServiceConn(MixCredenciales options ,string _user, string _pws)
         {
-            this._options = options.Value;
+            this._options = options;
             this._user = _user;
             this._pws = _pws;
         }
@@ -164,7 +164,7 @@ namespace Syscaf.Common.Services
             {
                 var positionsClient = new PositionsClient(ApiBaseUrl, ClientSettings);
               
-                return ReturnSuccess(await positionsClient.GetLatestByAssetIdsAsync(assetsId, 1, Helpers.Helpers.GetFechaServidor().Date));
+                return ReturnSuccess(await positionsClient.GetLatestByAssetIdsAsync(assetsId, 1, Constants.GetFechaServidor().Date));
             }
             catch (Exception exp)
             {
@@ -375,8 +375,9 @@ namespace Syscaf.Common.Services
         }
 
 
-        public List<ReporteConfiguracion> GetConfiguracion(long groupid)
+        public async Task<MixServiceVM> GetConfiguracionAsync(long groupid)
         {
+
             try
             {
                 _user = _options.IdentityServerUserName;
@@ -389,9 +390,9 @@ namespace Syscaf.Common.Services
 
                 var lastTrip = new TripsClient(ApiBaseUrl, ClientSettings);
                 // configuracion de gprs por clientes 
-                var configuracion = deviceCofiguration.GetMobileUnitDeviceConfigurationsByGroupId(groupid);
+                var configuracion = await deviceCofiguration.GetMobileUnitDeviceConfigurationsByGroupIdAsync(groupid);
 
-                var asset = assets.GetAll(groupid);
+              
 
                 DateTime fechabase = new DateTime(1970, 01, 01, 00, 00, 00);
 
@@ -401,37 +402,36 @@ namespace Syscaf.Common.Services
                     var assetsClientes = configuracion.Select(s => long.Parse(s.AssetId)).ToList();
 
                     // traemos a informacion de configuracion de gprs
-                    var MobileUnitCommunicationSettings = deviceCofiguration.GetCommunicationSettings(groupid, assetsClientes);
+                    var MobileUnitCommunicationSettings = await deviceCofiguration.GetCommunicationSettingsAsync(groupid, assetsClientes);
 
                     // taremes la configuration sate
-                    var configuracionstate = deviceCofiguration.GetConfigurationState(groupid, assetsClientes);
+                    var configuracionstate = await deviceCofiguration.GetConfigurationStateAsync(groupid, assetsClientes);
 
-                    var diagnostic = assets.GetAssetDiagnostics(groupid, assetsClientes);                  
+                    var diagnostic = await assets.GetAssetDiagnosticsAsync(groupid, assetsClientes);                  
                     // traemos los ultimos viajes de cliente
                     var ultimosViajes = lastTrip.GetLatestForAssets(assetsClientes).ToList();
 
-                    return configuracion.Select(s => new ReporteConfiguracion
+                    return ReturnSuccess(configuracion.Select(s => new ReporteConfiguracion
                     {
-                        VehicleID = s.AssetId,
+                        AssetId = long.Parse(s.AssetId),
                         UnitIMEI = s.Properties?.Find(f => f.Name.Equals("UnitIMEI"))?.Value,
                         UnitSCID = s.Properties?.Find(f => f.Name.Equals("UnitSCID"))?.Value + "_",
                         GPRSContext = MobileUnitCommunicationSettings.Find(f => f.MobileUnitId == long.Parse(s.AssetId))?.GprsContext,
-                        LastTrip = Helpers.Helpers.GetFechaServidor(ultimosViajes.Find(f => f.AssetId == long.Parse(s.AssetId))?.TripStart),
-                        DeviceType = s.MobileDeviceType,
-                        CreatedDate = Helpers.Helpers.GetFechaServidor(Convert.ToDateTime(asset.Find(f => f.AssetId == long.Parse(s.AssetId)).CreatedDate.ToString("d")),true).Value.ToString(Constants.FormatoHoraPacifico, Constants.CultureDate),
+                        LastTrip = Constants.GetFechaServidor(ultimosViajes.Find(f => f.AssetId == long.Parse(s.AssetId))?.TripStart),
+                        DeviceType = s.MobileDeviceType,                      
                         ConfigurationGroup = s.ConfigurationGroup,
                         DriverOBC = configuracionstate.Find(f => f.MobileUnitId == long.Parse(s.AssetId))?.DriverSetVersion,
-                        DriverOBCLoadDate = Helpers.Helpers.GetFechaServidor(fechabase.AddSeconds(Convert.ToInt32(configuracionstate.Find(f => f.MobileUnitId == long.Parse(s.AssetId))?.DriverSetLoadDate)), true).Value.ToString(Constants.FormatoHoraPacifico, Constants.CultureDate),
+                        DriverOBCLoadDate = Constants.GetFechaServidor(fechabase.AddSeconds(Convert.ToInt32(configuracionstate.Find(f => f.MobileUnitId == long.Parse(s.AssetId))?.DriverSetLoadDate)), true).Value.ToString(Constants.FormatoHoraPacifico, Constants.CultureDate),
                         DriverCAN = diagnostic.Find(f => f.AssetId == long.Parse(s.AssetId)).DDMVersion,
-                        LastConfiguration = Helpers.Helpers.GetFechaServidor(diagnostic.Find(f => f.AssetId == long.Parse(s.AssetId)).LastConfig, true).Value.ToString(Constants.FormatoHoraPacifico, Constants.CultureDate)
-                    }).ToList();
+                        LastConfiguration = Constants.GetFechaServidor(diagnostic.Find(f => f.AssetId == long.Parse(s.AssetId)).LastConfig, true).Value.ToString(Constants.FormatoHoraPacifico, Constants.CultureDate)
+                    }).ToList());
                 }
             }
             catch (Exception ex)
             {
                 string exp = ex.ToString();
             }
-            return null;
+            return ReturnSuccess(new List<ReporteConfiguracion>() {  });
         }
 
         public async Task<MixServiceVM> GetLocationsByGroup(long groupId)
@@ -478,6 +478,56 @@ namespace Syscaf.Common.Services
             }
         }
 
+        public async Task<MixServiceVM> GetMobileUnitDeviceConfigurationsByGroupId(long groupId)
+        {
+            try
+            {
+                var deviceCofiguration = new DeviceConfigurationClient(ApiBaseUrl, ClientSettings);
+                return ReturnSuccess(await deviceCofiguration.GetMobileUnitDeviceConfigurationsByGroupIdAsync(groupId));
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+        }
+
+        public async Task<MixServiceVM> GetCommunicationSettings(long groupId, List<long> AssetIds)
+        {
+            try
+            {
+                var deviceCofiguration = new DeviceConfigurationClient(ApiBaseUrl, ClientSettings);
+                return ReturnSuccess(await deviceCofiguration.GetCommunicationSettingsAsync(groupId, AssetIds));
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+        }
+        public async Task<MixServiceVM> GetConfigurationState(long groupId, List<long> AssetIds)
+        {
+            try
+            {
+                var deviceCofiguration = new DeviceConfigurationClient(ApiBaseUrl, ClientSettings);
+                return ReturnSuccess(await deviceCofiguration.GetConfigurationStateAsync(groupId, AssetIds));
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+        }
+        public async Task<MixServiceVM> GetAssetDiagnostics(long groupId, List<long> AssetIds)
+        {
+            try
+            {
+                var assets = new AssetsClient(ApiBaseUrl, ClientSettings);
+                return ReturnSuccess(await assets.GetAssetDiagnosticsAsync(groupId, AssetIds));
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+        }
+
     }
 
     public interface IMixServiceConn
@@ -501,7 +551,7 @@ namespace Syscaf.Common.Services
         Task<MixServiceVM> GetEventosActivosCreadosPorOrganizacion(long organizacionId, List<long> entityTypes, string token, byte cantidad = 100);
         Task<MixServiceVM> GetEventosActivosCreadosPorVehiculo(List<long> vehiculos, string token, byte cantidad = 100);
         Task<MixServiceVM> GetEventosCliente(List<long> ll, DateTime fechaInicial, DateTime fechaFinal, List<long> eventosImportantes);
-        List<ReporteConfiguracion> GetConfiguracion(long groupid);
+        Task<MixServiceVM> GetConfiguracionAsync(long groupid);
         Task<MixServiceVM> GetEventosPorAssets(List<long> ll, List<long> eventosImportantes, DateTime? cachedSince);
         Task<MixServiceVM> getLastPositionsByGroups(List<long> groupsIds, string sinceToken);
         Task<MixServiceVM> GetLocationsByGroup(long groupId);
@@ -510,5 +560,12 @@ namespace Syscaf.Common.Services
         Task<MixServiceVM> GetEventosActivosHistoricalCreadosPorOrganizacion(long organizacionId, List<long> entityTypes, byte cantidad = 100);
 
         Task<MixServiceVM> GetEventosClientePorOrganizacion(long OrganizacionId, DateTime fechaInicial, DateTime fechaFinal, List<long> eventosImportantes);
+
+        #region configuracion
+        Task<MixServiceVM> GetMobileUnitDeviceConfigurationsByGroupId(long groupId);
+        Task<MixServiceVM> GetCommunicationSettings(long groupId, List<long> AssetIds);
+        Task<MixServiceVM> GetConfigurationState(long groupId, List<long> AssetIds);
+        Task<MixServiceVM> GetAssetDiagnostics(long groupId, List<long> AssetIds);
+        #endregion
     }
 }

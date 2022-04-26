@@ -7,7 +7,7 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using Helper = Syscaf.Common.Helpers.Helpers;
-namespace Syscaf.Service
+namespace Syscaf.Common.Integrate.LogNotificaciones
 {
     public class LogService : ILogService
     {

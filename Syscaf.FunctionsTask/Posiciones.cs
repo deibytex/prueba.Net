@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Syscaf.FunctionsTask
 {
-    public class Positions
+    public class Posiciones
     {
-        [FunctionName("Positions")]
+        [FunctionName("Posiciones")]
         public void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");

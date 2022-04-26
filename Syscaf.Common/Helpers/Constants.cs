@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿
+using Microsoft.Extensions.Configuration;
+using Syscaf.Common.Utils;
 using Syscaf.Data.Helpers.Settings;
 using System;
 
@@ -7,16 +9,25 @@ using System.Globalization;
 
 namespace Syscaf.Common.Helpers
 {
-    public class Constants
+    public static class Constants 
     {
-        private readonly IConfiguration ConfigurationManager;
-        private static  SettingsConstans _SettingsConstans = null;
-        public Constants(IConfiguration configuration)
+        private static  IConfiguration ConfigurationManager;
+     
+        private static DateTime? timeNull = null;
+
+        //TimeZoneInfo multiplataforma
+        private static TimeZoneInfo timezone = null;
+
+
+        public static void Inicializar(IConfiguration configuration)
         {
-            this.ConfigurationManager = configuration;
-            _SettingsConstans = ConfigurationManager.GetSection("Constants") as SettingsConstans;
+             ConfigurationManager = configuration;         
+         
+            timezone = TimeZoneInfo.FindSystemTimeZoneById(ConfigurationManager.GetSection("Constants")["NameZone"]);
+            timeCache = ConfigurationManager.GetSection("Constants")["timeCache"];
+            Dominio = ConfigurationManager.GetSection("Constants")["Dominio"];
         }
-        public string ZonaHoraria = _SettingsConstans.NameZone;
+ 
         public static DateTimeFormatInfo CultureDate
         {
             get
@@ -28,25 +39,42 @@ namespace Syscaf.Common.Helpers
         public static string menu = "menu";
         public static string opciones = "opciones";
         public static string FiltroClienteUsuario = "FiltroClienteUsuario";
-        public static string timeCache = _SettingsConstans.timeCache;
+        public static string timeCache = null ;
         public static StringComparison comparer = StringComparison.CurrentCultureIgnoreCase;
-        public static DateTime? timeNull = null;
+
         public static string FormatoFechaHora = "yyyy/MM/dd HH:mm";
         public static string FormatoFechaHoraSeg = "yyyy/MM/dd HH:mm:ss";
         public static string FormatoPegaso = "yyyy-MM-dd HH:mm:ss";
         public static string FormatoSinceToken = "yyyyMMddHHmmssfff";
-        public static string Dominio = _SettingsConstans.Dominio;
+        public static string Dominio = "";
         public static string FormatoHoraPacifico = "dd/MM/yyyy";
         public static string FormatoHoraPacificoHMS = "dd/MM/yyyy HH:mm:ss";
-        
 
-  
+        public static DateTime GetFechaServidor()
+        {
+            return TimeZoneInfo.ConvertTime(DateTime.Now, timezone);
+        }
+
+        public static DateTime GetFechaServidor(DateTime Fecha)
+        {
+            return TimeZoneInfo.ConvertTime(Fecha, timezone);
+        }
+
+        public static string GetFechaServidor(DateTime? Fecha)
+        {
+            return Fecha.HasValue ? TimeZoneInfo.ConvertTime(Fecha.Value, timezone).ToString("dd/MM/yyyy HH:mm") : "";
+        }
+        public static DateTime? GetFechaServidor(DateTime? Fecha, bool isString = true)
+        {
+            return (Fecha.HasValue) ? TimeZoneInfo.ConvertTime(Fecha.Value, timezone) : timeNull;
+        }
+
         // parametro de llamadas por minuto
         public static int CallsMin
         {
             get
             {
-                int.TryParse(_SettingsConstans.CallsMix, out int calls);
+                int.TryParse(ConfigurationManager.GetSection("Constants")["CallsMix"], out int calls);
                 calls = (calls == 0) ? 20 : calls;
                 return calls;
             }
@@ -57,7 +85,7 @@ namespace Syscaf.Common.Helpers
         {
             get
             {
-                int.TryParse(_SettingsConstans.CallsMixHour, out int calls);
+                int.TryParse(ConfigurationManager.GetSection("Constants")["CallsMixHour"], out int calls);
                 calls = (calls == 0) ? 500 : calls;
                 return calls;
             }
@@ -136,12 +164,15 @@ namespace Syscaf.Common.Helpers
             return dt;
 
         }
+    
 
         public static string TraceLabelMes = "TraceLabelMes";
 
         #region "eBus"
         public static string ebus_seleccion_cliente = "ebus_seleccion_cliente_{0}";
         #endregion
+
+       
 
     }
 }

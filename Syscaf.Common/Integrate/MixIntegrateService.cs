@@ -1,6 +1,8 @@
 ﻿
+using Microsoft.Extensions.Options;
 using MiX.Integrate.Shared.Entities.Assets;
 using MiX.Integrate.Shared.Entities.Carriers;
+using MiX.Integrate.Shared.Entities.DeviceConfiguration;
 using MiX.Integrate.Shared.Entities.Drivers;
 using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Groups;
@@ -9,6 +11,7 @@ using MiX.Integrate.Shared.Entities.Locations;
 using MiX.Integrate.Shared.Entities.Positions;
 using MiX.Integrate.Shared.Entities.Trips;
 using Syscaf.Common.Helpers;
+using Syscaf.Common.Models;
 using Syscaf.Common.PORTAL;
 using Syscaf.Common.Services;
 using Syscaf.Service.PORTAL;
@@ -31,25 +34,27 @@ namespace SyscafWebApi.Service
 
     public class MixIntegrateService : IMixIntegrateService
     {
-        private readonly IPortalService _portalService;
-        private readonly IMixServiceConn _mixServiceConn;       
+        private readonly IPortalService _portalService;    
+        private readonly MixCredenciales _options;
+       
+
         private readonly string AssemblyName = "Syscaf.Common.Services.MixServiceConn, Syscaf.Common";
         private DateTime FechaActual
         {
             get
             {
-                return Help.GetFechaServidor();
+                return Constants.GetFechaServidor();
             }
         }
 
         // private IMemoryCache _cache;
         private List<CredencialesMixVM> _crendeciales = null;
         public MixIntegrateService(IPortalService _portalService
-            , IMixServiceConn MixServiceConn)
+            , IOptions<MixCredenciales> _options)
         {
-            this._portalService = _portalService;
-            this._mixServiceConn = MixServiceConn;
-          
+            this._portalService = _portalService;       
+            this._options = _options.Value;
+            
             //  _cache = memoryCache;
         }
 
@@ -134,7 +139,7 @@ namespace SyscafWebApi.Service
         }
 
         // trae la información de los vehiculos desde Mix
-        public async Task<List<Asset>> getVehiculos(long clienteId, int ClienteIds)
+        public async Task<List<Asset>> getVehiculosAsync(long clienteId, int ClienteIds)
         {
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getVehiculos", new object[] { clienteId });
             return (result.Exitoso) ? (List<Asset>)result.Data : null;
@@ -290,10 +295,41 @@ namespace SyscafWebApi.Service
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetEventosActivosHistoricalCreadosPorOrganizacion", new object[] { organizacion, eventosImportantes,  cantidad });           
             return (List<ActiveEvent>)result.Data;
         }
-        
 
+        public async Task<List<MobileUnitDeviceConfiguration>> GetMobileUnitDeviceConfigurationsByGroupId(long groupId, int ClienteIds)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetMobileUnitDeviceConfigurationsByGroupId", new object[] { groupId });
+            return (List<MobileUnitDeviceConfiguration>)result.Data;
+        }
+
+        public async Task<List<MobileUnitCommunicationSettings>> GetCommunicationSettings(long groupId, List<long> AssetIds, int ClienteIds)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetCommunicationSettings", new object[] { groupId, AssetIds });
+            return (List<MobileUnitCommunicationSettings>)result.Data;
+        }
+        public async Task<List<MobileUnitConfigurationState>> GetConfigurationState(long groupId, List<long> AssetIds, int ClienteIds)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetConfigurationState", new object[] { groupId, AssetIds });
+            return (List<MobileUnitConfigurationState>)result.Data;
+        }
+
+        public async Task<List<AssetDiagnostics>> GetAssetDiagnostics(long groupId, List<long> AssetIds, int ClienteIds)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetAssetDiagnostics", new object[] { groupId, AssetIds });
+            return (List<AssetDiagnostics>)result.Data;
+        }
+        public async Task<List<ReporteConfiguracion>> GetConfiguracionAsync(long groupId)
+        {
+            MixServiceVM result = await invokeMethodAsync(-1, AssemblyName, "GetConfiguracionAsync", new object[] { groupId });
+            return (List<ReporteConfiguracion>)result.Data;
+        }
+      
         private async Task<MixServiceVM> invokeMethodAsync(int ClienteIds, string clase, string methodo, object[] parametros)
         {
+            try
+            {
+
+           
             //obtiene las credenciales por clienteids
             var credencial = getCredenciales(ClienteIds);
             int credencialid = credencial.Id;
@@ -303,10 +339,10 @@ namespace SyscafWebApi.Service
 
             //Stopwatch lo usamos para saber cuanto duro eb darme respuesta el metodo
             Stopwatch s = new Stopwatch();
-            var obj = Activator.CreateInstance(dynamicType, new object[] { credencial.UserId, credencial.Password });
+            var obj = Activator.CreateInstance(dynamicType, new object[] { _options,  credencial.UserId, credencial.Password });
 
             //validar las llamadas por credencial
-            validateCalls(credencialid, FechaActual);
+          //  validateCalls(credencialid, FechaActual);
             s.Start();
             // obtenemos el nombre del metodo de la instancia 
             MethodInfo method = dynamicType.GetMethod(methodo);
@@ -318,7 +354,14 @@ namespace SyscafWebApi.Service
             Task<MixServiceVM> PreResult = (Task<MixServiceVM>)method.Invoke(obj, parametros);
             var result = await PreResult;
             _portalService.SetLog(credencialid, methodo, result.StatusCode, result.Response, FechaActual, ClienteIds);
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+         
 
         }
     }

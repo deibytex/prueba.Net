@@ -8,16 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
-    <PackageReference Include="Google.Apis" Version="1.56.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.56.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="MiX.Integrate.Shared" Version="2022.1.24.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
@@ -25,8 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Syscaf.Common\Syscaf.Common.csproj" />
-    <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
-    <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
     <ProjectReference Include="..\Syscaf.Service\Syscaf.Service.csproj" />
   </ItemGroup>
 

@@ -5,12 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Syscaf.Common\Syscaf.Common.csproj" />
     <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
     <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Auth\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="MiX.Integrate.Shared" Version="2022.1.24.1" />
   </ItemGroup>
 
 </Project>

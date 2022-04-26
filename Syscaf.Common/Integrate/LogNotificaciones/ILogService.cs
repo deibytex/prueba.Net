@@ -1,6 +1,6 @@
 ﻿using Syscaf.Data.Models.Portal;
 
-namespace Syscaf.Service
+namespace Syscaf.Common.Integrate.LogNotificaciones
 {
     public interface ILogService
     {

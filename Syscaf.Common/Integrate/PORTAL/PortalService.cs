@@ -1,4 +1,6 @@
-﻿using Syscaf.Common.Models.PORTAL;
+﻿using Syscaf.Common.Helpers;
+using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Interface;
@@ -93,7 +95,7 @@ namespace Syscaf.Service.PORTAL
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Clienteid", ClienteIds, DbType.Int32);
                     parametros.Add("Method", Method, DbType.String);
-                    parametros.Add("fechasistema", Common.Helpers.Helpers.GetFechaServidor(), DbType.DateTime);
+                    parametros.Add("fechasistema", Constants.GetFechaServidor(), DbType.DateTime);
                     parametros.Add("SinceToken", SinceToken, DbType.String);
                     valor = _conn.GetAll<string>(sqlCommand, parametros).FirstOrDefault();
 
