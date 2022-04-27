@@ -14,46 +14,13 @@ namespace Syscaf.Service.Automaper
         {
             CreateMap<AssetBaseData, AssetResult>().ForMember(
                 x => x.Resultado,
-                dto => dto.MapFrom(MapearAssetDTO
-                    //f => f.ListaAssets.Join(
-                    //    f.ListaConfiguracion,
-                    //    xEntry => xEntry.AssetId,
-                    //    yEntry => yEntry.AssetId,
-                    //    (xEntry, yEntry) => new AssetDTO()
-                    //    {
-
-                    //        AssetId = xEntry.AssetId,
-                    //        AssetImageUrl = xEntry.AssetImageUrl,
-                    //        AssetTypeId = xEntry.AssetTypeId,
-                    //        CreatedBy = xEntry.CreatedBy ?? "",
-                    //        CreatedDate = Constants.GetFechaServidor(xEntry.CreatedDate.DateTime),
-                    //        ConfigurationGroup = yEntry.ConfigurationGroup ?? "",
-                    //        Description = xEntry.Description,
-                    //        DeviceType = yEntry.DeviceType ?? "",
-                    //        DriverCAN = yEntry.DriverCAN ?? "",
-                    //        DriverOBC = yEntry.DriverOBC ?? "",
-                    //        DriverOBCLoadDate = yEntry.DriverOBCLoadDate ?? "",
-                    //        FmVehicleId = xEntry.FmVehicleId ,
-                    //        GPRSContext = yEntry.GPRSContext ?? "",
-                    //        LastConfiguration = yEntry.LastConfiguration ?? "",
-                    //        Odometer = xEntry.Odometer,
-                    //        RegistrationNumber = xEntry.RegistrationNumber,
-                    //        SiteId = xEntry.SiteId,
-                    //        UnitIMEI = yEntry.UnitIMEI ?? "",
-                    //        UnitSCID = yEntry.UnitSCID ?? "",
-                    //        UserState = xEntry.UserState ?? "",
-                    //        LastTrip = yEntry.LastTrip ?? ""
-                    //    }
-                    //    )
-                    )
+                dto => dto.MapFrom(MapearAssetDTO)
                 );
             //CreateMap<GeneroCreacionDTO, Genero>();
 
             //CreateMap<Actor, ActorDTO>().ReverseMap();
             //CreateMap<ActorCreacionDTO, Actor>()
             //    .ForMember(x => x.Foto, options => options.Ignore());
-
-
 
             //CreateMap<Cine, CineDTO>()
             //    .ForMember(x => x.Latitud, dto => dto.MapFrom(campo => campo.Ubicacion.Y))
@@ -73,27 +40,7 @@ namespace Syscaf.Service.Automaper
             //CreateMap<IdentityUser, UsuarioDTO>();
         }
 
-        //private List<AssetDTO> MapearPeliculasCines(Pelicula pelicula, PeliculaDTO peliculaDTO)
-        //{
-        //    var resultado = new List<CineDTO>();
-
-        //    if (pelicula.PeliculasCines != null)
-        //    {
-        //        foreach (var peliculasCines in pelicula.PeliculasCines)
-        //        {
-        //            resultado.Add(new CineDTO()
-        //            {
-        //                Id = peliculasCines.CineId,
-        //                Nombre = peliculasCines.Cine.Nombre,
-        //                Latitud = peliculasCines.Cine.Ubicacion.Y,
-        //                Longitud = peliculasCines.Cine.Ubicacion.X
-        //            });
-        //        }
-        //    }
-
-        //    return resultado;
-        //}
-
+        /*Metodo que mapea el listado de assets y su configuración, haciendo un leftjoin de los  assets*/
         private List<AssetDTO> MapearAssetDTO(AssetBaseData AssetBaseData, AssetResult AssetResult)
         {
             var resultado = new List<AssetDTO>();
@@ -134,64 +81,6 @@ namespace Syscaf.Service.Automaper
             return resultado;
         }
 
-        //private List<GeneroDTO> MapearPeliculasGeneros(Pelicula pelicula, PeliculaDTO peliculaDTO)
-        //{
-        //    var resultado = new List<GeneroDTO>();
-
-        //    if (pelicula.PeliculasGeneros != null)
-        //    {
-        //        foreach (var genero in pelicula.PeliculasGeneros)
-        //        {
-        //            resultado.Add(new GeneroDTO() { Id = genero.GeneroId, Nombre = genero.Genero.Nombre });
-        //        }
-        //    }
-
-        //    return resultado;
-        //}
-
-        //private List<PeliculasActores> MapearPeliculasActores(PeliculaCreacionDTO peliculaCreacionDTO,
-        //   Pelicula pelicula)
-        //{
-        //    var resultado = new List<PeliculasActores>();
-
-        //    if (peliculaCreacionDTO.Actores == null) { return resultado; }
-
-        //    foreach (var actor in peliculaCreacionDTO.Actores)
-        //    {
-        //        resultado.Add(new PeliculasActores() { ActorId = actor.Id, Personaje = actor.Personaje });
-        //    }
-
-        //    return resultado;
-        //}
-
-        //private List<PeliculasGeneros> MapearPeliculasGeneros(PeliculaCreacionDTO peliculaCreacionDTO,
-        //    Pelicula pelicula)
-        //{
-        //    var resultado = new List<PeliculasGeneros>();
-
-        //    if (peliculaCreacionDTO.GenerosIds == null) { return resultado; }
-
-        //    foreach (var id in peliculaCreacionDTO.GenerosIds)
-        //    {
-        //        resultado.Add(new PeliculasGeneros() { GeneroId = id });
-        //    }
-
-        //    return resultado;
-        //}
-
-        //private List<PeliculasCines> MapearPeliculasCines(PeliculaCreacionDTO peliculaCreacionDTO,
-        //   Pelicula pelicula)
-        //{
-        //    var resultado = new List<PeliculasCines>();
-
-        //    if (peliculaCreacionDTO.CinesIds == null) { return resultado; }
-
-        //    foreach (var id in peliculaCreacionDTO.CinesIds)
-        //    {
-        //        resultado.Add(new PeliculasCines() { CineId = id });
-        //    }
-
-        //    return resultado;
-        //}
+     
     }
 }
