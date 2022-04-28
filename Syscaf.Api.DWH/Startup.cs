@@ -71,7 +71,8 @@ namespace Syscaf.Api.DWH
             services.AddTransient<IMixIntegrateService, MixIntegrateService>();
             services.AddTransient<IPortalService, PortalService>();        
             services.AddTransient<IAssetsService, AssetsService>();
-           
+            services.AddTransient<ITransmisionService, TransmisionService>();
+
             Constants.Inicializar(Configuration);
 
 
