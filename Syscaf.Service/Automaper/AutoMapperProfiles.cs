@@ -22,20 +22,7 @@ namespace Syscaf.Service.Automaper
             //CreateMap<ActorCreacionDTO, Actor>()
             //    .ForMember(x => x.Foto, options => options.Ignore());
 
-            //CreateMap<Cine, CineDTO>()
-            //    .ForMember(x => x.Latitud, dto => dto.MapFrom(campo => campo.Ubicacion.Y))
-            //    .ForMember(x => x.Longitud, dto => dto.MapFrom(campo => campo.Ubicacion.X));
-
-            //CreateMap<PeliculaCreacionDTO, Pelicula>()
-            //    .ForMember(x => x.Poster, opciones => opciones.Ignore())
-            //    .ForMember(x => x.PeliculasGeneros, opciones => opciones.MapFrom(MapearPeliculasGeneros))
-            //    .ForMember(x => x.PeliculasCines, opciones => opciones.MapFrom(MapearPeliculasCines))
-            //    .ForMember(x => x.PeliculasActores, opciones => opciones.MapFrom(MapearPeliculasActores));
-
-            //CreateMap<Pelicula, PeliculaDTO>()
-            //   .ForMember(x => x.Generos, options => options.MapFrom(MapearPeliculasGeneros))
-            //   .ForMember(x => x.Actores, options => options.MapFrom(MapearPeliculasActores))
-            //   .ForMember(x => x.Cines, options => options.MapFrom(MapearPeliculasCines));
+        
 
             //CreateMap<IdentityUser, UsuarioDTO>();
         }

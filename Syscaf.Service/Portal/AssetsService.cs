@@ -54,7 +54,9 @@ namespace Syscaf.Service.Portal
                 foreach (var cliente in ClientesActivos)
                 {
                     var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
+
                     var listConfiguracion = await _Mix.GetConfiguracionAsync(cliente.clienteId);
+
                     // mapeamos ambas listas para que nos de la final
                     var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
                     // asignamos el cliente para diferenciarlos en la base de datos
@@ -71,7 +73,7 @@ namespace Syscaf.Service.Portal
                         {
                             //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
-                            var result = await Task.FromResult(_conn.Insert<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            var result = await Task.FromResult(_conn.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {
