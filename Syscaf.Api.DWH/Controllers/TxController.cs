@@ -36,28 +36,8 @@ namespace Syscaf.Api.DWH.Controllers
            
             return await _Transmision.GetReporteTransmision(Usuario, ClienteId);
         }
-        /// <summary>
-        /// Obtiene el informe de las unidades activas.
-        /// </summary>
-        /// <param name="Usuario"></param>
-        /// <param name="ClienteId"></param>
-        /// <returns></returns>
-        [HttpPost("ObtenerInformeUnidadesActivas")]
-        public async Task<ResultObject> GetReporteUnidadesActivas([Required] int Usuario, long? ClienteId)
-        {
-            return await _Transmision.GetReporteUnidadesActivas(Usuario, ClienteId);
-        }
-        /// <summary>
-        /// Ejecuta el llenado de la tabla unidades activas.
-        /// </summary>
-        /// <param name="Usuario"></param>
-        /// <param name="ClienteId"></param>
-        /// <returns></returns>
-        [HttpPost("CargarUnidadesActivas")]
-        public async Task<ResultObject> SetReporteUnidadesActivas([Required] int Usuario, long? ClienteId)
-        {
-            return await _Transmision.SetReporteUnidadesActivas(Usuario, ClienteId);
-        }
+        
+        
         /// <summary>
         /// Se obtiene la fotografia de transmisión.
         /// </summary>
@@ -77,7 +57,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="Fecha"></param>
         /// <param name="ClienteId"></param>
         /// <returns></returns>
-        [HttpPost("GetSnapShotUnidadesActivas")]
+        [HttpPost("GetReporteUnidadesActivas")]
         public async Task<ResultObject> GetSnapshotUnidadesActivas([Required] int Usuario, [Required] DateTime Fecha, long? ClienteId)
         {
             return await _Transmision.GetSnapshotUnidadesActivas(Usuario, Fecha, ClienteId);
