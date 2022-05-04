@@ -20,9 +20,15 @@ namespace Syscaf.Service.Portal
         {
             _conn = conn;          
         }
+
+        public Task<List<ClienteDTO>> GetAsync(int Estado)
+        {
+            throw new NotImplementedException();
+        }
+
         // adiciona los mensajes a la tabla con el periodo seleccionado
 
-        public async Task<List<ListaDTO>> GetListaAsync(int Estado)
+        public async Task<List<ClienteDTO>> GetListaAsync(int Estado)
         {    
             var parametros = new Dapper.DynamicParameters();           
             parametros.Add("Estado", Estado, DbType.Int32);      
