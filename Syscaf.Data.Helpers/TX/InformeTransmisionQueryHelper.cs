@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Syscaf.Data.Helpers.Portal
+namespace Syscaf.Data.Helpers.TX
 {
     public class InformeTransmisionQueryHelper
     {
-        public static string _GetInforme = "PORTAL.SP_ReporteTransmision";//"dbo.SP_ReporteTransmision3p";
+        public static string _GetInforme = "TX.SP_ReporteTransmision";//"dbo.SP_ReporteTransmision3p";
     }
 }

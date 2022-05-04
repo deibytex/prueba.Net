@@ -24,5 +24,6 @@ namespace Syscaf.Api.DWH.Controllers
             return await _asset.Add(); 
         }
        
+        
     }
 }
