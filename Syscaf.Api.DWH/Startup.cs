@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 
@@ -72,20 +73,32 @@ namespace Syscaf.Api.DWH
             services.AddTransient<IPortalService, PortalService>();        
             services.AddTransient<IAssetsService, AssetsService>();
             services.AddTransient<ITransmisionService, TransmisionService>();
-
+            //Para documentacion de swagger
+            services.AddSwaggerGen(c =>
+            {
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
             Constants.Inicializar(Configuration);
-
-
         }
-
+       
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// Informacion de configuracion
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Syscaf Api DWH v1"));
+                
             }
 
             app.UseHttpsRedirection();

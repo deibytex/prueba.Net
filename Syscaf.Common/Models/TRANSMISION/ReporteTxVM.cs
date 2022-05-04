@@ -21,4 +21,18 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string estadoSyscaf { get; set; }
         public string assetId { get; set; }
     }
+    public class UnidadesActivasVM
+    {
+        public DateTime FechaCreacion { get; set; }
+        public string Matricula { get; set; }
+        public string Base { get; set; }
+        public string Vertical { get; set; }
+        public string Descripcion { get; set; }
+        public string Site { get; set; }
+        public string Equipo { get; set; }
+        public string IMEI { get; set; }
+        public string SerialSim { get; set; }
+        public string Observacion { get; set; }
+        public string Administrador { get; set; }
+    }
 }

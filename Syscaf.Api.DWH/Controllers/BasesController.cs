@@ -23,10 +23,6 @@ namespace Syscaf.Api.DWH.Controllers
         { 
             return await _asset.Add(); 
         }
-        [HttpPost("ObtenerInformeTransmision")]
-        public async Task<ResultObject> GetReporteTransmision(int Usuario, long? ClienteId)
-        {
-            return await _Transmision.GetReporteTransmision(Usuario,ClienteId);
-        }
+        
     }
 }
