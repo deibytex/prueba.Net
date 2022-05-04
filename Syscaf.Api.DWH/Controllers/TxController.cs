@@ -30,7 +30,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="Usuario"></param>
         /// <param name="ClienteId"></param>
         /// <returns></returns>
-        [HttpPost("ObtenerInformeTransmision")]
+        [HttpGet("ObtenerInformeTransmision")]
         public async Task<ResultObject> GetReporteTransmision([Required] int Usuario, long? ClienteId)
         {
            

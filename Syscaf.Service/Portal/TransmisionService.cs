@@ -45,7 +45,7 @@ namespace Syscaf.Service.Portal
                 }
                 catch (Exception ex)
                 {
-                    r.error(ex.Message);
+                    r.error(ex.Message + " Usuario " + Usuario);
                 }
             }
             catch (Exception ex)
