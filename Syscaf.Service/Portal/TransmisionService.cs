@@ -8,6 +8,7 @@ using AutoMapper;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.TRANSMISION;
+using Syscaf.Data;
 using Syscaf.Data.Helpers.TX;
 using Syscaf.Data.Interface;
 using Syscaf.Service.Helpers;
@@ -16,10 +17,10 @@ namespace Syscaf.Service.Portal
 {
     public class TransmisionService : ITransmisionService
     {
-        private readonly ISyscafConn _conn;
+        private readonly SyscafCoreConn _conn;
         private readonly IMapper _mapper;
         private readonly ILogService _log;
-        public TransmisionService(ISyscafConn conn, ILogService _log, IMapper _mapper)
+        public TransmisionService(SyscafCoreConn conn, ILogService _log, IMapper _mapper)
         {
             _conn = conn;
             this._log = _log;

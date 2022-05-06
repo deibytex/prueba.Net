@@ -66,7 +66,8 @@ namespace Syscaf.Api.DWH
                               Configuration.GetConnectionString("SyscafBDCore")));
 
             //Register dapper in scope    
-            services.AddScoped<ISyscafConn, SyscafConn>();
+            services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
+            services.AddScoped( options => new SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
             services.AddTransient<ILogService, LogService>();
             services.AddTransient<IClientService, ClientService>();         
             services.AddTransient<IMixIntegrateService, MixIntegrateService>();

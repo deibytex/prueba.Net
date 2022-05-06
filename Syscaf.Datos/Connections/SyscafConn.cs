@@ -13,12 +13,12 @@ namespace Syscaf.Data
 {
     public class SyscafConn :ISyscafConn
     {
-        private readonly IConfiguration _config;
-        private string Connectionstring = "SyscafBDDWH";
+        
+        private readonly string _connectionstring ;
 
-        public SyscafConn(IConfiguration config)
+        public SyscafConn(string Connectionstring)
         {
-            _config = config;
+            _connectionstring = Connectionstring;
         }
         public void Dispose()
         {
@@ -27,49 +27,49 @@ namespace Syscaf.Data
 
         public int Execute(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return db.Execute(sp, parms, commandType: commandType);
         }
 
         public async Task<int> Execute(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return await db.ExecuteAsync(sp, parms, commandType: commandType);
         }
 
         public T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.Text)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return db.Query<T>(sp, parms, commandType: commandType).FirstOrDefault();
         }
 
         public async Task<T> Get<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync<T>(sp, parms, commandType: commandType)).FirstOrDefault();
         }
 
         public List<T> GetAll<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return db.Query<T>(sp, parms, commandType: commandType).ToList();
         }
 
         public async Task<List<T>> GetAll<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             return  (await db.QueryAsync<T>(sp, parms, commandType: commandType)).ToList();
         }
 
         public DbConnection GetDbconnection()
         {
-            return new SqlConnection(_config.GetConnectionString(Connectionstring));
+            return new SqlConnection(_connectionstring);
         }
 
         public T Insert<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
             T result;
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             try
             {
                 if (db.State == ConnectionState.Closed)
@@ -103,7 +103,7 @@ namespace Syscaf.Data
         public async Task<int> Insert(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             int result;
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             try
             {
                 if (db.State == ConnectionState.Closed)
@@ -138,7 +138,7 @@ namespace Syscaf.Data
         public T Update<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
             T result;
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             try
             {
                 if (db.State == ConnectionState.Closed)
@@ -172,7 +172,7 @@ namespace Syscaf.Data
         public async Task<int> Update(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             int result;
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(Connectionstring));
+            using IDbConnection db = new SqlConnection(_connectionstring);
             try
             {
                 if (db.State == ConnectionState.Closed)
