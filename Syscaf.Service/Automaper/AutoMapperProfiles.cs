@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MiX.Integrate.Shared.Entities.Assets;
 using Syscaf.Common.Helpers;
+using Syscaf.Data.Helpers.Auth.DTOs;
+using Syscaf.Data.Models.Auth;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.Automaper.MapperDTO;
 using System.Collections.Generic;
@@ -16,13 +18,17 @@ namespace Syscaf.Service.Automaper
                 x => x.Resultado,
                 dto => dto.MapFrom(MapearAssetDTO)
                 );
+
+            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap().ForMember(
+                f => f.UserName, op => op.MapFrom( mp => mp.Email)
+                );
             //CreateMap<GeneroCreacionDTO, Genero>();
 
-            //CreateMap<Actor, ActorDTO>().ReverseMap();
+           // CreateMap<Actor, ActorDTO>().ReverseMap();
             //CreateMap<ActorCreacionDTO, Actor>()
             //    .ForMember(x => x.Foto, options => options.Ignore());
 
-        
+
 
             //CreateMap<IdentityUser, UsuarioDTO>();
         }

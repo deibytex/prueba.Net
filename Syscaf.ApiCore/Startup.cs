@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +19,8 @@ using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
 using Syscaf.Data.Interface;
+using Syscaf.Data.Models.Auth;
+using Syscaf.Service.Automaper;
 using Syscaf.Service.eBus.Gcp;
 
 using System;
@@ -43,6 +46,11 @@ namespace Syscaf.ApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
+            services.AddSingleton(provider =>
+               new MapperConfiguration(config =>
+               {
+                   config.AddProfile(new AutoMapperProfiles());
+               }).CreateMapper());
             services.AddControllers();
             services.AddOptions();
             // variables para ITS ebus
@@ -66,13 +74,13 @@ namespace Syscaf.ApiCore
                               Configuration.GetConnectionString("SyscafBDCore")));
 
             //Register dapper in scope    
-            services.AddTransient<ISyscafConn, SyscafConn>();          
+            services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
             services.AddTransient<IeBusGcpService, eBusGcpService>();
             services.AddTransient<IAuthService, AuthService>();
 
 
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<SyscafBDCore>()
                 .AddDefaultTokenProviders();
 

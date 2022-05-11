@@ -24,17 +24,17 @@ namespace Syscaf.ApiCore.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
         
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IConfiguration _configuration;
         private readonly SyscafBDCore _ctx;
         private readonly ISyscafConn _ctxDwh;
-        private readonly IMapper mapper;
+        private readonly IMapper _mapper;
         private readonly IAuthService _authService;
 
-        public AccountController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+        public AccountController(UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IConfiguration _configuration,
             SyscafBDCore _ctx,
             ISyscafConn _ctxDwh,
@@ -45,7 +45,7 @@ namespace Syscaf.ApiCore.Controllers
             this._configuration = _configuration;
             this._ctx = _ctx;
             this._ctxDwh = _ctxDwh;
-            this.mapper = mapper;
+            this._mapper = mapper;
             this._authService = _authService;
         }
 
@@ -54,16 +54,16 @@ namespace Syscaf.ApiCore.Controllers
         {
             // verifica que exista el usuario y manda un badrequest
 
-           
-            var usuario = new IdentityUser { UserName = usuarioModel.Email, Email = usuarioModel.Email };
+
+            var usuario = _mapper.Map<ApplicationUser>(usuarioModel); 
             var resultado = await userManager.CreateAsync(usuario, usuarioModel.Password);
-            bool isBadResult = false;
+         
            
             if (resultado.Succeeded)
             {
-                // adicionamos los claims necesarios de la inforamcion basica del cliente
-                 await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Perfil, usuarioModel.tipoPerfil.ToString()));                
-                 await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Cliente, usuarioModel.ClienteId.ToString()));
+                //// adicionamos los claims necesarios de la inforamcion basica del cliente
+                // await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Perfil, usuarioModel.PerfilId.ToString()));                
+                // await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Cliente, usuarioModel.ClienteId.ToString()));
 
                 return await _authService.ConstruirToken(usuarioModel);
             }
@@ -81,7 +81,7 @@ namespace Syscaf.ApiCore.Controllers
             var queryable = _ctx.Users.AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
             var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
-            return mapper.Map<List<UsuarioDTO>>(usuarios);
+            return _mapper.Map<List<UsuarioDTO>>(usuarios);
         }
 
 
@@ -103,7 +103,7 @@ namespace Syscaf.ApiCore.Controllers
 
 
 
-        [HttpGet("migrarUusarios")]
+        [HttpGet("migrarUsuarios")]
        
         public async Task<ActionResult<string>> MigracionUsuarios()
         {
@@ -112,28 +112,34 @@ namespace Syscaf.ApiCore.Controllers
 
             foreach (var item in result) {
                
-                var usuario = new IdentityUser { UserName = item.correo, Email = item.correo };
+                var usuario = new ApplicationUser { UserName = item.correo, Email = item.correo, Nombres = $"{item.nombre} {item.apellido}", PerfilId = item.perfilIdS };
                 string password = $"M_{item.correo.Split('@')[0]}.{new Random().Next(999)}";
-                var usuariomodel = new UsuarioDTO()
-                {
-                    Nombres = item.nombre,
-                    Apellidos = item.apellido,
-                    Email = item.correo,
-                    Password = password
-                };
-                var resultado = await userManager.CreateAsync(usuario, password);
                
-
-                if (resultado.Succeeded)
+                var usuariomodel = _mapper.Map<UsuarioDTO>(usuario);
+               
+                var isfind = await userManager.FindByNameAsync(item.correo.ToUpper().Trim());
+                if (isfind != null)
                 {
-                    // adicionamos los claims necesarios de la inforamcion basica del cliente
-                    await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Perfil, item.perfilIdS.ToString()));
-                    await userManager.AddClaimAsync(usuario, new Claim("Password", password));
-                    await userManager.AddClaimAsync(usuario, new Claim("UsuarioID", item.usuarioIdS.ToString()));
-
-                    await _authService.ConstruirToken(usuariomodel);
+                    isfind.Nombres = $"{item.nombre} {item.apellido}";
+                    isfind.PerfilId = item.perfilIdS;
+                    isfind.ClienteId = -1;
+                    await userManager.UpdateAsync(isfind);
                 }
-               
+                else
+                {
+                    var resultado = await userManager.CreateAsync(usuario, password);
+
+
+                    if (resultado.Succeeded)
+                    {
+                        // adicionamos los claims necesarios de la inforamcion basica del cliente
+
+                        await userManager.AddClaimAsync(usuario, new Claim("Password", password));
+                        await userManager.AddClaimAsync(usuario, new Claim("UsuarioID", item.usuarioIdS.ToString()));
+
+                        await _authService.ConstruirToken(usuariomodel);
+                    }
+                }
 
             }
          

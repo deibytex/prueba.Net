@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Syscaf.Data.Helpers.Auth.DTOs;
+using Syscaf.Data.Models.Auth;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,9 +14,9 @@ namespace Syscaf.ApiCore.Auth
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        public AuthService(UserManager<IdentityUser> _userManager, IConfiguration _configuration)
+        public AuthService(UserManager<ApplicationUser> _userManager, IConfiguration _configuration)
         {
             this._userManager = _userManager;
             this._configuration = _configuration;
