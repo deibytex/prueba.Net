@@ -18,15 +18,15 @@ namespace Syscaf.Service.Portal
     public class TransmisionService : ITransmisionService
     {
         private readonly SyscafCoreConn _conn;
+        private readonly ISyscafConn __conn;
         private readonly IMapper _mapper;
         private readonly ILogService _log;
-        private readonly ISyscafConn _conDWH;
-        public TransmisionService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, ISyscafConn _conDWH)
+        public TransmisionService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, ISyscafConn __conn)
         {
             _conn = conn;
             this._log = _log;
             this._mapper = _mapper;
-            this._conDWH = _conDWH;
+            this.__conn = __conn;
         }
 
         public async Task<ResultObject> GetReporteTransmision(int Usuario, long? ClienteId)
@@ -41,7 +41,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conDWH.GetAll<ReporteTxVM>(InformeTransmisionQueryHelper._GetInforme, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(__conn.GetAll<ReporteTxVM>(TransmisionQueryHelper._GetReporteTransmision, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -71,7 +71,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conDWH.GetAll<SnapShotTransmisionVM>(GetSnapShotTransmisionQueryHelper._Get, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(__conn.GetAll<SnapShotTransmisionVM>(TransmisionQueryHelper._GetSnapShotTransmision, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -101,7 +101,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<SnapShotUnidadesActivasVM>(GetSnapshotUnidadesActivasQueryHelper._Get, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.GetAll<SnapShotUnidadesActivasVM>(TransmisionQueryHelper._GetSnapshotUnidadesActivas, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -128,7 +128,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conDWH.Insert<int>(SetSnapShotTransmisionQueryHelper._Set, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(__conn.Insert<int>(TransmisionQueryHelper._SetSnapShotTransmision, parametros, commandType: CommandType.StoredProcedure));
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
                 }
@@ -154,7 +154,35 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<int>(SetSnapShotUnidadesActivasQueryHelper._Set, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.Insert<int>(TransmisionQueryHelper._SetSnapshotUnidadesActivas, parametros, commandType: CommandType.StoredProcedure));
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+        public async Task<ResultObject> GetAdministradores(string UsuarioId, string Nombres)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("UsuarioId", UsuarioId);
+                parametros.Add("Nombres", Nombres);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<AdministradoresVM>(TransmisionQueryHelper._GetAdministradores, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
                 }
@@ -180,4 +208,5 @@ public interface ITransmisionService
     Task<ResultObject> GetSnapshotUnidadesActivas(string Usuario, DateTime Fecha, long? ClienteId);
     Task<ResultObject> SetSnapShotTransmision();
     Task<ResultObject> SetSnapShotUnidadesActivas();
+    Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
 }

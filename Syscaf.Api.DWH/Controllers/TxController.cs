@@ -79,5 +79,16 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Transmision.SetSnapShotUnidadesActivas();
         }
+        /// <summary>
+        /// Se obtiene el listado de los admininistradores de flota.
+        /// </summary>
+        /// <param name="UsuarioId"></param>
+        /// <param name="Nombres"></param>
+        /// <returns></returns>
+        [HttpGet("GetAdministradores")]
+        public async Task<ResultObject> GetAdministradores(string? UsuarioId, string? Nombres)
+        {
+            return await _Transmision.GetAdministradores(UsuarioId, Nombres);
+        }
     }
 }
