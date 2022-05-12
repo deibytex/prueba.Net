@@ -19,7 +19,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Imei { get; set; }
         public string SerialSim { get; set; }
         public string Administrador { get; set; }
-        public int UsuarioIds { get; set; }
+        public string UsuarioIds { get; set; }
         public long SiteId { get; set; }
         public long ClienteId { get; set; }
         public string ClasificacionId { get; set; }
