@@ -22,4 +22,11 @@ namespace Syscaf.Service.Automaper.MapperDTO
 
 
     }
+
+    public class SiteResult
+    {
+        public List<SiteDTO> Resultado { get; set; }
+
+
+    }
 }

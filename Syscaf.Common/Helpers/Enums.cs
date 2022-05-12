@@ -19,7 +19,7 @@
         }
         public enum ListaDistribucion
         {
-            LSSISTEMA
+            LSSISTEMA = 1
         }
         public enum ListasParametros
         {
@@ -28,7 +28,7 @@
         }
         public enum TipoNotificacion
         {
-            Sistem,
+            Sistem = 3,
 
         }
         public enum EstadoProcesoGeneracionDatos

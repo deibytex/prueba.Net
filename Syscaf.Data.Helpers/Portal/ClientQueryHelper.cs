@@ -25,5 +25,9 @@ namespace Syscaf.Data.Helpers.Portal
         FROM dbo.TB_Cliente AS TC
         WHERE ( @Estado = -1 OR   TC.estadoClienteIdS = @Estado  )  
        ";
+
+        public static string _Insert = @"PORTAL.AddClientes    ";
+
+        
     }
 }

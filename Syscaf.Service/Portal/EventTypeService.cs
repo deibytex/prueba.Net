@@ -5,6 +5,7 @@ using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
+
 using Syscaf.Data.Models.Portal;
 using Syscaf.Helpers;
 using Syscaf.Service.Automaper.MapperDTO;
@@ -21,14 +22,15 @@ using System.Threading.Tasks;
 namespace Syscaf.Service.Portal
 {
 
-    public class AssetsService : IAssetsService
+    public class EventTypeService : IEventTypeService
     {
         private readonly SyscafCoreConn _conn;
         private readonly ILogService _log;
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly IMapper _mapper;
-        public AssetsService(SyscafCoreConn conn, ILogService _log, IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
+        public EventTypeService(SyscafCoreConn conn, ILogService _log, 
+            IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
         {
             _conn = conn;
             this._log = _log;
@@ -44,42 +46,31 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-                _log.SetLogError(0, "AssetsService - Add", "Inicio Actualizar Cliente");
+                _log.SetLogError(0, "SiteService - Add", "Inicio Actualizar Site");
 
-                if (clientes == null)
+                if(clientes == null)
                     clientes = await _clientService.GetAsync(1);
-               
-                // obtenemos el listado de propiedades para hacer la insersi[on 
-                // o actualizacion de datos
-                // 
-                var propertiesAssets =  PropertyHelper.GetProperties(typeof(AssetDTO));
                 foreach (var cliente in clientes)
                 {
-                    var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
-
-                    var listConfiguracion = await _Mix.GetConfiguracionAsync(cliente.clienteId);
+                    var ListaEventype = await _Mix.getTipoEventos(cliente.clienteId, cliente.clienteIdS);
 
                     // mapeamos ambas listas para que nos de la final
-                    var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
+                    var resultadolista = _mapper.Map < List<EventTypeDTO>>(ListaEventype);
                     // asignamos el cliente para diferenciarlos en la base de datos
-                    var lstAssestMerge =resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s;  }).ToList();
+                    resultadolista = resultadolista.Select(s => { s.ClienteId = cliente.clienteId; s.FechaSistema = Constants.GetFechaServidor();  return s;  }).ToList();
 
-                    if (lstAssestMerge.Count > 0)
+                    if (resultadolista.Count > 0)
                     {
                         // lo guardamos en la base de datos
-                        var parametros = new Dapper.DynamicParameters();
-                        parametros.Add("FechaSistema", Constants.GetFechaServidor(), DbType.DateTime);
-                        parametros.Add("Assets", HelperDatatable.ToDataTable(lstAssestMerge).AsTableValuedParameter("PORTAL.UDT_Assets"));
+                        var parametros = new DynamicParameters();                      
+                        parametros.Add("Eventos", HelperDatatable.ToDataTable(resultadolista).AsTableValuedParameter("PORTAL.UDT_EventType"));
 
                         try
-                        {
-                            //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-
-                            var result = await Task.FromResult(_conn.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                        {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+                            var result = await Task.FromResult(_conn.GetAll<int>(EventypeQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {
-
                             r.error(ex.Message);
                         }
                     }
@@ -89,16 +80,14 @@ namespace Syscaf.Service.Portal
             }
             catch (Exception ex)
             {
-
                 r.error(ex.Message);
             }
             return r;
         }
     }
 
-    public interface IAssetsService
+    public interface IEventTypeService
     {
-
         Task<ResultObject> Add(List<ClienteDTO> clientes);
 
     }

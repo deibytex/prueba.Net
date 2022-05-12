@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
-using Syscaf.Data.Interface;
+
 using System;
 using System.Collections.Generic;
 using System.Data;

@@ -5,6 +5,7 @@ using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
+
 using Syscaf.Data.Models.Portal;
 using Syscaf.Helpers;
 using Syscaf.Service.Automaper.MapperDTO;
@@ -21,14 +22,14 @@ using System.Threading.Tasks;
 namespace Syscaf.Service.Portal
 {
 
-    public class AssetsService : IAssetsService
+    public class DriverService : IDriverService
     {
         private readonly SyscafCoreConn _conn;
         private readonly ILogService _log;
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly IMapper _mapper;
-        public AssetsService(SyscafCoreConn conn, ILogService _log, IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
+        public DriverService(SyscafCoreConn conn, ILogService _log, IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
         {
             _conn = conn;
             this._log = _log;
@@ -44,45 +45,37 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-                _log.SetLogError(0, "AssetsService - Add", "Inicio Actualizar Cliente");
+                _log.SetLogError(0, "DriverService - Add", "Inicio Actualizar Site");
 
-                if (clientes == null)
-                    clientes = await _clientService.GetAsync(1);
-               
-                // obtenemos el listado de propiedades para hacer la insersi[on 
-                // o actualizacion de datos
-                // 
-                var propertiesAssets =  PropertyHelper.GetProperties(typeof(AssetDTO));
+                
+               if(clientes == null)
+                 clientes = await _clientService.GetAsync(1);
+
                 foreach (var cliente in clientes)
                 {
-                    var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
-
-                    var listConfiguracion = await _Mix.GetConfiguracionAsync(cliente.clienteId);
+                    var ListaSites = await _Mix.getDrivers(cliente.clienteId, cliente.clienteIdS);                 
 
                     // mapeamos ambas listas para que nos de la final
-                    var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
+                    var resultadolista = _mapper.Map<List<DriverDTO>>(ListaSites);
                     // asignamos el cliente para diferenciarlos en la base de datos
-                    var lstAssestMerge =resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s;  }).ToList();
+                    resultadolista = resultadolista.Select(s => { s.ClienteId = cliente.clienteId; s.FechaSistema = Constants.GetFechaServidor(); return s; }).ToList();
 
-                    if (lstAssestMerge.Count > 0)
+                    if (resultadolista.Count > 0)
                     {
                         // lo guardamos en la base de datos
-                        var parametros = new Dapper.DynamicParameters();
-                        parametros.Add("FechaSistema", Constants.GetFechaServidor(), DbType.DateTime);
-                        parametros.Add("Assets", HelperDatatable.ToDataTable(lstAssestMerge).AsTableValuedParameter("PORTAL.UDT_Assets"));
+                        var parametros = new DynamicParameters();
+                        parametros.Add("drivers", HelperDatatable.ToDataTable(resultadolista).AsTableValuedParameter("PORTAL.UDT_Driver"));
 
                         try
-                        {
-                            //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-
-                            var result = await Task.FromResult(_conn.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                        {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+                            var result = await Task.FromResult(_conn.GetAll<int>(DriverQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {
-
                             r.error(ex.Message);
                         }
                     }
+                
                 }
 
                 r.success();
@@ -96,7 +89,7 @@ namespace Syscaf.Service.Portal
         }
     }
 
-    public interface IAssetsService
+    public interface IDriverService
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);

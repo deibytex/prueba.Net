@@ -14,7 +14,7 @@ using Syscaf.ApiCore.Utilidades;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Syscaf.Data.Helpers.Auth;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models.Auth;
 using System.Data;
 

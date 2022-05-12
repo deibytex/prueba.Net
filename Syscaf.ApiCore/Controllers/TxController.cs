@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Syscaf.Data;
 using Syscaf.Data.Helpers.Auth;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models.Auth;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,8 @@ namespace Syscaf.ApiCore.Controllers
     [Route("api/[controller]")]
     public class TxController : ControllerBase
     {
-        private readonly ISyscafConn _conn;
-        public TxController(ISyscafConn conn)
+        private readonly SyscafCoreConn _conn;
+        public TxController(SyscafCoreConn conn)
         {
             _conn = conn;
         }

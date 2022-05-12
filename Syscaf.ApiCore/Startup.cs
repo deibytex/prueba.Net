@@ -18,7 +18,7 @@ using Syscaf.ApiCore.ViewModels;
 using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models.Auth;
 using Syscaf.Service.Automaper;
 using Syscaf.Service.eBus.Gcp;

@@ -1,6 +1,6 @@
 ﻿using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models;
 using Syscaf.Data.Models.Portal;
 using System;

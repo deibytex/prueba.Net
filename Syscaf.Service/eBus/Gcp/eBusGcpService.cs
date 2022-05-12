@@ -1,5 +1,6 @@
-﻿using Syscaf.Data.Helpers.eBus.Gcp;
-using Syscaf.Data.Interface;
+﻿using Syscaf.Data;
+using Syscaf.Data.Helpers.eBus.Gcp;
+
 using Syscaf.Data.Models.eBus.gcp;
 using System;
 using System.Collections.Generic;

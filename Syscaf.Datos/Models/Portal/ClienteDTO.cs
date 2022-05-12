@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Syscaf.Data.Models.Portal
 {
-    public class ClienteDTO
+    public class ClienteDTO : ClienteSaveDTO
     {
         public int clienteIdS { get; set; }
-        public string clienteNombre { get; set; }      
-        public DateTime fechaIngreso { get; set; }
+        
         public int estadoClienteIdS { get; set; }
-        public long clienteId { get; set; }
+        
         public bool notificacion { get; set; }       
         public bool? GeneraIMG { get; set; }
 
@@ -22,5 +21,11 @@ namespace Syscaf.Data.Models.Portal
         public bool Position { get; set; }
         public bool? ActiveEvent { get; set; }
 
+    }
+
+    public class ClienteSaveDTO {
+        public long clienteId { get; set; }
+        public string clienteNombre { get; set; }
+        public DateTime fechaIngreso { get; set; }
     }
 }

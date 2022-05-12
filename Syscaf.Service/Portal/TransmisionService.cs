@@ -10,7 +10,7 @@ using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.TRANSMISION;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.TX;
-using Syscaf.Data.Interface;
+
 using Syscaf.Service.Helpers;
 
 namespace Syscaf.Service.Portal

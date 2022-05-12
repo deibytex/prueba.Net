@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Syscaf.Api.DWH.Utilities;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.PORTAL;
@@ -11,7 +12,7 @@ using Syscaf.Common.Services;
 using Syscaf.Common.Utils;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-using Syscaf.Data.Interface;
+
 using Syscaf.Service.Automaper;
 using Syscaf.Service.Portal;
 using Syscaf.Service.PORTAL;
@@ -67,13 +68,9 @@ namespace Syscaf.Api.DWH
 
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
-            services.AddScoped( options => new SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
-            services.AddTransient<ILogService, LogService>();
-            services.AddTransient<IClientService, ClientService>();         
-            services.AddTransient<IMixIntegrateService, MixIntegrateService>();
-            services.AddTransient<IPortalService, PortalService>();        
-            services.AddTransient<IAssetsService, AssetsService>();
-            services.AddTransient<ITransmisionService, TransmisionService>();
+            services.AddScoped( options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
+            // configura todas las interfaces a utilizar en la aplicacion
+            InterfacesAplication.ConfigureServices(services);
             //Para documentacion de swagger
             services.AddSwaggerGen(c =>
             {

@@ -1,6 +1,7 @@
 ﻿using Syscaf.Common.Helpers;
 using Syscaf.Data;
 using Syscaf.Data.Models;
+using Syscaf.Data.Models.NS;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.ViewModels;
 using System;
@@ -9,23 +10,23 @@ using System.Linq;
 using System.Threading;
 using Helper = Syscaf.Common.Helpers.Helpers;
 
-namespace Syscaf.Service
+namespace Syscaf.Common.Integrate.LogNotificaciones
 {
     public interface INotificacionService
     {
 
 
-        ResultObject EnviarCorreosSistemaNotificacion();
-        ListaDistribucion GetListadoDistribucionBySigla(string sigla);
+        //ResultObject EnviarCorreosSistemaNotificacion();
+        //ListaDistribucion GetListadoDistribucionBySigla(string sigla);
 
-        // trae la plantilla segun sigla dada
-        PlantillaCorreo GetPlantillaBySigla(string sigla);
+        //// trae la plantilla segun sigla dada
+        //PlantillaCorreo GetPlantillaBySigla(string sigla);
 
-        // trae todas las notificaciones sin notificar
-        List<NotificacionesCorreo> GetNotificacionesCorreo();        // actualiza el estado de las notificaciones a verdadero
+        //// trae todas las notificaciones sin notificar
+        Task<List<NotificacionesCorreoDTO>> GetNotificacionesCorreo();        // actualiza el estado de las notificaciones a verdadero
 
-        ResultObject SetEsNotificadoCorreos(List<long> ids);
-        ResultObject CrearLogNotificacion(Enums.TipoNotificacion tipo, string descripcion, Enums.ListaDistribucion lista);
+        Task<ResultObject> SetEsNotificadoCorreos(List<long> ids);
+       Task<ResultObject> CrearLogNotificacion(Enums.TipoNotificacion tipo, string descripcion, Enums.ListaDistribucion lista);
      
 
 

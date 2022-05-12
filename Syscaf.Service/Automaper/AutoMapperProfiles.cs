@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using MiX.Integrate.Shared.Entities.Assets;
+using MiX.Integrate.Shared.Entities.Drivers;
+using MiX.Integrate.Shared.Entities.Groups;
+using MiX.Integrate.Shared.Entities.LibraryEvents;
 using Syscaf.Common.Helpers;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
@@ -19,12 +21,26 @@ namespace Syscaf.Service.Automaper
                 dto => dto.MapFrom(MapearAssetDTO)
                 );
 
-            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap().ForMember(
-                f => f.UserName, op => op.MapFrom( mp => mp.Email)
-                );
+            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap()
+                .ForMember( f => f.UserName, op => op.MapFrom( mp => mp.Email)  );
+
+            CreateMap<GroupSummary, SiteResult>().ForMember(
+               x => x.Resultado,
+               dto => dto.MapFrom(MapearSites)
+               );
+
+            CreateMap<LibraryEvent, EventTypeDTO>();
+            CreateMap<Driver, DriverDTO>()
+                .ForMember(f => f.aditionalFields, op => op.MapFrom(MapearAditionalDetailsFields));
+
+            CreateMap<Group, ClienteSaveDTO>()
+                 .ForMember(f => f.clienteNombre, op => op.MapFrom(mp => mp.Name))
+                   .ForMember(f => f.clienteId, op => op.MapFrom(mp => mp.GroupId));
+            CreateMap<ClienteSaveDTO, ClienteDTO>();
+            //
             //CreateMap<GeneroCreacionDTO, Genero>();
 
-           // CreateMap<Actor, ActorDTO>().ReverseMap();
+            // CreateMap<Actor, ActorDTO>().ReverseMap();
             //CreateMap<ActorCreacionDTO, Actor>()
             //    .ForMember(x => x.Foto, options => options.Ignore());
 
@@ -74,6 +90,45 @@ namespace Syscaf.Service.Automaper
             return resultado;
         }
 
-     
+        private List<SiteDTO> MapearSites(GroupSummary lstSites, SiteResult sites)
+        {
+            var resultado = new List<SiteDTO>();
+
+            if (lstSites != null )
+            {
+                GetSubGroup(resultado, lstSites, null);
+            }
+
+            return resultado;
+        }
+        private void GetSubGroup(List<SiteDTO> bases, GroupSummary Sitios, long? sitePadreId)
+        {
+            // condicion por la cual el metodo recursivo va a terminar
+            if (Sitios.SubGroups.Count > 0)
+            {
+                bases.AddRange(Sitios.SubGroups.Select(s => new SiteDTO
+                {
+                    //Cargar los datos del modelo
+                    SiteId = s.GroupId,
+                    SiteName = s.Name,
+                    SitePadreId = sitePadreId
+                }));
+
+                foreach (GroupSummary sum in Sitios.SubGroups)
+                {
+                    // si tiene subgrupos vuelve y ejecuta la acción
+                    GetSubGroup(bases, sum,  sum.GroupId);
+                }
+
+            }
+            //bases sale lleno y sitios ya no importa 
+
+        }
+
+        private string MapearAditionalDetailsFields(Driver driver, DriverDTO result)
+        {        
+             return "{" + driver.AdditionalDetailFields?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}";        
+        }
+
     }
 }

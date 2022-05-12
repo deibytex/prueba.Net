@@ -1,6 +1,7 @@
 ﻿using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models.Portal;
 using System;
 using System.Collections.Generic;
