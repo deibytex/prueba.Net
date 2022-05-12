@@ -30,12 +30,14 @@ namespace Syscaf.Service.Automaper
                );
 
             CreateMap<LibraryEvent, EventTypeDTO>();
+
             CreateMap<Driver, DriverDTO>()
                 .ForMember(f => f.aditionalFields, op => op.MapFrom(MapearAditionalDetailsFields));
 
             CreateMap<Group, ClienteSaveDTO>()
                  .ForMember(f => f.clienteNombre, op => op.MapFrom(mp => mp.Name))
                    .ForMember(f => f.clienteId, op => op.MapFrom(mp => mp.GroupId));
+
             CreateMap<ClienteSaveDTO, ClienteDTO>();
           
 

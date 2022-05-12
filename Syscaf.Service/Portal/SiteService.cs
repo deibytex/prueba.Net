@@ -70,7 +70,7 @@ namespace Syscaf.Service.Portal
                         {
                             //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
-                            var result = await Task.FromResult(_conn.GetAll<int>(SiteQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            var result = await Task.FromResult(_conn.GetAll<int>(SiteQueryHelper._Insert,  parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {

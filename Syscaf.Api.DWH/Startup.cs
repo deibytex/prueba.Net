@@ -69,6 +69,8 @@ namespace Syscaf.Api.DWH
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
             services.AddScoped( options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
+
+
             // configura todas las interfaces a utilizar en la aplicacion
             InterfacesAplication.ConfigureServices(services);
             //Para documentacion de swagger
