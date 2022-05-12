@@ -57,7 +57,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="ClienteId"></param>
         /// <returns></returns>
         [HttpGet("GetReporteUnidadesActivas")]
-        public async Task<ResultObject> GetSnapshotUnidadesActivas([Required] int Usuario, [Required] DateTime Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapshotUnidadesActivas([Required] string Usuario, [Required] DateTime Fecha, long? ClienteId)
         {
             return await _Transmision.GetSnapshotUnidadesActivas(Usuario, Fecha, ClienteId);
         }
@@ -78,6 +78,17 @@ namespace Syscaf.Api.DWH.Controllers
         public async Task<ResultObject> SetSnapShotUnidadesActivas()
         {
             return await _Transmision.SetSnapShotUnidadesActivas();
+        }
+        /// <summary>
+        /// Se obtiene el listado de los admininistradores de flota.
+        /// </summary>
+        /// <param name="UsuarioId"></param>
+        /// <param name="Nombres"></param>
+        /// <returns></returns>
+        [HttpGet("GetAdministradores")]
+        public async Task<ResultObject> GetAdministradores(string? UsuarioId, string? Nombres)
+        {
+            return await _Transmision.GetAdministradores(UsuarioId, Nombres);
         }
     }
 }
