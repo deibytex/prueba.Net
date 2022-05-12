@@ -22,5 +22,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public int UsuarioIds { get; set; }
         public long SiteId { get; set; }
         public long ClienteId { get; set; }
+        public string ClasificacionId { get; set; }
+
     }
 }
