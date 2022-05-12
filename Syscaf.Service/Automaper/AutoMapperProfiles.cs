@@ -37,13 +37,7 @@ namespace Syscaf.Service.Automaper
                  .ForMember(f => f.clienteNombre, op => op.MapFrom(mp => mp.Name))
                    .ForMember(f => f.clienteId, op => op.MapFrom(mp => mp.GroupId));
             CreateMap<ClienteSaveDTO, ClienteDTO>();
-            //
-            //CreateMap<GeneroCreacionDTO, Genero>();
-
-            // CreateMap<Actor, ActorDTO>().ReverseMap();
-            //CreateMap<ActorCreacionDTO, Actor>()
-            //    .ForMember(x => x.Foto, options => options.Ignore());
-
+          
 
 
             //CreateMap<IdentityUser, UsuarioDTO>();
