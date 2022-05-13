@@ -29,18 +29,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("actualizarClientes")]
         public async Task<ActionResult<ResultObject>> GetClientesMixByGroup()
         {
-            ResultObject response =  await _clientService.Add();
-
-            if (response.Exitoso) {
-                var listaclientes = (List<ClienteDTO>)response.Data;
-                response  =  await _asset.Add(listaclientes);
-                if (response.Exitoso)
-                    response = await _siteService.Add(listaclientes);
-                if (response.Exitoso)
-                    response = await _eventTypeService.Add(listaclientes);
-                if (response.Exitoso)
-                    response = await _driverService.Add(listaclientes);
-            }
+            ResultObject response =  await _clientService.Add();           
 
             return response;
         }
