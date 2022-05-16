@@ -11,4 +11,9 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string UsuarioId { get; set; }
         public string Nombres { get; set; }
     }
+    public class ListaSemanasAnualVM
+    {
+        public string Semana { get; set; }
+        public string Fecha { get; set; }
+    }
 }

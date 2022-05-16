@@ -198,6 +198,35 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+
+        public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Anio", Anio);
+                parametros.Add("Tipo", Tipo);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<ListaSemanasAnualVM>(TransmisionQueryHelper._GetSemanasAnual, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
     }
    
 }
@@ -209,4 +238,5 @@ public interface ITransmisionService
     Task<ResultObject> SetSnapShotTransmision();
     Task<ResultObject> SetSnapShotUnidadesActivas();
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
+    Task<ResultObject> GetSemanasAnual(int Anio, int Tipo);
 }

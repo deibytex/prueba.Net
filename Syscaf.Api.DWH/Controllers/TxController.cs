@@ -90,5 +90,16 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Transmision.GetAdministradores(UsuarioId, Nombres);
         }
+        /// <summary>
+        /// Consulta el listado de semana del año que se le pase y el tipo sea Unidades activas tipo 1 o transmisión tipo 2.
+        /// </summary>
+        /// <param name="Anio"></param>
+        /// <param name="Tipo"></param>
+        /// <returns></returns>
+        [HttpGet("GetListaSemanaReportes")]
+        public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
+        {
+            return await _Transmision.GetSemanasAnual(Anio, Tipo);
+        }
     }
 }
