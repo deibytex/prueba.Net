@@ -58,7 +58,7 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> GetSnapShotTransmision(int Usuario, DateTime Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapShotTransmision(int Usuario, DateTime? Fecha, long? ClienteId)
         {
             var r = new ResultObject();
             try
@@ -88,7 +88,7 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> GetSnapshotUnidadesActivas(string Usuario, DateTime Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapshotUnidadesActivas(string Usuario, DateTime? Fecha, long? ClienteId)
         {
             var r = new ResultObject();
             try
@@ -204,8 +204,8 @@ namespace Syscaf.Service.Portal
 public interface ITransmisionService 
 {
     Task<ResultObject> GetReporteTransmision(int Usuario, long? clienteId);
-    Task<ResultObject> GetSnapShotTransmision(int Usuario, DateTime Fecha, long? ClienteId);
-    Task<ResultObject> GetSnapshotUnidadesActivas(string Usuario, DateTime Fecha, long? ClienteId);
+    Task<ResultObject> GetSnapShotTransmision(int Usuario, DateTime? Fecha, long? ClienteId);
+    Task<ResultObject> GetSnapshotUnidadesActivas(string Usuario, DateTime? Fecha, long? ClienteId);
     Task<ResultObject> SetSnapShotTransmision();
     Task<ResultObject> SetSnapShotUnidadesActivas();
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);

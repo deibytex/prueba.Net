@@ -9,7 +9,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     public class SnapShotUnidadesActivasVM
     {
         public int SnapshotUnidadesActivasId { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public string Matricula { get; set; }
         public string Base { get; set; }
         public string Vertical { get; set; }

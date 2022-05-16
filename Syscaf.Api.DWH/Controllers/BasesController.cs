@@ -29,14 +29,27 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("actualizarClientes")]
         public async Task<ActionResult<ResultObject>> GetClientesMixByGroup()
         {
-            ResultObject response =  await _clientService.Add();           
+            ResultObject response = await _clientService.Add();
 
             return response;
         }
-        [HttpGet("actualizarVehiculos")]      
+
+        [HttpGet("actualizarBases")]
+        public async Task<ActionResult<ResultObject>> ActualizarBases()
+        {
+            var lstClientes = await _clientService.GetAsync(1);
+            ResultObject response;
+            await _siteService.Add(lstClientes);
+            await _eventTypeService.Add(lstClientes);
+            response = await _driverService.Add(lstClientes);
+
+            return response;
+        }
+
+        [HttpGet("actualizarVehiculos")]
         public async Task<ActionResult<ResultObject>> GetAssetsMixByGroup()
-        { 
-            return await _asset.Add(null); 
+        {
+            return await _asset.Add(null);
         }
 
         [HttpGet("actualizarSites")]

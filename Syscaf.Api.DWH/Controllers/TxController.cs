@@ -45,7 +45,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="ClienteId"></param>
         /// <returns></returns>
         [HttpGet("GetSnapShotTransmision")]
-        public async Task<ResultObject> GetSnapShotTransmision([Required] int Usuario, [Required] DateTime Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapShotTransmision([Required] int Usuario,  DateTime? Fecha, long? ClienteId)
         {
             return await _Transmision.GetSnapShotTransmision(Usuario, Fecha, ClienteId);
         }
@@ -57,7 +57,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="ClienteId"></param>
         /// <returns></returns>
         [HttpGet("GetReporteUnidadesActivas")]
-        public async Task<ResultObject> GetSnapshotUnidadesActivas([Required] string Usuario, [Required] DateTime Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapshotUnidadesActivas([Required] string Usuario,  DateTime? Fecha, long? ClienteId)
         {
             return await _Transmision.GetSnapshotUnidadesActivas(Usuario, Fecha, ClienteId);
         }
