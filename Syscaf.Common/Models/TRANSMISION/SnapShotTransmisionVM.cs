@@ -9,7 +9,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     public class SnapShotTransmisionVM
     {
         public int SnapshotTransmisionId { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public int FmVehicleId { get; set; }
         public string registrationNumber { get; set; }
         public string Description { get; set; }
