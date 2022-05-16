@@ -20,7 +20,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string clientenNombre { get; set; }
         public long SiteId { get; set; }
         public string Sitio { get; set; }
-        public int UsuarioIds { get; set; }
+        public string UsuarioIds { get; set; }
         public string Estado { get; set; }
     }
 }
