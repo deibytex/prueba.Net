@@ -10,5 +10,6 @@ namespace Syscaf.Data.Helpers.Portal
     public static class AssetsQueryHelper
     {
         public static string _Insert = "PORTAL.AddAssets ";
+        public static string _Get = "PORTAL.getAssets";
     }
 }

@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Dapper;
-using MiX.Integrate.Shared.Entities.Assets;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.Portal;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Helpers;
 using Syscaf.Service.Automaper.MapperDTO;
 using Syscaf.Service.DataTableSql;
@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Syscaf.Service.Portal
@@ -94,12 +93,44 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+        
+        // Consulta Assets
+        public async Task<ResultObject> getAssets(long ClienteId)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<AssetsVM>(AssetsQueryHelper._Get, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
     }
 
     public interface IAssetsService
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
+        Task<ResultObject> getAssets(long ClienteId);
 
     }
 }

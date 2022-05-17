@@ -37,9 +37,9 @@ namespace Syscaf.Api.DWH.Controllers
             return await _Transmision.GetReporteTransmision(Usuario, ClienteId);
         }
                
-        /// <summary>
+        /// <summary> 
         /// Se obtiene la fotografia de transmisión.
-        /// </summary>
+        /// </summary> 
         /// <param name="Usuario"></param>
         /// <param name="Fecha"></param>
         /// <param name="ClienteId"></param>
