@@ -10,6 +10,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     {
         public string UsuarioId { get; set; }
         public string Nombres { get; set; }
+        public string UsuarioIds { get; set; }
     }
     public class ListaSemanasAnualVM
     {
