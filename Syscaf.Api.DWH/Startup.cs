@@ -15,7 +15,7 @@ using Syscaf.Data.Helpers;
 
 using Syscaf.Service.Automaper;
 using Syscaf.Service.Portal;
-using Syscaf.Service.PORTAL;
+
 using SyscafWebApi.Service;
 using System;
 using System.Collections.Generic;

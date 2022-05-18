@@ -23,7 +23,7 @@ namespace Syscaf.Data.Helpers.Portal
            TC.Position,
            TC.ActiveEvent 
         FROM dbo.TB_Cliente AS TC
-        WHERE ( @Estado = -1 OR   TC.estadoClienteIdS = @Estado  )  
+        WHERE ( @clienteIdS = -1 OR   TC.clienteIdS = @clienteIdS  ) and ( @Estado = -1 OR   TC.estadoClienteIdS = @Estado  )  
        ";
 
         public static string _Insert = @"PORTAL.AddClientes    ";

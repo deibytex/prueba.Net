@@ -1,24 +1,20 @@
-﻿using Syscaf.Common.Helpers;
+﻿
+
+using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
-
-using Syscaf.Data.Models;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.DataTableSql;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.ViewModels.PORTAL;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Dapper;
 
-namespace Syscaf.Service.PORTAL
+
+namespace Syscaf.Common.Integrate.PORTAL
 {
     public class PortalService : IPortalService
     {
@@ -535,7 +531,16 @@ namespace Syscaf.Service.PORTAL
 
             return preferencias;
         }
-       
+
+        List<PreferenciasDescargarWS> IPortalService.GetPreferenciasDescargarEventos(string clienteIdS)
+        {
+            throw new NotImplementedException();
+        }
+
+        List<ClienteMetricas> IPortalService.ValidateAllMetrics(string Periodo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -25,12 +25,14 @@ namespace Syscaf.Service.Portal
         private readonly IMixIntegrateService _Mix;
         private readonly INotificacionService _notificacionService;
         private readonly IMapper _mapper;
-        public ClientService(SyscafCoreConn conn, IMixIntegrateService _Mix, INotificacionService _notificacionService, IMapper _mapper)
+        private readonly ISyscafConn _conprod;
+        public ClientService(SyscafCoreConn conn, IMixIntegrateService _Mix, INotificacionService _notificacionService, IMapper _mapper, ISyscafConn _conprod)
         {
             _conn = conn;
             this._Mix = _Mix;
             this._notificacionService = _notificacionService;
             this._mapper = _mapper;
+            this._conprod = _conprod;
         }
 
         public async Task<ResultObject> Add()
@@ -50,6 +52,8 @@ namespace Syscaf.Service.Portal
                     //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
                     await Task.FromResult(_conn.GetAll<int>(ClientQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    // inserta la replica en la base de datos de produccion 
+                    await Task.FromResult(_conprod.GetAll<int>(ClientQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                     result.success(_mapper.Map<List<ClienteDTO>>(resultadolista));
                 }
                 catch (Exception ex)
@@ -70,10 +74,11 @@ namespace Syscaf.Service.Portal
 
     // adiciona los mensajes a la tabla con el periodo seleccionado
 
-    public async Task<List<ClienteDTO>> GetAsync(int Estado)
+    public async Task<List<ClienteDTO>> GetAsync(int Estado, int clienteIds = -1)
         {    
             var parametros = new Dapper.DynamicParameters();           
-            parametros.Add("Estado", Estado, DbType.Int32);      
+            parametros.Add("Estado", Estado, DbType.Int32);
+            parametros.Add("clienteIds", clienteIds, DbType.Int32);
 
             return await Task.FromResult(_conn.GetAll<ClienteDTO>(ClientQueryHelper._Get, parametros, commandType: CommandType.Text).ToList());
            
@@ -83,7 +88,7 @@ namespace Syscaf.Service.Portal
     public interface IClientService
     {
 
-        Task<List<ClienteDTO>> GetAsync(int Estado);
+        Task<List<ClienteDTO>> GetAsync(int Estado, int clienteIds = -1);
 
         Task<ResultObject> Add();
 

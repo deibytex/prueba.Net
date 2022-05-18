@@ -28,13 +28,15 @@ namespace Syscaf.Service.Portal
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly IMapper _mapper;
-        public AssetsService(SyscafCoreConn conn, ILogService _log, IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
+        private readonly ISyscafConn _conProd;
+        public AssetsService(SyscafCoreConn conn, ILogService _log, IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper, ISyscafConn _conProd)
         {
             _conn = conn;
             this._log = _log;
             this._clientService = _clientService;
             this._Mix = _Mix;
             this._mapper = _mapper;
+            this._conProd = _conProd;
         }
         // adiciona los mensajes a la tabla con el periodo seleccionado
 
@@ -48,11 +50,11 @@ namespace Syscaf.Service.Portal
 
                 if (clientes == null)
                     clientes = await _clientService.GetAsync(1);
-               
+
                 // obtenemos el listado de propiedades para hacer la insersi[on 
                 // o actualizacion de datos
                 // 
-                var propertiesAssets =  PropertyHelper.GetProperties(typeof(AssetDTO));
+                var propertiesAssets = PropertyHelper.GetProperties(typeof(AssetDTO));
                 foreach (var cliente in clientes)
                 {
                     var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
@@ -62,7 +64,7 @@ namespace Syscaf.Service.Portal
                     // mapeamos ambas listas para que nos de la final
                     var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
                     // asignamos el cliente para diferenciarlos en la base de datos
-                    var lstAssestMerge =resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s;  }).ToList();
+                    var lstAssestMerge = resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s; }).ToList();
 
                     if (lstAssestMerge.Count > 0)
                     {
@@ -75,7 +77,9 @@ namespace Syscaf.Service.Portal
                         {
                             //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
-                            var result = await Task.FromResult(_conn.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            await Task.FromResult(_conn.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            // insertamos los datos en la bd de produccion DWH
+                            await Task.FromResult(_conProd.GetAll<int>(AssetsQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {
@@ -94,12 +98,27 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+        public async Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate)
+        {
+            try
+            {
+                //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+
+                return await Task.FromResult(_conn.GetAll<AssetShortDTO>(AssetsQueryHelper._getByEstado,
+                   new { ClienteId, usertstate }, commandType: CommandType.Text)).Result;
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 
     public interface IAssetsService
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
-
+        Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
     }
 }

@@ -62,7 +62,7 @@
         public enum TipoDescargaWs
         {
             Clientes = 1,
-            Usuario = 2, 
+            Usuario = 2,
             Seniales = 3,
             Sotramac = 4,
             Trace = 5,
@@ -129,6 +129,14 @@
         public enum TipoDiaExcepcion
         {
             Feriado = 38
+        }
+
+        public enum TiposEstadoAssets
+        {
+            Decommissioned,
+            Available,
+            Unavailable,
+            Unverified
         }
     }
 }
