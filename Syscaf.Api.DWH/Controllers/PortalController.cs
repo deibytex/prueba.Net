@@ -25,5 +25,16 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _portalService.Get_ViajesMetricasPorClientes(ClienteIds, FechaInicial, FechaFinal); 
         }
+        [HttpGet("ObtenerEventos")]
+        public async Task<ActionResult<ResultObject>> GetEventosMix()
+        {
+            return await _portalService.Get_EventosPorClientes(null, null, null); ;
+        }
+
+        [HttpGet("ObtenerEventosHistorico")]
+        public async Task<ActionResult<ResultObject>> GetEventosMixHistorico(int ClienteIds, DateTime FechaInicial, DateTime FechaFinal)
+        {
+            return await _portalService.Get_EventosPorClientes(ClienteIds, FechaInicial, FechaFinal);
+        }
     }
 }

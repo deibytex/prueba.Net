@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using MiX.Integrate.Shared.Entities.Drivers;
+using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Groups;
 using MiX.Integrate.Shared.Entities.LibraryEvents;
 using MiX.Integrate.Shared.Entities.Trips;
+using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
@@ -50,12 +52,28 @@ namespace Syscaf.Service.Automaper
                  .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
                  .ForMember(f => f.Duration, op => op.MapFrom(mp => Decimal.ToInt32(mp.Duration)));
 
-            CreateMap<TripRibasMetrics,MetricsNew>()
-                .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)));
+            CreateMap<Event, EventsNew>()
+                .ForMember(f => f.Latitude, op => op.MapFrom(MapearLatitudLongitudFields))
+                .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
+                .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime)))
+                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime))) ;
+
+            CreateMap<TripRibasMetrics, MetricsNew>()
+                .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
+                .ForMember(f => f.NIdleTime, op => op.MapFrom(mp => mp.IdleTime))
+                .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
+
 
             //CreateMap<IdentityUser, UsuarioDTO>();
         }
-
+        private double? MapearLatitudLongitudFields(Event driver, EventsNew result)
+        {
+            return driver.StartPosition?.Latitude;
+        }
+        private double? MapearLongitudFields(Event driver, EventsNew result)
+        {
+            return driver.StartPosition?.Longitude;
+        }
         /*Metodo que mapea el listado de assets y su configuración, haciendo un leftjoin de los  assets*/
         private List<AssetDTO> MapearAssetDTO(AssetBaseData AssetBaseData, AssetResult AssetResult)
         {

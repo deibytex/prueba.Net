@@ -101,5 +101,19 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Transmision.GetSemanasAnual(Anio, Tipo);
         }
+
+
+        [HttpPost("testPost")]
+        public  string testPost([FromBody] test data, [FromQuery] string nombre, [FromQuery] string nombre2)
+        {        
+            return $"{data.Semana} {nombre} {nombre2}";
+        }
+
+
+    }
+
+    public class test {
+        public int Anio { get; set; }
+        public string Semana { get; set; }
     }
 }

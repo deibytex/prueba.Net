@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static Syscaf.Common.Helpers.Enums;
@@ -25,7 +26,7 @@ namespace Syscaf.Service.Portal
     public class PortalMService : IPortalMService
     {
         private readonly IAssetsService _asset;
-       
+
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly ILogService _logService;
@@ -34,14 +35,14 @@ namespace Syscaf.Service.Portal
         private readonly ISyscafConn _connDWH;
 
 
-        public PortalMService(ISyscafConn _connDWH, IAssetsService _asset, 
+        public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
             IMapper _mapper, ICommonService _commonService
             )
         {
             this._connDWH = _connDWH;
             this._asset = _asset;
-            
+
             this._clientService = _clientService;
             this._Mix = _Mix;
             this._mapper = _mapper;
@@ -77,7 +78,7 @@ namespace Syscaf.Service.Portal
                                                   {
 
                                                       var tripsInserts = _mapper.Map<List<TripsNew>>(tripsFilters);
-                                                       result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsInserts), f.Period, "Trips", item.clienteIdS);
+                                                      result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsInserts), f.Period, "Trips", item.clienteIdS);
                                                       if (!result.Exitoso)
                                                           _logService.SetLogError(0, "Inserta Trips ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
                                                   }
@@ -120,8 +121,8 @@ namespace Syscaf.Service.Portal
                                             var tripsMetris = _mapper.Map<List<MetricsNew>>(metricasFilter);
 
 
-                                            result=   await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsMetris), f.Period, "TripsMetrics", item.clienteIdS);
-                                           
+                                            result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsMetris), f.Period, "TripsMetrics", item.clienteIdS);
+
                                             if (!result.Exitoso)
                                                 _logService.SetLogError(0, "Inserta Trips Metrics ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
                                         }
@@ -140,12 +141,91 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
+        public async Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
+        {
+            ResultObject result = new();
+            // traemos el listado de clientes
+            var ListadoClientes = await _clientService.GetAsync(1, (Clienteids.HasValue) ? Clienteids.Value : -1);
 
+            foreach (var item in ListadoClientes)
+            {
+                try
+                {
+                    // si tienen configurado al menos un evento que extraer
+                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
+
+                    if (getEventos != null && getEventos.Count > 0)
+                    {
+                        //////////////////////////////////////////////////////////////////////////////////////
+                        ///  GUARDAMOS LOS ULTIMOS EVENTOS CREADOS POR ORGANIZACION
+
+                        // nos traemos los últimos eventos creados por cada vehículo
+                        var eventos =
+                             (FechaFinal == null && FechaFinal == null) ?
+                            await _Mix.GetUltimosEventosCreadosPorOrganizacion(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS)
+                            :
+                            await _Mix.GetEventosClientePorAssets(new List<long> { item.clienteId }, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), FechaInicial.Value, FechaFinal.Value, item.clienteIdS)
+                            ;
+
+                        // filtramos por los eventos que necesitamos consultar
+                        if (eventos != null && eventos.Count > 0)
+                        {
+                            eventos = eventos.Where(w => w.StartDateTime != null).ToList();
+                            eventos.
+                                GroupBy(g => new { Constants.GetFechaServidor(g.StartDateTime, false)?.Month, Constants.GetFechaServidor(g.StartDateTime, false)?.Year })
+                                .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
+                                {
+
+                                    var ResultEvents = await GetIdsNoIngresadosByClienteAsync(f.Eventos.Select(s => s.EventId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.eventos, item.clienteIdS);
+                                    var eventosFilter = f.Eventos.Where(w => ResultEvents.Any(a => a == w.EventId)).ToList();
+
+                                    if (eventosFilter.Count > 0)
+                                    {
+                                        var listEventosInsertar = _mapper.Map<List<EventsNew>>(eventosFilter);
+                                        listEventosInsertar = listEventosInsertar.Select(s =>
+                                        {
+                                            s.isebus = getEventos.
+                                               Where(w => (w.Parametrizacion ?? "").Contains("75") && w.EventTypeId == s.EventTypeId).Count() > 0;
+
+                                            return s;
+                                        }).ToList();
+
+                                        var resultevento = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(listEventosInsertar), f.Period, "Event", item.clienteIdS);
+
+                                        if (!resultevento.Exitoso)
+                                            _logService.SetLogError(0, "Portal.GetEventos", resultevento.Mensaje);
+
+                                    }
+
+                                });
+                        }
+                        result.Exitoso = true;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                    //string mensaje = $" {FechaServidor} = { ex.Message}";
+                    //result.Mensaje = ex.Message.ToString();
+                    //_notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {clientes.clienteNombre} Error  = { mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
+                    //_logService.SetLog(mensaje, "", "Portal - Eventos");
+                    //if (ex.Message.Contains("500-") || ex.Message.Contains("504-") || ex.Message.Contains("503-"))
+                    //    break;
+                }
+
+            }// fin del foreach 
+
+            result.Exitoso = true;
+
+
+            return result;
+        }
         // ingreso de informacion del reporte sotramac
         #region REPORTE SOTRAMAC
         #endregion
 
-     
+
         #region GUARDA DATOS TABLAS PORTAL
 
         public async Task<ResultObject> SetDatosPortalByClienteAsync(DataTable data, string Periodo, string tabla, int Clienteids)
@@ -202,10 +282,34 @@ namespace Syscaf.Service.Portal
             }
         }
         #endregion
+
+        public List<PreferenciasDescargarWS> GetPreferenciasDescargarEventos(int clienteIdS)
+        {
+            List<PreferenciasDescargarWS> preferencias = new List<PreferenciasDescargarWS>();
+            Task task = Task.Run(() =>
+            {
+                try
+                {
+                    string sqlCommand = $" Where (TPDW.TipoPreferencia > 2) AND TPDW.ClientesId LIKE '%{clienteIdS}%'";
+                    preferencias = _connDWH.GetAll<PreferenciasDescargarWS>(PortalQueryHelper._SelectPreferenciasDescargas + sqlCommand, null, CommandType.Text).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
+                }
+            });
+
+            task.Wait();
+
+            return preferencias;
+        }
+
     }
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
+        Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
 
     }
 }

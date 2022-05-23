@@ -33,7 +33,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                  {
                      try
                      {
-                         string sqlCommand = "PORTAL.[GetCallsMethod] @CredencialId";
+                         string sqlCommand = "PORTAL.GetCallsMethod";
                          var parametros = new Dapper.DynamicParameters();
                          parametros.Add("CredencialId", CredencialId, DbType.Int32);
                          result = _conn.GetAll<CallMethodMixVM>(sqlCommand, parametros).ToList();
@@ -75,18 +75,7 @@ namespace Syscaf.Common.Integrate.PORTAL
             {
                 try
                 {
-
-
-                    string sqlCommand = "PORTAL.[GetSinceTokenMethodByCliente]  @Clienteid , @Method,@fechasistema, @SinceToken ";
-                    //var param = new SqlParameter()
-                    //{
-                    //    ParameterName = "SinceToken",
-                    //    DbType = DbType.String,
-                    //    Value = DBNull.Value
-                    //};
-
-                    //if (SinceToken != null)
-                    //    param.Value = SinceToken;
+                    string sqlCommand = "PORTAL.GetSinceTokenMethodByCliente";                  
 
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Clienteid", ClienteIds, DbType.Int32);
@@ -94,9 +83,6 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("fechasistema", Constants.GetFechaServidor(), DbType.DateTime);
                     parametros.Add("SinceToken", SinceToken, DbType.String);
                     valor = _conn.GetAll<string>(sqlCommand, parametros).FirstOrDefault();
-
-
-
                 }
                 catch (Exception ex)
                 {
@@ -128,7 +114,7 @@ namespace Syscaf.Common.Integrate.PORTAL
             {
                 try
                 {
-                    string sqlCommand = "PORTAL.SetCallsMethod  @CredencialId ,  @date, @dateHour ,@HourCall  ,  @MinuteCall";
+                    string sqlCommand = "PORTAL.SetCallsMethod ";
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("CredencialId", CredencialId, DbType.Int32);
                     parametros.Add("date", date, DbType.DateTime);
@@ -191,27 +177,13 @@ namespace Syscaf.Common.Integrate.PORTAL
 
                     //  traemos la información de los identificadores que no existen en la base de datos
 
-                    //var parmCliente = new SqlParameter("Period", SqlDbType.VarChar)
-                    //{
-                    //    Value = Periodo
-                    //};
-
-                    //var parmTipo = new SqlParameter("Table", SqlDbType.Int)
-                    //{
-                    //    Value = tipo
-                    //};
-
-                    //var parmIds = new SqlParameter("Data", SqlDbType.Structured)
-                    //{
-                    //    Value = dtIds,
-                    //    TypeName = "dbo.UDT_TableIdentity"
-                    //};
+                
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Period", Periodo, DbType.String);
                     parametros.Add("Table", tipo, DbType.Int32);
                     parametros.Add("Data", dtIds);
                     // trae la información de eventos 
-                    resultado = _conn.GetAll<long>("[PORTAL].[VerifyDataStageByPeriod] @Period, @Table, @Data ", parametros).ToList();
+                    resultado = _conn.GetAll<long>("PORTAL.VerifyDataStageByPeriod @Period, @Table, @Data ", parametros).ToList();
 
 
                 }
@@ -237,19 +209,14 @@ namespace Syscaf.Common.Integrate.PORTAL
                 {
                     //  traemos la información de los identificadores que no existen en la base de datos
 
-                    //var parmIds = new SqlParameter("Data", SqlDbType.Structured)
-                    //{
-                    //    Value = data,
-                    //    TypeName = $"[PORTAL].[UDT_{tabla}]"
-                    //};
-                    // trae la información de eventos 
+                 
 
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Period", Periodo, DbType.String);
 
                     parametros.Add("Data", data);
                     // trae la información de eventos 
-                    _conn.Execute($"[PORTAL].[Insert{tabla}] @Period,  @Data ", parametros);
+                    _conn.Execute($"PORTAL.Insert{tabla} @Period,  @Data ", parametros);
                     resultado.success(null);
                 }
                 catch (Exception ex)
@@ -296,7 +263,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("Table", tipo, DbType.Int32);
                     parametros.Add("Data", dtIds);
                     // trae la información de eventos 
-                    resultado = _conn.GetAll<long>("[PORTAL].[VerifyDataStageByPeriodAndClient] @Period, @Clienteids, @Table, @Data ", parametros).ToList();
+                    resultado = _conn.GetAll<long>("PORTAL.VerifyDataStageByPeriodAndClient @Period, @Clienteids, @Table, @Data ", parametros).ToList();
                 }
                 catch (Exception exp)
                 {
@@ -333,7 +300,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("Clienteids", Clienteids, DbType.Int32);
                     parametros.Add("Data", data);
                     // trae la información de eventos 
-                    _conn.Execute($"[PORTAL].[Insert{tabla}ByPeriodAndClient] @Period, @Clienteids,  @Data ", parametros);
+                    _conn.Execute($"PORTAL.Insert{tabla}ByPeriodAndClient @Period, @Clienteids,  @Data ", parametros);
                     resultado.success(null);
 
                 }
@@ -371,7 +338,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Locations", Locations);
                     // trae la información de eventos 
-                    _conn.Execute("[PORTAL].[SetUpdateLocations] @Locations ", parametros);
+                    _conn.Execute("PORTAL.SetUpdateLocations @Locations ", parametros);
                     result.success(null);
 
 
@@ -405,7 +372,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("Fecha", Fecha, DbType.DateTime);
                     parametros.Add("Login", isLogin, DbType.Byte);
                     // trae la información de eventos 
-                    _conn.Execute("[PORTAL].[SetLogUsuario]  @UsuarioId,@Fecha, @Login ", parametros);
+                    _conn.Execute("PORTAL.SetLogUsuario  @UsuarioId,@Fecha, @Login ", parametros);
                     result.success(null);
 
                 }
@@ -430,7 +397,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                 try
                 {
                     // trae la información de eventos 
-                    resultado = await _conn.GetAll<ClienteMetricas>($"[PORTAL].[ValidateAllMetrics] @Period", new { Period = Periodo });
+                    resultado = await _conn.GetAll<ClienteMetricas>($"PORTAL.ValidateAllMetrics @Period", new { Period = Periodo });
 
                 }
                 catch (Exception ex)
@@ -462,7 +429,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     };
 
                     // trae la información de eventos 
-                    _conn.Execute("[PORTAL].[InsertLogOpciones]  @UsuarioId,@OpcionId, @Nombre,@Date", parametros);
+                    _conn.Execute("PORTAL.InsertLogOpciones  @UsuarioId,@OpcionId, @Nombre,@Date", parametros);
                     result.success();
 
 
