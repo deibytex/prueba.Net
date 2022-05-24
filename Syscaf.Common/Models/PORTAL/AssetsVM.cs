@@ -16,5 +16,11 @@ namespace Syscaf.Common.Models.PORTAL
         public int EstadoTxId { get; set; }
         public string? SiteName { get; set; }
         public string? estado { get; set; }
+        public int VerticalId { get; set; }
+        public int ClasificacionId { get; set; }
+        public string? UnitIMEI { get; set; }
+        public string? UnitSCID { get; set; }
+        public string? vertical { get; set; }
+        public string? clasificacion { get; set; }
     }
 }
