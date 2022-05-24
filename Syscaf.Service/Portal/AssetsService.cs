@@ -110,6 +110,7 @@ namespace Syscaf.Service.Portal
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
+
                 }
                 catch (Exception ex)
                 {
