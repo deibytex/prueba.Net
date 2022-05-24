@@ -106,7 +106,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<AssetsVM>(AssetsQueryHelper._Get, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.GetAll<AssetsVM>(AssetsQueryHelper._get, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -123,7 +123,39 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+        
+        // Cambia estado Assets
+        public async Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+                parametros.Add("AssetId", AssetId);
+                parametros.Add("EstadoTxId", EstadoTxId);
+                parametros.Add("usuarioIdS", usuarioIdS);
 
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.Get<int>(AssetsQueryHelper._setEstado, parametros, commandType: CommandType.StoredProcedure));
+
+                    r.Exitoso = (result == 1);
+                    r.Mensaje = r.Exitoso ? "Operación Éxitosa." : "Error de Operación";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
     }
 
     public interface IAssetsService
@@ -131,6 +163,7 @@ namespace Syscaf.Service.Portal
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<ResultObject> getAssets(long ClienteId);
+        Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS);
 
     }
 }

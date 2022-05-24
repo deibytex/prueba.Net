@@ -25,5 +25,11 @@ namespace Syscaf.Api.DWH.Controllers
             return await _asset.getAssets(ClienteId);
         }
 
+        [HttpGet("setEstadoAssets")]
+        public async Task<ActionResult<ResultObject>> setEstadoAssets([Required] long ClienteId, [Required] long AssetId, [Required] int EstadoTxId, int usuarioIdS)
+        {
+            return await _asset.setEstadoAssets(ClienteId, AssetId, EstadoTxId, usuarioIdS);
+        }
+
     }
 }
