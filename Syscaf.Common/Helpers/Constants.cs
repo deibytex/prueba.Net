@@ -16,7 +16,7 @@ namespace Syscaf.Common.Helpers
         private static DateTime? timeNull = null;
 
         //TimeZoneInfo multiplataforma
-        private static TimeZoneInfo timezone = null;
+        public static TimeZoneInfo timezone = null;
 
 
         public static void Inicializar(IConfiguration configuration)

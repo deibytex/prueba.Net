@@ -168,7 +168,7 @@ namespace Syscaf.Common.Services
             }
             catch (Exception exp)
             {
-                throw;
+                throw exp;
             }
 
 

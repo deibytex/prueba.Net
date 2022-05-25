@@ -9,7 +9,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     public class SnapShotTransmisionVM
     {
         public int SnapshotTransmisionId { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public int FmVehicleId { get; set; }
         public string registrationNumber { get; set; }
         public string Description { get; set; }
@@ -20,7 +20,8 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string clientenNombre { get; set; }
         public long SiteId { get; set; }
         public string Sitio { get; set; }
-        public int UsuarioIds { get; set; }
+        public string Usuario { get; set; }
+        public string UsuarioId { get; set; }
         public string Estado { get; set; }
     }
 }

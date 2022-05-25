@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,7 +15,7 @@ using Syscaf.Data.Helpers;
 
 using Syscaf.Service.Automaper;
 using Syscaf.Service.Portal;
-using Syscaf.Service.PORTAL;
+
 using SyscafWebApi.Service;
 using System;
 using System.Collections.Generic;
@@ -62,13 +62,13 @@ namespace Syscaf.Api.DWH
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
            
-            services.AddDbContext<SyscafBDCore>(options =>
-                          options.UseSqlServer(
-                              Configuration.GetConnectionString("SyscafBDCore")));
+            
 
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
             services.AddScoped( options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
+
+
             // configura todas las interfaces a utilizar en la aplicacion
             InterfacesAplication.ConfigureServices(services);
             //Para documentacion de swagger
@@ -91,13 +91,13 @@ namespace Syscaf.Api.DWH
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Syscaf Api DWH v1"));
                 
-            }
+           // }
 
             app.UseHttpsRedirection();
 

@@ -1,7 +1,8 @@
 ﻿using Syscaf.Common.Integrate.LogNotificaciones;
-using Syscaf.Service.Portal;
-using Syscaf.Service.PORTAL;
+
 using SyscafWebApi.Service;
+using Syscaf.Service.Portal;
+using Syscaf.Common.Integrate.PORTAL;
 
 namespace Syscaf.Api.DWH.Utilities
 {
@@ -13,6 +14,7 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IMixIntegrateService, MixIntegrateService>();
             services.AddTransient<IPortalService, PortalService>();
+            services.AddTransient<IPortalMService,  PortalMService> ();
             services.AddTransient<IAssetsService, AssetsService>();
             services.AddTransient<ITransmisionService, TransmisionService>();
             services.AddTransient<ISiteService, SiteService>();
@@ -21,6 +23,7 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<ICommonService, CommonService>();
             services.AddTransient<INotificacionService, NotificacionService>();
             services.AddTransient<IClientService, ClientService>();
+            services.AddTransient<IProcesoGeneracionService, ProcesoGeneracionService>();
         }
     }
 }

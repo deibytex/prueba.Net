@@ -9,7 +9,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     public class SnapShotUnidadesActivasVM
     {
         public int SnapshotUnidadesActivasId { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public string Matricula { get; set; }
         public string Base { get; set; }
         public string Vertical { get; set; }
@@ -19,7 +19,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Imei { get; set; }
         public string SerialSim { get; set; }
         public string Administrador { get; set; }
-        public int UsuarioIds { get; set; }
+        public string UsuarioIds { get; set; }
         public long SiteId { get; set; }
         public long ClienteId { get; set; }
         public string ClasificacionId { get; set; }

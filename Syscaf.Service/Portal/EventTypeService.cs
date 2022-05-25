@@ -29,14 +29,16 @@ namespace Syscaf.Service.Portal
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly IMapper _mapper;
+        private readonly ISyscafConn _conProd;
         public EventTypeService(SyscafCoreConn conn, ILogService _log, 
-            IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper)
+            IClientService _clientService, IMixIntegrateService _Mix, IMapper _mapper, ISyscafConn _conProd)
         {
             _conn = conn;
             this._log = _log;
             this._clientService = _clientService;
             this._Mix = _Mix;
             this._mapper = _mapper;
+            this._conProd = _conProd;
         }
         // adiciona los mensajes a la tabla con el periodo seleccionado
 
@@ -67,7 +69,9 @@ namespace Syscaf.Service.Portal
 
                         try
                         {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-                            var result = await Task.FromResult(_conn.GetAll<int>(EventypeQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            await Task.FromResult(_conn.GetAll<int>(EventypeQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            // insertamos en la replica
+                            await Task.FromResult(_conProd.GetAll<int>(EventypeQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
                         catch (Exception ex)
                         {

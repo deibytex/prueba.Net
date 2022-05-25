@@ -10,7 +10,7 @@ namespace Syscaf.Data.Models.Portal
     {
         public int clienteIdS { get; set; }
         
-        public int estadoClienteIdS { get; set; }
+        public int estadoClienteId { get; set; }
         
         public bool notificacion { get; set; }       
         public bool? GeneraIMG { get; set; }
@@ -20,6 +20,7 @@ namespace Syscaf.Data.Models.Portal
         public bool Event { get; set; }
         public bool Position { get; set; }
         public bool? ActiveEvent { get; set; }
+        public string NombreNormalizado { get; set; }
 
     }
 

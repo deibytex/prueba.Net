@@ -1,13 +1,8 @@
-﻿using Dapper;
-using Microsoft.Extensions.Configuration;
-
-using System;
-using System.Collections.Generic;
+﻿
+using Dapper;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Syscaf.Data
 {

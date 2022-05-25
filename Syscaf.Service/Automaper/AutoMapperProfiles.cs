@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using MiX.Integrate.Shared.Entities.Drivers;
+using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Groups;
 using MiX.Integrate.Shared.Entities.LibraryEvents;
+using MiX.Integrate.Shared.Entities.Trips;
+using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.Automaper.MapperDTO;
+using Syscaf.Service.Portal.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +27,7 @@ namespace Syscaf.Service.Automaper
                 );
 
             CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap()
-                .ForMember( f => f.UserName, op => op.MapFrom( mp => mp.Email)  );
+                .ForMember(f => f.UserName, op => op.MapFrom(mp => mp.Email));
 
             CreateMap<GroupSummary, SiteResult>().ForMember(
                x => x.Resultado,
@@ -30,19 +35,45 @@ namespace Syscaf.Service.Automaper
                );
 
             CreateMap<LibraryEvent, EventTypeDTO>();
+
             CreateMap<Driver, DriverDTO>()
                 .ForMember(f => f.aditionalFields, op => op.MapFrom(MapearAditionalDetailsFields));
 
             CreateMap<Group, ClienteSaveDTO>()
                  .ForMember(f => f.clienteNombre, op => op.MapFrom(mp => mp.Name))
                    .ForMember(f => f.clienteId, op => op.MapFrom(mp => mp.GroupId));
+
             CreateMap<ClienteSaveDTO, ClienteDTO>();
-          
+
+            CreateMap<Trip,TripsNew>()
+                 .ForMember(f => f.StartPositionId, op => op.MapFrom(mp => mp.StartPositionId.ToString()))
+                 .ForMember(f => f.EndPositionId, op => op.MapFrom(mp => mp.EndPositionId.ToString()))
+                 .ForMember(f => f.TripEnd, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripEnd)))
+                 .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
+                 .ForMember(f => f.Duration, op => op.MapFrom(mp => Decimal.ToInt32(mp.Duration)));
+
+            CreateMap<Event, EventsNew>()
+                .ForMember(f => f.Latitude, op => op.MapFrom(MapearLatitudLongitudFields))
+                .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
+                .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime)))
+                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime))) ;
+
+            CreateMap<TripRibasMetrics, MetricsNew>()
+                .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
+                .ForMember(f => f.NIdleTime, op => op.MapFrom(mp => mp.IdleTime))
+                .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
 
 
             //CreateMap<IdentityUser, UsuarioDTO>();
         }
-
+        private double? MapearLatitudLongitudFields(Event driver, EventsNew result)
+        {
+            return driver.StartPosition?.Latitude;
+        }
+        private double? MapearLongitudFields(Event driver, EventsNew result)
+        {
+            return driver.StartPosition?.Longitude;
+        }
         /*Metodo que mapea el listado de assets y su configuración, haciendo un leftjoin de los  assets*/
         private List<AssetDTO> MapearAssetDTO(AssetBaseData AssetBaseData, AssetResult AssetResult)
         {
@@ -88,7 +119,7 @@ namespace Syscaf.Service.Automaper
         {
             var resultado = new List<SiteDTO>();
 
-            if (lstSites != null )
+            if (lstSites != null)
             {
                 GetSubGroup(resultado, lstSites, null);
             }
@@ -111,7 +142,7 @@ namespace Syscaf.Service.Automaper
                 foreach (GroupSummary sum in Sitios.SubGroups)
                 {
                     // si tiene subgrupos vuelve y ejecuta la acción
-                    GetSubGroup(bases, sum,  sum.GroupId);
+                    GetSubGroup(bases, sum, sum.GroupId);
                 }
 
             }
@@ -120,8 +151,8 @@ namespace Syscaf.Service.Automaper
         }
 
         private string MapearAditionalDetailsFields(Driver driver, DriverDTO result)
-        {        
-             return "{" + driver.AdditionalDetailFields?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}";        
+        {
+            return "{" + driver.AdditionalDetailFields?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}";
         }
 
     }

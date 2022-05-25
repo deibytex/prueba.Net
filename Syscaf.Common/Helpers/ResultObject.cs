@@ -4,9 +4,9 @@
     {
         public bool Exitoso { get; set; }
 
-        public object Data { get; set; }
+        public object Data { get; set; } 
 
-        public string Mensaje { get; set; }
+        public string Mensaje { get; set; } = String.Empty; 
         public void error()
         {
             Exitoso = false;
