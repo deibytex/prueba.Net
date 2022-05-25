@@ -74,11 +74,12 @@ namespace Syscaf.Service.Portal
 
     // adiciona los mensajes a la tabla con el periodo seleccionado
 
-    public async Task<List<ClienteDTO>> GetAsync(int Estado, int clienteIds = -1)
+    public async Task<List<ClienteDTO>> GetAsync(int Estado, int? clienteIds = null, long? ClienteId =  null)
         {    
             var parametros = new Dapper.DynamicParameters();           
             parametros.Add("Estado", Estado, DbType.Int32);
             parametros.Add("clienteIds", clienteIds, DbType.Int32);
+            parametros.Add("clienteId", ClienteId, DbType.Int64);
 
             return await Task.FromResult(_conn.GetAll<ClienteDTO>(ClientQueryHelper._Get, parametros, commandType: CommandType.Text).ToList());
            
@@ -88,7 +89,7 @@ namespace Syscaf.Service.Portal
     public interface IClientService
     {
 
-        Task<List<ClienteDTO>> GetAsync(int Estado, int clienteIds = -1);
+        Task<List<ClienteDTO>> GetAsync(int Estado, int? clienteIds = null, long? ClienteId = null);
 
         Task<ResultObject> Add();
 

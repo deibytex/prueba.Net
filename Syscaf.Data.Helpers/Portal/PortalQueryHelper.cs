@@ -30,5 +30,8 @@ namespace Syscaf.Data.Helpers.Portal
         
         public static Func<string,string> _guardaTablasPortal = (tabla) => $"PORTAL.Insert{tabla}ByPeriodAndClient";
 
+
+        public static string _insertaPosiciones = "TX.InsertPosiciones";
+
     }
 }

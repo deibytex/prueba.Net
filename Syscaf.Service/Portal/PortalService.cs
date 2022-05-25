@@ -2,9 +2,12 @@
 using AutoMapper;
 using Dapper;
 using MiX.Integrate.Shared.Entities.Events;
+using MiX.Integrate.Shared.Entities.Positions;
 using MiX.Integrate.Shared.Entities.Trips;
+using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Common.Utilities;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.Portal;
@@ -33,20 +36,26 @@ namespace Syscaf.Service.Portal
         private readonly IMapper _mapper;
         private readonly ICommonService _commonService;
         private readonly ISyscafConn _connDWH;
-
+        private readonly IProcesoGeneracionService _procesoGeneracionService;
+        private readonly INotificacionService _notificacionService;
+        private readonly SyscafCoreConn _connCore;
 
         public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
-            IMapper _mapper, ICommonService _commonService
+            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, ILogService _logService,
+            SyscafCoreConn _connCore
             )
         {
+            this._logService = _logService;
             this._connDWH = _connDWH;
             this._asset = _asset;
-
             this._clientService = _clientService;
             this._Mix = _Mix;
             this._mapper = _mapper;
             this._commonService = _commonService;
+            this._procesoGeneracionService = _procesoGeneracionService;
+            this._notificacionService = _notificacionService;
+            this._connCore = _connCore;
         }
         public async Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
         {
@@ -305,11 +314,72 @@ namespace Syscaf.Service.Portal
             return preferencias;
         }
 
+        public async Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId)
+        {
+            ResultObject result = new();
+            // traemos el listado de clientes
+            var ListadoClientes = await _clientService.GetAsync(1, (Clienteids.HasValue) ? Clienteids.Value : -1);
+
+            _logService.SetLogError(0, "Posiciones - obtenerPosiciones", "Operacion inicial en posiciones");
+            foreach (var item in ListadoClientes.Where(w => w.notificacion))
+            {
+                //// guardamos los viajes por periodo, se debe determinar a traves de los viajes cual es el perido al que pertenece la informacion y guardarlo al que corresponda
+
+                List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);
+                ;
+
+                if (positions != null)
+                {
+                    var posiciones = positions.Select(s =>
+                        new
+                        {
+                            s.PositionId,
+                            s.AssetId,
+                            s.DriverId,
+                            s.FormattedAddress,
+                            s.Hdop,
+                            s.Heading,
+                            s.IsAvl,
+                            s.Latitude,
+                            s.Longitude,
+                            s.SpeedKilometresPerHour,
+                            s.SpeedLimit,
+                            Timestamp = s.Timestamp.ToColombiaTime(),
+                            FechaSistema = Constants.GetFechaServidor(),
+                            item.clienteId
+
+                        })
+                        ;
+
+                    string Lista = JsonConvert.SerializeObject(posiciones);
+                    try
+                    {
+                        var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosiciones, new { Lista }, CommandType.StoredProcedure);
+
+                        result.success();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
+                        _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, $"ClienteId = {  item.clienteNombre } " + ex.Message, null, (int)Enums.EstadoProcesoGeneracionDatos.SW_NOEXEC);
+                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
+                        result.error(ex.Message);
+                    }
+
+
+                }
+            }
+
+            return result;
+        }
+
     }
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
+        Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
 
     }
 }

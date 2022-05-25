@@ -10,20 +10,22 @@ namespace Syscaf.Data.Helpers.Portal
     public static class ClientQueryHelper
     {
         public static string _Get = @"
-        SELECT TC.clienteIdS,
-           TC.clienteNombre,   
+        SELECT 
+           TC.ClienteIdS,
+           TC.ClienteId,
+           TC.clienteNombre,
            TC.fechaIngreso,
-           TC.estadoClienteIdS,
-           TC.clienteId,
+           TC.estadoClienteId,
            TC.notificacion,
            TC.GeneraIMG,
            TC.Trips,
            TC.Metrics,
            TC.Event,
            TC.Position,
-           TC.ActiveEvent 
-        FROM dbo.TB_Cliente AS TC
-        WHERE ( @clienteIdS = -1 OR   TC.clienteIdS = @clienteIdS  ) and ( @Estado = -1 OR   TC.estadoClienteIdS = @Estado  )  
+           TC.ActiveEvent
+        FROM  PORTAL.Cliente AS TC
+        WHERE ( @clienteIdS is null OR   TC.clienteIdS = @clienteIdS  ) and ( @Estado = -1 OR   TC.estadoClienteId = @Estado  ) 
+        and ( @clienteId is null  OR   TC.clienteId = @clienteId )
        ";
 
         public static string _Insert = @"PORTAL.AddClientes    ";

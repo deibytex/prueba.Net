@@ -68,10 +68,11 @@ namespace Syscaf.Service.Portal
 
                     if (lstAssestMerge.Count > 0)
                     {
+                        var toDatable = HelperDatatable.ToDataTable(lstAssestMerge);
                         // lo guardamos en la base de datos
                         var parametros = new Dapper.DynamicParameters();
                         parametros.Add("FechaSistema", Constants.GetFechaServidor(), DbType.DateTime);
-                        parametros.Add("Assets", HelperDatatable.ToDataTable(lstAssestMerge).AsTableValuedParameter("PORTAL.UDT_Assets"));
+                        parametros.Add("Assets", toDatable.AsTableValuedParameter("PORTAL.UDT_Assets"));
 
                         try
                         {

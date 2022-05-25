@@ -23,6 +23,7 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<ICommonService, CommonService>();
             services.AddTransient<INotificacionService, NotificacionService>();
             services.AddTransient<IClientService, ClientService>();
+            services.AddTransient<IProcesoGeneracionService, ProcesoGeneracionService>();
         }
     }
 }

@@ -17,14 +17,18 @@ namespace Syscaf.Data.Models.Portal
         public long ClienteId { get; set; }
         public string UserState { get; set; } = string.Empty;
     }
-    public class AssetDTO : AssetShortDTO
-    {
-
+    public class AssetDTO { 
+        public long AssetId { get; set; }
+        public int AssetTypeId { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string RegistrationNumber { get; set; } = string.Empty;
+        public long SiteId { get; set; }
+        public long ClienteId { get; set; }     
         public float? Odometer { get; set; }
         public DateTime CreatedDate { get; set; }
         public int? FmVehicleId { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
-
+        public string UserState { get; set; } = string.Empty;
         public string AssetImageUrl { get; set; } = string.Empty;
 
         #region deviceConfiguration  - GetMobileUnitDeviceConfigurationsByGroupId

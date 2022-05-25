@@ -209,14 +209,14 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
 
-                var resultt = await Task.FromResult(_con.Execute(NotificacionQueryHelper._Insert, new
+                var resultt = await _con.Execute(NotificacionQueryHelper._Insert, new
                 {
                     TipoNotificacionId = (int)tipo,
                     Descripcion = descripcion,
                     ListaDistribucionId = (int)lista,
                     EsNotificado = false,
                     FechaSistema = Constants.GetFechaServidor()
-                }));
+                });
 
                 result.success();
             }

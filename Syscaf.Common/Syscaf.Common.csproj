@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <Folder Include="Dapper\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
