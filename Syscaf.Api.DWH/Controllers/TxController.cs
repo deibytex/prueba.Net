@@ -114,5 +114,16 @@ namespace Syscaf.Api.DWH.Controllers
 
             return await _Transmision.SetSnapShotTickets(json);
         }
+        /// <summary>
+        /// Se obtiene la lista de snapshot de tickets previamente cargados desde la opcion de carga de tickets
+        /// </summary>
+        /// <param name="Usuario"></param>
+        /// <param name="Fecha"></param>
+        /// <returns></returns>
+        [HttpGet("GetSnapShotTickets")]
+        public async Task<ResultObject> GetSnapShotTickets(string? Usuario, DateTime? Fecha)
+        {
+            return await _Transmision.GetSnapShotTickets(Usuario, Fecha);
+        }
     }
 }
