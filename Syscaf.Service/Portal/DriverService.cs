@@ -49,13 +49,13 @@ namespace Syscaf.Service.Portal
             {
                 _log.SetLogError(0, "DriverService - Add", "Inicio Actualizar Site");
 
-                
-               if(clientes == null)
-                 clientes = await _clientService.GetAsync(1);
+
+                if (clientes == null)
+                    clientes = await _clientService.GetAsync(1);
 
                 foreach (var cliente in clientes)
                 {
-                    var ListaSites = await _Mix.getDrivers(cliente.clienteId, cliente.clienteIdS);                 
+                    var ListaSites = await _Mix.getDrivers(cliente.clienteId, cliente.clienteIdS);
 
                     // mapeamos ambas listas para que nos de la final
                     var resultadolista = _mapper.Map<List<DriverDTO>>(ListaSites);
@@ -70,7 +70,7 @@ namespace Syscaf.Service.Portal
 
                         try
                         {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-                             await Task.FromResult(_conn.GetAll<int>(DriverQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                            await Task.FromResult(_conn.GetAll<int>(DriverQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                             // insertamos en la replica
                             await Task.FromResult(_conProd.GetAll<int>(DriverQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                         }
@@ -79,7 +79,7 @@ namespace Syscaf.Service.Portal
                             r.error(ex.Message);
                         }
                     }
-                
+
                 }
 
                 r.success();
@@ -91,12 +91,20 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+
+        public async Task<List<dynamic>> GetByClienteId(long? ClienteId, int? EsActivo)
+        {
+            //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+            return await _conn.GetAll(DriverQueryHelper._getByClientId, new { ClienteId, EsActivo }, commandType: CommandType.StoredProcedure);
+            // insertamos en la replica
+        }
     }
 
     public interface IDriverService
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
+        Task<List<dynamic>> GetByClienteId(long? ClienteId, int? EsActivo);
 
     }
 }

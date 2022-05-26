@@ -99,14 +99,29 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate)
+        public async Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string userstate)
         {
             try
             {
                 //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
                 return await Task.FromResult(_conn.GetAll<AssetShortDTO>(AssetsQueryHelper._getByEstado,
-                   new { ClienteId, usertstate }, commandType: CommandType.Text)).Result;
+                   new { ClienteId,  userstate }, commandType: CommandType.Text)).Result;
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        public async Task<List<AssetShortDTO>> GetByClienteIdsAsync(int? ClienteIds, string userstate)
+        {
+            try
+            {
+                //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+
+                return await Task.FromResult(_conn.GetAll<AssetShortDTO>(AssetsQueryHelper._getByEstadoAndClienteIds,
+                   new { ClienteIds, userstate }, commandType: CommandType.Text)).Result;
 
             }
             catch (Exception)
@@ -120,6 +135,7 @@ namespace Syscaf.Service.Portal
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
-        Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
+        Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string userstate);
+        Task<List<AssetShortDTO>> GetByClienteIdsAsync(int? ClienteIds, string userstate);
     }
 }

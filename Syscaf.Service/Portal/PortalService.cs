@@ -61,7 +61,7 @@ namespace Syscaf.Service.Portal
         {
             ResultObject result = new();
             // traemos el listado de clientes
-            var ListadoClientes = await _clientService.GetAsync(1, (Clienteids.HasValue) ? Clienteids.Value : -1);
+            var ListadoClientes = await _clientService.GetAsync(1);
 
             foreach (var item in ListadoClientes)
             {
@@ -154,7 +154,7 @@ namespace Syscaf.Service.Portal
         {
             ResultObject result = new();
             // traemos el listado de clientes
-            var ListadoClientes = await _clientService.GetAsync(1, (Clienteids.HasValue) ? Clienteids.Value : -1);
+            var ListadoClientes = await _clientService.GetAsync(1);
 
             foreach (var item in ListadoClientes)
             {
@@ -318,7 +318,7 @@ namespace Syscaf.Service.Portal
         {
             ResultObject result = new();
             // traemos el listado de clientes
-            var ListadoClientes = await _clientService.GetAsync(1, (Clienteids.HasValue) ? Clienteids.Value : -1);
+            var ListadoClientes = await _clientService.GetAsync(1, Clienteids);
 
             _logService.SetLogError(0, "Posiciones - obtenerPosiciones", "Operacion inicial en posiciones");
             foreach (var item in ListadoClientes.Where(w => w.notificacion))
