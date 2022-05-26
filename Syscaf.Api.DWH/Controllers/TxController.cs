@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Syscaf.Common.Models.TRANSMISION;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
 using System.ComponentModel.DataAnnotations;
@@ -101,19 +102,17 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Transmision.GetSemanasAnual(Anio, Tipo);
         }
+        /// <summary>
+        /// Inserta el json de las los tickets a la base de datos.
+        /// </summary>
+        /// <param  name="json"></param>
+        /// <format>textarea</format>
+        /// <returns></returns>
+        [HttpPost("SetSnapShotTickets")]
+        public async Task<ResultObject> SetSnapShotTickets([FromBody] List<TicketsVM> json)
+        {
 
-
-        [HttpPost("testPost")]
-        public  string testPost([FromBody] test data, [FromQuery] string nombre, [FromQuery] string nombre2)
-        {        
-            return $"{data.Semana} {nombre} {nombre2}";
+            return await _Transmision.SetSnapShotTickets(json);
         }
-
-
-    }
-
-    public class test {
-        public int Anio { get; set; }
-        public string Semana { get; set; }
     }
 }

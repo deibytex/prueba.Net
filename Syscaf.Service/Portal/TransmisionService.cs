@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.TRANSMISION;
@@ -198,7 +199,6 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-
         public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
         {
             var r = new ResultObject();
@@ -227,6 +227,34 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+
+        public async Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json)
+        {
+            var r = new ResultObject();
+            try
+            {
+               var jsonconvert =  JsonConvert.SerializeObject(json);
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("JSON_STR", jsonconvert);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.Insert<string>(TransmisionQueryHelper._PostSnapShotTickets, parametros, commandType: CommandType.StoredProcedure));
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
     }
    
 }
@@ -239,4 +267,5 @@ public interface ITransmisionService
     Task<ResultObject> SetSnapShotUnidadesActivas();
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
     Task<ResultObject> GetSemanasAnual(int Anio, int Tipo);
+    Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json);
 }
