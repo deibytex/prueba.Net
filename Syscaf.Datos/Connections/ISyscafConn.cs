@@ -16,7 +16,7 @@ namespace Syscaf.Data
         Task<List<T>> GetAll<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure);
 
         Task<List<dynamic>> GetAll(string sp, object parms, CommandType commandType = CommandType.StoredProcedure);
-        Task<List<dynamic>> GetAll(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
+        Task<List<dynamic>> GetAll(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure);
         T Insert<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure);
 
         Task<int> Insert(string sp, object parms, CommandType commandType = CommandType.StoredProcedure);

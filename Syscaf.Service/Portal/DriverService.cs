@@ -98,6 +98,12 @@ namespace Syscaf.Service.Portal
             return await _conn.GetAll(DriverQueryHelper._getByClientId, new { ClienteId, EsActivo }, commandType: CommandType.StoredProcedure);
             // insertamos en la replica
         }
+        public async Task<List<dynamic>> GetByClienteIds(long? ClienteIds, int? EsActivo)
+        {
+            //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+            return await _conn.GetAll(DriverQueryHelper._getByClientId, new { ClienteIds, EsActivo }, commandType: CommandType.StoredProcedure);
+            // insertamos en la replica
+        }
     }
 
     public interface IDriverService
@@ -105,6 +111,7 @@ namespace Syscaf.Service.Portal
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<List<dynamic>> GetByClienteId(long? ClienteId, int? EsActivo);
+        Task<List<dynamic>> GetByClienteIds(long? ClienteIds, int? EsActivo);
 
     }
 }
