@@ -162,7 +162,7 @@ namespace Syscaf.Service.Portal
         }
 
         // Cambia estado Assets
-        public async Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS)
+        public async Task<ResultObject> updateAssets(string ClienteId, string AssetId, string UnitIMEI, string unitSCID, int clasificacionId, int verticalId, int EstadoTxId)
         {
             var r = new ResultObject();
             try
@@ -170,13 +170,16 @@ namespace Syscaf.Service.Portal
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("ClienteId", ClienteId);
                 parametros.Add("AssetId", AssetId);
+                parametros.Add("UnitIMEI", UnitIMEI);
+                parametros.Add("unitSCID", unitSCID);
+                parametros.Add("clasificacionId", clasificacionId);
+                parametros.Add("verticalId", verticalId);
                 parametros.Add("EstadoTxId", EstadoTxId);
-                parametros.Add("usuarioIdS", usuarioIdS);
 
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Get<int>(AssetsQueryHelper._setEstado, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.Get<int>(AssetsQueryHelper._updateAssets, parametros, commandType: CommandType.StoredProcedure));
 
                     r.Exitoso = (result == 1);
                     r.Mensaje = r.Exitoso ? "Operación Éxitosa." : "Error de Operación";
@@ -218,7 +221,7 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<ResultObject> getAssets(long ClienteId);
         Task<ResultObject> getEstadosTx(int tipoIdS);
-        Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS);
+        Task<ResultObject> updateAssets(string ClienteId, string AssetId, string UnitIMEI, string unitSCID, int clasificacionId, int verticalId, int EstadoTxId);
 
         Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
     }

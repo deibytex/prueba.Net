@@ -8,6 +8,7 @@ namespace Syscaf.Common.Models.PORTAL
 {
     public class AssetsVM
     {
+        public string? ClienteId { get; set; }
         public string? AssetId { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? RegistrationNumber { get; set; }

@@ -15,7 +15,7 @@ namespace Syscaf.Data.Helpers.Portal
         public static string _get = "PORTAL.getAssets";
 
         // Cambio el estado TX de los assets
-        public static string _setEstado = "PORTAL.setEstadoAssets";
+        public static string _updateAssets = "PORTAL.updateAssets";
 
         //Obtiene todos los estados TX
         /*

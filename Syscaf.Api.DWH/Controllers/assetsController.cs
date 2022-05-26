@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
@@ -14,11 +15,9 @@ namespace Syscaf.Api.DWH.Controllers
 
     {
         private readonly IAssetsService _asset;
-        private readonly IListaDetalleService _listas;
-        public assetsController(IAssetsService _asset, IListaDetalleService _listas)
+        public assetsController(IAssetsService _asset)
         {
             this._asset = _asset;
-            this._listas = _listas;
         }
 
         //Obtiene assets
@@ -35,17 +34,11 @@ namespace Syscaf.Api.DWH.Controllers
             return await _asset.getEstadosTx(tipoIdS);
         }
 
-        //Obtiene detalle listas 
-        [HttpGet("getDetalleListasAssets")]
-        public async Task<ActionResult<ResultObject>> getDetalleListasAssets([Required] string sigla)
+        //Actualizar assets
+        [HttpPost("updateAssets")]
+        public async Task<ActionResult<ResultObject>> updateAssets([FromBody] AssetsVM assets)
         {
-            return await _listas.getDetalleListas(sigla);
-        }
-
-        [HttpGet("setEstadoAssets")]
-        public async Task<ActionResult<ResultObject>> setEstadoAssets([Required] long ClienteId, [Required] long AssetId, [Required] int EstadoTxId, int usuarioIdS)
-        {
-            return await _asset.setEstadoAssets(ClienteId, AssetId, EstadoTxId, usuarioIdS);
+            return await _asset.updateAssets(assets.ClienteId, assets.AssetId, assets.UnitIMEI, assets.UnitSCID, assets.ClasificacionId, assets.VerticalId, assets.EstadoTxId);
         }
     }
 }
