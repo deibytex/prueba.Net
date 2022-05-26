@@ -14,9 +14,11 @@ namespace Syscaf.Api.DWH.Controllers
 
     {
         private readonly IAssetsService _asset;
-        public assetsController(IAssetsService _asset)
+        private readonly IListaDetalleService _listas;
+        public assetsController(IAssetsService _asset, IListaDetalleService _listas)
         {
             this._asset = _asset;
+            this._listas = _listas;
         }
 
         [HttpGet("getAssets")]
@@ -31,5 +33,10 @@ namespace Syscaf.Api.DWH.Controllers
             return await _asset.setEstadoAssets(ClienteId, AssetId, EstadoTxId, usuarioIdS);
         }
 
+        [HttpGet("getDetalleListasAssets")]
+        public async Task<ActionResult<ResultObject>> getDetalleListasAssets([Required] string sigla)
+        {
+            return await _listas.getDetalleListas(sigla);
+        }
     }
 }
