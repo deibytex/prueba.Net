@@ -38,4 +38,8 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Semana { get; set; }
         public string Administrador { get; set; }
     }
+    public class GetTicketsVM : TicketsVM
+    {
+        public string Fecha { get; set; }
+    }
 }

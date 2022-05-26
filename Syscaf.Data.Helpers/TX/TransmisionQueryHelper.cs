@@ -16,5 +16,6 @@ namespace Syscaf.Data.Helpers.TX
         public static string _GetAdministradores = "TX.GetAdministradores";
         public static string _GetSemanasAnual = "TX.GetListaSemanaReportes";
         public static string _PostSnapShotTickets = "TX.SetSnapShotTickets";
+        public static string _GetSnapShotTickets = "TX.GetSnapshotTickets";
     }
 }
