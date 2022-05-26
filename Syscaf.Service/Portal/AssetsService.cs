@@ -130,6 +130,37 @@ namespace Syscaf.Service.Portal
             return r;
         }
 
+        // Consulta Assets
+        public async Task<ResultObject> getEstadosTx(int tipoIdS)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("tipoIdS", tipoIdS);
+
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<estadosVM>(AssetsQueryHelper._getEstadosTx, parametros, commandType: CommandType.Text));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
         // Cambia estado Assets
         public async Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS)
         {
@@ -186,6 +217,7 @@ namespace Syscaf.Service.Portal
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<ResultObject> getAssets(long ClienteId);
+        Task<ResultObject> getEstadosTx(int tipoIdS);
         Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS);
 
         Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);

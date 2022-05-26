@@ -21,22 +21,31 @@ namespace Syscaf.Api.DWH.Controllers
             this._listas = _listas;
         }
 
+        //Obtiene assets
         [HttpGet("getAssets")]
         public async Task<ActionResult<ResultObject>> getAssets([Required] long ClienteId)
         {
             return await _asset.getAssets(ClienteId);
         }
 
-        [HttpGet("setEstadoAssets")]
-        public async Task<ActionResult<ResultObject>> setEstadoAssets([Required] long ClienteId, [Required] long AssetId, [Required] int EstadoTxId, int usuarioIdS)
+        //Obtiene estados TX o los uqe pidan
+        [HttpGet("getEstadosAssets")]
+        public async Task<ActionResult<ResultObject>> getEstadosAssets([Required] int tipoIdS)
         {
-            return await _asset.setEstadoAssets(ClienteId, AssetId, EstadoTxId, usuarioIdS);
+            return await _asset.getEstadosTx(tipoIdS);
         }
 
+        //Obtiene detalle listas 
         [HttpGet("getDetalleListasAssets")]
         public async Task<ActionResult<ResultObject>> getDetalleListasAssets([Required] string sigla)
         {
             return await _listas.getDetalleListas(sigla);
+        }
+
+        [HttpGet("setEstadoAssets")]
+        public async Task<ActionResult<ResultObject>> setEstadoAssets([Required] long ClienteId, [Required] long AssetId, [Required] int EstadoTxId, int usuarioIdS)
+        {
+            return await _asset.setEstadoAssets(ClienteId, AssetId, EstadoTxId, usuarioIdS);
         }
     }
 }
