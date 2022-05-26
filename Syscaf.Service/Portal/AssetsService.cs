@@ -98,7 +98,7 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        
+
         // Consulta Assets
         public async Task<ResultObject> getAssets(long ClienteId)
         {
@@ -129,7 +129,7 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        
+
         // Cambia estado Assets
         public async Task<ResultObject> setEstadoAssets(long ClienteId, long AssetId, int EstadoTxId, int usuarioIdS)
         {
@@ -161,6 +161,9 @@ namespace Syscaf.Service.Portal
                 throw;
             }
             return r;
+
+        }
+
         public async Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate)
         {
             try
