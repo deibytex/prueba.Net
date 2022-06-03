@@ -199,14 +199,13 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
+        public async Task<ResultObject> GetSemanasAnual(int Anio)
         {
             var r = new ResultObject();
             try
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Anio", Anio);
-                parametros.Add("Tipo", Tipo);
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
@@ -284,6 +283,39 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+
+        public async Task<ResultObject> GetSnapShotTicketsTable(string Usuario, DateTime? Fecha)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("UsuarioIds", Usuario);
+                parametros.Add("Fecha", Fecha);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<GetTicketsTableVM>(TransmisionQueryHelper._GetSnapShotTicketsTable, parametros, commandType: CommandType.StoredProcedure));
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                    r.Data = result.ToList();
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
+
+
+        
     }
    
 }
@@ -295,7 +327,8 @@ public interface ITransmisionService
     Task<ResultObject> SetSnapShotTransmision();
     Task<ResultObject> SetSnapShotUnidadesActivas();
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
-    Task<ResultObject> GetSemanasAnual(int Anio, int Tipo);
+    Task<ResultObject> GetSemanasAnual(int Anio);
     Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json);
     Task<ResultObject> GetSnapShotTickets(string Usuario, DateTime? Fecha);
+    Task<ResultObject> GetSnapShotTicketsTable(string Usuario, DateTime? Fecha);
 }

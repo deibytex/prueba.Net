@@ -98,9 +98,9 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="Tipo"></param>
         /// <returns></returns>
         [HttpGet("GetListaSemanaReportes")]
-        public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
+        public async Task<ResultObject> GetSemanasAnual(int Anio)
         {
-            return await _Transmision.GetSemanasAnual(Anio, Tipo);
+            return await _Transmision.GetSemanasAnual(Anio);
         }
         /// <summary>
         /// Inserta el json de las los tickets a la base de datos.
@@ -124,6 +124,17 @@ namespace Syscaf.Api.DWH.Controllers
         public async Task<ResultObject> GetSnapShotTickets(string? Usuario, DateTime? Fecha)
         {
             return await _Transmision.GetSnapShotTickets(Usuario, Fecha);
+        }
+        /// <summary>
+        /// Se obtiene la lista de snapshot de tickets previamente cargados desde la opcion de carga de tickets agrupados por administrador y tipo de tickets
+        /// </summary>
+        /// <param name="Usuario"></param>
+        /// <param name="Fecha"></param>
+        /// <returns></returns>
+        [HttpGet("GetSnapShotTicketsTable")]
+        public async Task<ResultObject> GetSnapShotTicketsTable(string? Usuario, DateTime? Fecha)
+        {
+            return await _Transmision.GetSnapShotTicketsTable(Usuario, Fecha);
         }
     }
 }
