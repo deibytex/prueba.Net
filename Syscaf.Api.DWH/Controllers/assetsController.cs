@@ -38,7 +38,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpPost("updateAssets")]
         public async Task<ActionResult<ResultObject>> updateAssets([FromBody] AssetsVM assets)
         {
-            return await _asset.updateAssets(assets.ClienteId, assets.AssetId, assets.UnitIMEI, assets.UnitSCID, assets.ClasificacionId, assets.VerticalId, assets.EstadoTxId);
+            return await _asset.updateAssets(assets);
         }
     }
 }

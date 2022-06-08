@@ -162,19 +162,20 @@ namespace Syscaf.Service.Portal
         }
 
         // Cambia estado Assets
-        public async Task<ResultObject> updateAssets(string ClienteId, string AssetId, string UnitIMEI, string unitSCID, int clasificacionId, int verticalId, int EstadoTxId)
+        public async Task<ResultObject> updateAssets(AssetsVM assets)
         {
             var r = new ResultObject();
             try
             {
                 var parametros = new Dapper.DynamicParameters();
-                parametros.Add("ClienteId", ClienteId);
-                parametros.Add("AssetId", AssetId);
-                parametros.Add("UnitIMEI", UnitIMEI);
-                parametros.Add("unitSCID", unitSCID);
-                parametros.Add("clasificacionId", clasificacionId);
-                parametros.Add("verticalId", verticalId);
-                parametros.Add("EstadoTxId", EstadoTxId);
+                parametros.Add("ClienteId", assets.ClienteId);
+                parametros.Add("AssetId", assets.AssetId);
+                parametros.Add("UnitIMEI", assets.UnitIMEI);
+                parametros.Add("unitSCID", assets.UnitSCID);
+                parametros.Add("clasificacionId", assets.ClasificacionId);
+                parametros.Add("verticalId", assets.VerticalId);
+                parametros.Add("EstadoTxId", assets.EstadoTxId);
+                parametros.Add("EsManual", (assets.EsManual == true ? 1 : 0));
 
                 try
                 {
@@ -221,7 +222,7 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<ResultObject> getAssets(long ClienteId);
         Task<ResultObject> getEstadosTx(int tipoIdS);
-        Task<ResultObject> updateAssets(string ClienteId, string AssetId, string UnitIMEI, string unitSCID, int clasificacionId, int verticalId, int EstadoTxId);
+        Task<ResultObject> updateAssets(AssetsVM assets);
 
         Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
     }

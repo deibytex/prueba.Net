@@ -23,5 +23,6 @@ namespace Syscaf.Common.Models.PORTAL
         public string? UnitSCID { get; set; }
         public string? vertical { get; set; }
         public string? clasificacion { get; set; }
+        public bool? EsManual { get; set; }
     }
 }
