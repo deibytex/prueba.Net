@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.Helpers;
@@ -17,13 +18,15 @@ namespace Syscaf.Api.DWH.Controllers
         private readonly IDriverService _driverService;
         private readonly IEventTypeService _eventTypeService;
         private readonly IClientService _clientService;
-        public BasesController(IAssetsService _asset, ISiteService _siteService, IEventTypeService _eventTypeService, IDriverService _driverService, IClientService _clientService)
+        private readonly IListaDetalleService _listas;
+        public BasesController(IAssetsService _asset, ISiteService _siteService, IEventTypeService _eventTypeService, IDriverService _driverService, IClientService _clientService, IListaDetalleService _listas)
         {
             this._asset = _asset;
             this._siteService = _siteService;
             this._eventTypeService = _eventTypeService;
             this._driverService = _driverService;
             this._clientService = _clientService;
+            this._listas = _listas;
         }
 
         [HttpGet("actualizarClientes")]
@@ -70,5 +73,11 @@ namespace Syscaf.Api.DWH.Controllers
             return await _driverService.Add(null);
         }
 
+        //Obtiene detalle listas por siglas
+        [HttpGet("getDetalleListas")]
+        public async Task<ActionResult<ResultObject>> getDetalleListas([Required] string sigla)
+        {
+            return await _listas.getDetalleListas(sigla);
+        }
     }
 }

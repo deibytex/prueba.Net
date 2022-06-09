@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Dapper;
-using MiX.Integrate.Shared.Entities.Assets;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.Portal;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Helpers;
 using Syscaf.Service.Automaper.MapperDTO;
 using Syscaf.Service.DataTableSql;
@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Syscaf.Service.Portal
@@ -99,7 +98,108 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string userstate)
+
+        // Consulta Assets
+        public async Task<ResultObject> getAssets(long ClienteId)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<AssetsVM>(AssetsQueryHelper._get, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
+        // Consulta Assets
+        public async Task<ResultObject> getEstadosTx(int tipoIdS)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("tipoIdS", tipoIdS);
+
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<estadosVM>(AssetsQueryHelper._getEstadosTx, parametros, commandType: CommandType.Text));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
+        // Cambia estado Assets
+        public async Task<ResultObject> updateAssets(AssetsVM assets)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", assets.ClienteId);
+                parametros.Add("AssetId", assets.AssetId);
+                parametros.Add("UnitIMEI", assets.UnitIMEI);
+                parametros.Add("unitSCID", assets.UnitSCID);
+                parametros.Add("clasificacionId", assets.ClasificacionId);
+                parametros.Add("verticalId", assets.VerticalId);
+                parametros.Add("EstadoTxId", assets.EstadoTxId);
+                parametros.Add("EsManual", (assets.EsManual == true ? 1 : 0));
+
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.Get<int>(AssetsQueryHelper._updateAssets, parametros, commandType: CommandType.StoredProcedure));
+
+                    r.Exitoso = (result == 1);
+                    r.Mensaje = r.Exitoso ? "Operación Éxitosa." : "Error de Operación";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+
+        }
+
+        public async Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate)
         {
             try
             {
@@ -135,7 +235,10 @@ namespace Syscaf.Service.Portal
     {
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
-        Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string userstate);
+        Task<ResultObject> getAssets(long ClienteId);
+        Task<ResultObject> getEstadosTx(int tipoIdS);
+        Task<ResultObject> updateAssets(AssetsVM assets);
         Task<List<AssetShortDTO>> GetByClienteIdsAsync(int? ClienteIds, string userstate);
+        Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
     }
 }
