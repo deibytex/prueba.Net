@@ -43,8 +43,8 @@ namespace Syscaf.Data
             using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync<T>(sp, parms, commandType: commandType)).FirstOrDefault();
         }
-       
 
+        #region GETALL
         public List<T> GetAll<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
@@ -66,6 +66,7 @@ namespace Syscaf.Data
             using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync(sp, parms, commandType: commandType)).ToList();
         }
+        #endregion 
 
         public DbConnection GetDbconnection()
         {

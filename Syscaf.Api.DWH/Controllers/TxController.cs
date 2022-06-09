@@ -46,7 +46,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="ClienteId"></param>
         /// <returns></returns>
         [HttpGet("GetSnapShotTransmision")]
-        public async Task<ResultObject> GetSnapShotTransmision([Required] int Usuario,  DateTime? Fecha, long? ClienteId)
+        public async Task<ResultObject> GetSnapShotTransmision([Required] string Usuario,  DateTime? Fecha, long? ClienteId)
         {
             return await _Transmision.GetSnapShotTransmision(Usuario, Fecha, ClienteId);
         }
@@ -98,9 +98,9 @@ namespace Syscaf.Api.DWH.Controllers
         /// <param name="Tipo"></param>
         /// <returns></returns>
         [HttpGet("GetListaSemanaReportes")]
-        public async Task<ResultObject> GetSemanasAnual(int Anio, int Tipo)
+        public async Task<ResultObject> GetSemanasAnual(int Anio)
         {
-            return await _Transmision.GetSemanasAnual(Anio, Tipo);
+            return await _Transmision.GetSemanasAnual(Anio);
         }
         /// <summary>
         /// Inserta el json de las los tickets a la base de datos.
