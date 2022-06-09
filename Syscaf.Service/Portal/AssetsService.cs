@@ -199,7 +199,7 @@ namespace Syscaf.Service.Portal
 
         }
 
-        public async Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate)
+        public async Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string userstate)
         {
             try
             {
@@ -239,6 +239,6 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> getEstadosTx(int tipoIdS);
         Task<ResultObject> updateAssets(AssetsVM assets);
         Task<List<AssetShortDTO>> GetByClienteIdsAsync(int? ClienteIds, string userstate);
-        Task<List<AssetShortDTO>> GetAsync(long ClienteId, string usertstate);
+        Task<List<AssetShortDTO>> GetAsync(long? ClienteId, string usertstate);
     }
 }

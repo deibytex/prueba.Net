@@ -28,7 +28,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <summary>
         /// Obtiene el  listado de cliente segun filtros
         /// </summary>
-        /// <param name="Usuario"></param>
+        /// <param name="Estado"></param>
         /// <param name="ClienteId"></param>
         /// /// <param name="ClienteIds"></param>
         /// <returns></returns>

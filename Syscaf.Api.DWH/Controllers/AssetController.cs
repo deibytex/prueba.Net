@@ -28,9 +28,8 @@ namespace Syscaf.Api.DWH.Controllers
         /// <summary>
         /// Obtiene el  listado de Assets segun filtros
         /// </summary>
-        /// <param name="Usuario"></param>
         /// <param name="ClienteId"></param>
-        /// /// <param name="ClienteIds"></param>
+        /// <param name="UsertState"></param>
         /// <returns></returns>
         [HttpGet("GetAssets/ClienteId")]
         public async Task<List<AssetShortDTO>> Get( long? ClienteId,string UsertState)
