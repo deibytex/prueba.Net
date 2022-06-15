@@ -25,10 +25,10 @@ namespace Syscaf.ApiCore.Auth
         {
             var claims = new List<Claim>()
             {
-                new Claim("email", credenciales.Email)
+                new Claim("username", credenciales.UserName)
             };
 
-            var usuario = await _userManager.FindByEmailAsync(credenciales.Email);
+            var usuario = await _userManager.FindByNameAsync(credenciales.UserName);
             var claimsDB = await _userManager.GetClaimsAsync(usuario);
 
             claims.AddRange(claimsDB);

@@ -17,6 +17,9 @@ using Syscaf.Data.Helpers.Auth;
 
 using Syscaf.Data.Models.Auth;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -75,9 +78,11 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpGet("listadoUsuarios")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+       // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<UsuarioDTO>>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO)
         {
+           
+
             var queryable = _ctx.Users.AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
             var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
@@ -88,7 +93,7 @@ namespace Syscaf.ApiCore.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<ResponseAccount>> Login([FromBody] UsuarioDTO credenciales)
         {
-            var resultado = await signInManager.PasswordSignInAsync(credenciales.Email, credenciales.Password,
+            var resultado = await signInManager.PasswordSignInAsync(credenciales.UserName, credenciales.Password,
                 isPersistent: false, lockoutOnFailure: false);
 
             if (resultado.Succeeded)
@@ -113,17 +118,31 @@ namespace Syscaf.ApiCore.Controllers
             foreach (var item in result) {
                
                 var usuario = new ApplicationUser { UserName = item.correo, Email = item.correo, Nombres = $"{item.nombre} {item.apellido}", PerfilId = item.perfilIdS };
-                string password = $"M_{item.correo.Split('@')[0]}.{new Random().Next(999)}";
-               
+                string testString  = Decrypt(item.contrasena, item.key, item.IV).TrimEnd("\a".ToCharArray()).TrimEnd("\u000f".ToCharArray()).TrimEnd("\u0006".ToCharArray()).TrimEnd("\b".ToCharArray()).TrimEnd("\u0005".ToCharArray());
+                string password =  Regex.Replace(testString, @"[^\t\r\n -~]", "");
                 var usuariomodel = _mapper.Map<UsuarioDTO>(usuario);
                
-                var isfind = await userManager.FindByNameAsync(item.correo.ToUpper().Trim());
+                var isfind = await userManager.FindByNameAsync(item.usuario.ToUpper().Trim());
                 if (isfind != null)
                 {
+                    var claim = await userManager.GetClaimsAsync(isfind);
+
+                    var claimid = claim.Where(w => w.Type.Equals("Password")).FirstOrDefault();
+                    await  userManager.RemovePasswordAsync(isfind);
+
+                    var isActualizado =await userManager.AddPasswordAsync(isfind, password);
+                  
+
                     isfind.Nombres = $"{item.nombre} {item.apellido}";
                     isfind.PerfilId = item.perfilIdS;
                     isfind.ClienteId = -1;
+                    isfind.UserName = item.usuario;
+                    isfind.usuarioIdS = item.usuarioIdS;
+                    isfind.esMigrado = isActualizado.Succeeded;
                     await userManager.UpdateAsync(isfind);
+
+                  
+                    await userManager.ReplaceClaimAsync(isfind, claimid, new Claim("Password", password));
                 }
                 else
                 {
@@ -144,6 +163,35 @@ namespace Syscaf.ApiCore.Controllers
             }
          
             return "ok";
+        }
+
+        [HttpGet("GetUserId")]        
+        public async Task<ActionResult<string>> GetUserId([FromQuery] string username)
+        {
+            var isfind = await userManager.FindByNameAsync(username.ToUpper().Trim());
+            if (isfind != null)
+            {
+                var claims =  await userManager.GetClaimsAsync(isfind);
+
+
+                return claims.Where(w => w.Type.Equals("UsuarioID")).FirstOrDefault().Value;
+            }
+            return null ;
+        }
+
+        private  string Decrypt(byte[] encryptedText, byte[] SaltKey, byte[] VIKey)
+        {
+            byte[] cipherTextBytes = encryptedText;
+            var symmetricKey = new RijndaelManaged() { Mode = CipherMode.CBC, Padding = PaddingMode.None };
+            var decryptor = symmetricKey.CreateDecryptor(SaltKey, VIKey);
+            var memoryStream = new MemoryStream(cipherTextBytes);
+            var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+            byte[] plainTextBytes = new byte[cipherTextBytes.Length];
+
+            int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+            memoryStream.Close();
+            cryptoStream.Close();
+            return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount).TrimEnd("\0".ToCharArray());
         }
     }
 }

@@ -61,10 +61,10 @@ namespace Syscaf.Api.DWH.Controllers
             return (result);
         }
         [HttpGet("GetPosicionesSinValidar")]
-        public async Task<ActionResult<ResultObject>> GetPosicionesMixByGroupSinValidar()
+        public async Task<ActionResult<ResultObject>> GetPosicionesMixByGroupSinValidar(int? ClienteIds)
         {
       
-            return await _portalService.Get_PositionsByClient(null, 0);
+            return await _portalService.Get_PositionsByClient(ClienteIds, 0);
         }
 
         private void SetEstadoProcesoGeneracionDatos(int ProcesoGeneracionDatosId, bool exitoso, string mensaje)

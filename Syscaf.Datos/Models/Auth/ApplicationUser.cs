@@ -11,7 +11,9 @@ namespace Syscaf.Data.Models.Auth
     {
         public int PerfilId { get; set; }
         public string Nombres { get; set; }
-
         public long ClienteId { get; set; }
+        public int? usuarioIdS { get; set; }
+        public bool? esMigrado { get; set; }
+        public bool EsActivo { get; set; }
     }
 }

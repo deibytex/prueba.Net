@@ -325,51 +325,51 @@ namespace Syscaf.Service.Portal
             {
                 //// guardamos los viajes por periodo, se debe determinar a traves de los viajes cual es el perido al que pertenece la informacion y guardarlo al que corresponda
 
-                List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);
-                ;
-
-                if (positions != null)
+                try
                 {
-                    var posiciones = positions.Select(s =>
-                        new
-                        {
-                            s.PositionId,
-                            s.AssetId,
-                            s.DriverId,
-                            s.FormattedAddress,
-                            s.Hdop,
-                            s.Heading,
-                            s.IsAvl,
-                            s.Latitude,
-                            s.Longitude,
-                            s.SpeedKilometresPerHour,
-                            s.SpeedLimit,
-                            Timestamp = s.Timestamp.ToColombiaTime(),
-                            FechaSistema = Constants.GetFechaServidor(),
-                            item.clienteId
+                    List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);                    
 
-                        })
-                        ;
-
-                    string Lista = JsonConvert.SerializeObject(posiciones);
-                    try
+                    if (positions != null)
                     {
+                        var posiciones = positions.Select(s =>
+                            new
+                            {
+                                s.PositionId,
+                                s.AssetId,
+                                s.DriverId,
+                                s.FormattedAddress,
+                                s.Hdop,
+                                s.Heading,
+                                s.IsAvl,
+                                s.Latitude,
+                                s.Longitude,
+                                s.SpeedKilometresPerHour,
+                                s.SpeedLimit,
+                                Timestamp = s.Timestamp.ToColombiaTime(),
+                                FechaSistema = Constants.GetFechaServidor(),
+                                item.clienteId
+
+                            });
+
+                        string Lista = JsonConvert.SerializeObject(posiciones);
                         var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosiciones, new { Lista }, CommandType.StoredProcedure);
 
                         result.success();
-
+                
                     }
-                    catch (Exception ex)
-                    {
-                        _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
-                        _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, $"ClienteId = {  item.clienteNombre } " + ex.Message, null, (int)Enums.EstadoProcesoGeneracionDatos.SW_NOEXEC);
-                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
-                        result.error(ex.Message);
-                    }
-
 
                 }
+                catch (Exception ex)
+                {
+                    _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
+                    _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, $"ClienteId = {  item.clienteNombre } " + ex.Message, null, (int)Enums.EstadoProcesoGeneracionDatos.SW_NOEXEC);
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
+                    result.error(ex.Message);
+                }
+
+
             }
+
 
             return result;
         }

@@ -216,7 +216,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
                     ListaDistribucionId = (int)lista,
                     EsNotificado = false,
                     FechaSistema = Constants.GetFechaServidor()
-                });
+                }, CommandType.Text);
 
                 result.success();
             }

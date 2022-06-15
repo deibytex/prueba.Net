@@ -26,8 +26,7 @@ namespace Syscaf.Service.Automaper
                 dto => dto.MapFrom(MapearAssetDTO)
                 );
 
-            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap()
-                .ForMember(f => f.UserName, op => op.MapFrom(mp => mp.Email));
+            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap()               ;
 
             CreateMap<GroupSummary, SiteResult>().ForMember(
                x => x.Resultado,
