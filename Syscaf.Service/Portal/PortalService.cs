@@ -374,12 +374,41 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
+        public async Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla)
+        {
+            var r = new ResultObject();
+            try
+            {
+               
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ListaId", ListaId);
+                parametros.Add("Sigla", Sigla);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_connCore.GetAll<DetalleListaVM>(PortalQueryHelper._listaDetalle, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación éxitosa";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message + " Lista " + ListaId);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
     }
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
-
+        Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
     }
 }

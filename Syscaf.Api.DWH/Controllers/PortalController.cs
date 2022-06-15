@@ -3,6 +3,7 @@ using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
+using System.ComponentModel.DataAnnotations;
 
 namespace Syscaf.Api.DWH.Controllers
 {
@@ -78,6 +79,18 @@ namespace Syscaf.Api.DWH.Controllers
                 _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, mensaje, null, status);
             }
 
+        }
+        /// <summary>
+        /// Se obtienen los detalles lista por lista Id
+        /// </summary>
+        /// <param name="ListaId"></param>
+        /// <param name="Sigla"></param>
+        /// <returns></returns>
+        [HttpGet("GetDetallesLista")]
+        public async Task<ResultObject> GetDetallesLista(int? ListaId, string? Sigla)
+        {
+
+            return await _portalService.GetDetallesListas(ListaId, Sigla);
         }
     }
 }

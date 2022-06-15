@@ -95,7 +95,6 @@ namespace Syscaf.Api.DWH.Controllers
         /// Consulta el listado de semana del año que se le pase y el tipo sea Unidades activas tipo 1 o transmisión tipo 2.
         /// </summary>
         /// <param name="Anio"></param>
-        /// <param name="Tipo"></param>
         /// <returns></returns>
         [HttpGet("GetListaSemanaReportes")]
         public async Task<ResultObject> GetSemanasAnual(int Anio)
