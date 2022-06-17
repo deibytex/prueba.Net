@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Models.TRANSMISION;
 using Syscaf.Service.Helpers;
@@ -94,7 +94,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// <summary>
         /// Consulta el listado de semana del año que se le pase y el tipo sea Unidades activas tipo 1 o transmisión tipo 2.
         /// </summary>
-        /// <param name="Anio"></param>       
+        /// <param name="Anio"></param>
         /// <returns></returns>
         [HttpGet("GetListaSemanaReportes")]
         public async Task<ResultObject> GetSemanasAnual(int Anio)
@@ -123,6 +123,17 @@ namespace Syscaf.Api.DWH.Controllers
         public async Task<ResultObject> GetSnapShotTickets(string? Usuario, DateTime? Fecha)
         {
             return await _Transmision.GetSnapShotTickets(Usuario, Fecha);
+        }
+        /// <summary>
+        /// Se obtiene la lista de snapshot de tickets previamente cargados desde la opcion de carga de tickets agrupados por administrador y tipo de tickets
+        /// </summary>
+        /// <param name="Usuario"></param>
+        /// <param name="Fecha"></param>
+        /// <returns></returns>
+        [HttpGet("GetSnapShotTicketsTable")]
+        public async Task<ResultObject> GetSnapShotTicketsTable(string? Usuario, DateTime? Fecha)
+        {
+            return await _Transmision.GetSnapShotTicketsTable(Usuario, Fecha);
         }
     }
 }

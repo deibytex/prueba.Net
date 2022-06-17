@@ -3,10 +3,12 @@ using AutoMapper;
 using Dapper;
 using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Positions;
+using MiX.Integrate.Shared.Entities.Scoring;
 using MiX.Integrate.Shared.Entities.Trips;
 using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Common.Utilities;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
@@ -16,6 +18,7 @@ using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal.Models;
 using SyscafWebApi.Service;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -39,11 +42,13 @@ namespace Syscaf.Service.Portal
         private readonly IProcesoGeneracionService _procesoGeneracionService;
         private readonly INotificacionService _notificacionService;
         private readonly SyscafCoreConn _connCore;
+        private readonly IMixIntegrateService _MixService;
 
         public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
             IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, ILogService _logService,
-            SyscafCoreConn _connCore
+            SyscafCoreConn _connCore,
+             IMixIntegrateService _MixService
             )
         {
             this._logService = _logService;
@@ -56,6 +61,7 @@ namespace Syscaf.Service.Portal
             this._procesoGeneracionService = _procesoGeneracionService;
             this._notificacionService = _notificacionService;
             this._connCore = _connCore;
+            this._MixService = _MixService;
         }
         public async Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
         {
@@ -374,12 +380,134 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
+        public async Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla)
+        {
+            var r = new ResultObject();
+            try
+            {
+               
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ListaId", ListaId);
+                parametros.Add("Sigla", Sigla);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_connCore.GetAll<DetalleListaVM>(PortalQueryHelper._listaDetalle, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación éxitosa";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message + " Lista " + ListaId);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
+        public async Task<List<long>> GetDriverxCliente(int ClienteId)
+        {
+            var r = new List<long>();
+            try
+            {
+
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_connCore.GetAll<long>(PortalQueryHelper.DriverxCliente, parametros, commandType: CommandType.StoredProcedure));
+                    r = result;
+                   
+                }
+                catch (Exception ex)
+                {
+                   ex.Message.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Message.ToString();
+                throw;
+            }
+            return r;
+        }
+        public async Task<long> GetCliente(int ClienteId)
+        {
+            var r = new long();
+            try
+            {
+
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_connCore.Get<long>(PortalQueryHelper.OrganizacionMix, parametros, commandType: CommandType.StoredProcedure));
+                    r = result;
+
+                }
+                catch (Exception ex)
+                {
+                    ex.Message.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Message.ToString();
+                throw;
+            }
+            return r;
+        }
+        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriverVM EncScoringFlexDriver)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var result = (await GetDriverxCliente(EncScoringFlexDriver.ClienteIds));
+                var Datos = new Report_FlexibleRAG();
+                var Data = new ResultObject();
+                Datos = await _MixService.GetFlexibleRAGScoreReportAsync(result, EncScoringFlexDriver.from, EncScoringFlexDriver.to, EncScoringFlexDriver.aggregationPeriod, EncScoringFlexDriver.ClienteIds, EncScoringFlexDriver.ClienteId);
+                Data.Data = JsonConvert.SerializeObject(Datos);
+                
+               // var stringsql = JsonConvert.SerializeObject(String.Join(",", nue.Score));
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("JSON_STR", Data.Data);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var resultado = await Task.FromResult(_connCore.Get<string>(PortalQueryHelper.EncScoringDetalleScoringFlexDriver, parametros, commandType: CommandType.StoredProcedure));
+                    r.Mensaje = resultado.ToString();
+                    r.Exitoso = true;
+                }
+                catch (Exception ex)
+                {
+                    ex.Message.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message.ToString());
+                throw;
+            }
+            return r;
+        }
+
+
     }
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
-
+        Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
+        Task<List<long>> GetDriverxCliente(int ClienteId);
+        Task<long> GetCliente(int ClienteId);
+        Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriverVM EncScoringFlexDriver);
     }
 }

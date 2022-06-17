@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
+using SyscafWebApi.Service;
+using System.ComponentModel.DataAnnotations;
 
 namespace Syscaf.Api.DWH.Controllers
 {
@@ -14,11 +17,13 @@ namespace Syscaf.Api.DWH.Controllers
         private readonly IPortalMService _portalService;
         private readonly IProcesoGeneracionService _procesoGeneracionService;
         private readonly INotificacionService _notificacionService;
-        public PortalController(IPortalMService _portalService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService)
+        private readonly IMixIntegrateService _MixService;
+        public PortalController(IPortalMService _portalService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, IMixIntegrateService _MixService)
         {
             this._portalService = _portalService;
             this._procesoGeneracionService = _procesoGeneracionService;
             this._notificacionService = _notificacionService;
+            this._MixService = _MixService;
         }
 
         [HttpGet("ObtenerViajesMetricas")]
@@ -79,5 +84,45 @@ namespace Syscaf.Api.DWH.Controllers
             }
 
         }
+        /// <summary>
+        /// Se obtienen los detalles lista por lista Id
+        /// </summary>
+        /// <param name="ListaId"></param>
+        /// <param name="Sigla"></param>
+        /// <returns></returns>
+        [HttpGet("GetDetallesLista")]
+        public async Task<ResultObject> GetDetallesLista(int? ListaId, string? Sigla)
+        {
+
+            return await _portalService.GetDetallesListas(ListaId, Sigla);
+        }
+        /// <summary>
+        /// Para consultar los score desde MIX
+        /// </summary>
+        /// <param name="EncScoringFlexDriver"></param>
+        /// <returns></returns>
+        [HttpPost("GetScoreFlexible")]
+        public async Task<ResultObject> GetScoreFlexible([FromBody] EncScoringFlexDriverVM EncScoringFlexDriver)
+        {
+            var result = (await _portalService.GetDriverxCliente(EncScoringFlexDriver.ClienteIds));
+            //var Cliente = (await _portalService.GetCliente(ClienteIds));
+            var final = new ResultObject();
+            final.Data = await _MixService.GetFlexibleRAGScoreReportAsync(result, EncScoringFlexDriver.from, EncScoringFlexDriver.to, EncScoringFlexDriver.aggregationPeriod, EncScoringFlexDriver.ClienteIds, EncScoringFlexDriver.ClienteId);
+            final.Exitoso = true;
+            final.Mensaje = "Operación éxitosa";
+            return final;
+        }
+        /// <summary>
+        /// Se consulta el servicio en mix y se guarda en la tabla creada.
+        /// </summary>
+        /// <param name="EncScoringFlexDriver"></param>
+        /// <returns></returns>
+        [HttpPost("GuardarEncScoringDetalleScoringFlexDriver")]
+        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver([FromBody] EncScoringFlexDriverVM EncScoringFlexDriver)
+        {
+            return await _portalService.GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriver);
+        }
+
+
     }
 }

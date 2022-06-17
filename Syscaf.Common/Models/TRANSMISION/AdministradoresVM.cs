@@ -42,4 +42,11 @@ namespace Syscaf.Common.Models.TRANSMISION
     {
         public string Fecha { get; set; }
     }
+
+    public class GetTicketsTableVM
+    {
+        public string Administrador { get; set; }
+        public string TipodeTicket { get; set; }
+        public int Cantidad { get; set; }
+    }
 }
