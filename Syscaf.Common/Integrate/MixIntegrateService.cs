@@ -9,6 +9,7 @@ using MiX.Integrate.Shared.Entities.Groups;
 using MiX.Integrate.Shared.Entities.LibraryEvents;
 using MiX.Integrate.Shared.Entities.Locations;
 using MiX.Integrate.Shared.Entities.Positions;
+using MiX.Integrate.Shared.Entities.Scoring;
 using MiX.Integrate.Shared.Entities.Trips;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.PORTAL;
@@ -366,5 +367,12 @@ namespace SyscafWebApi.Service
 
 
         }
+
+        public async Task<Report_FlexibleRAG> GetFlexibleRAGScoreReportAsync(List<long> drivers, string from, string to, string aggregationPeriod, int ClienteId, long Organizacion)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteId, AssemblyName, "GetFlexibleRAGScoreReportAsync", new object[] { drivers, from, to,  aggregationPeriod, Organizacion });
+            return (result.Exitoso) ? (Report_FlexibleRAG)result.Data : null;
+        }
+
     }
 }

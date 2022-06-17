@@ -34,6 +34,8 @@ namespace Syscaf.Data.Helpers.Portal
         public static string _insertaPosiciones = "TX.InsertPosiciones";
 
         public static string _listaDetalle = "PORTAL.GetDetalleLista";
-
+        public static string DriverxCliente = "RAG.GetDriversxCliente";
+        public static string OrganizacionMix = "RAG.GetClienteMix";
+        public static string EncScoringDetalleScoringFlexDriver = "RAG.SetEncScoring&DetalleScoringFlexDriver";
     }
 }
