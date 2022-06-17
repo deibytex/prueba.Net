@@ -20,6 +20,7 @@ using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Syscaf.Service.Helpers;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -53,41 +54,93 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpPost("Crear")]
-        public async Task<ActionResult<ResponseAccount>> Crear([FromBody] UsuarioDTO usuarioModel) 
+        public async Task<ActionResult<dynamic>> Crear([FromBody] UsuarioDTO usuarioModel) 
         {
             // verifica que exista el usuario y manda un badrequest
 
+            
+            var usuario = _mapper.Map<ApplicationUser>(usuarioModel);
+            usuario.Id = Guid.NewGuid().ToString();
+            IdentityResult resultado;
 
-            var usuario = _mapper.Map<ApplicationUser>(usuarioModel); 
-            var resultado = await userManager.CreateAsync(usuario, usuarioModel.Password);
-         
-           
+            string username = creacionUsuario(usuario.Nombres);
+             var result  = await userManager.FindByNameAsync(username.ToUpper());
+              if(result != null )
+                 username = creacionUsuario(usuario.Nombres, true);
+
+              
+            usuario.UserName = username;
+
+            if (usuarioModel.Password != null)
+                resultado = await userManager.CreateAsync(usuario, usuarioModel.Password);
+            else            
+                resultado = await userManager.CreateAsync(usuario);              
+            
+
             if (resultado.Succeeded)
             {
-                //// adicionamos los claims necesarios de la inforamcion basica del cliente
-                // await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Perfil, usuarioModel.PerfilId.ToString()));                
-                // await userManager.AddClaimAsync(usuario, new Claim(AuthConstans.Cliente, usuarioModel.ClienteId.ToString()));
 
-                return await _authService.ConstruirToken(usuarioModel);
+                var token = await userManager.GeneratePasswordResetTokenAsync(usuario);
+                return new ResultObject() {
+                    Exitoso = true,
+                    Data = new { token, username }
+                };
             }
-            else
-            {
+            else            
                 return BadRequest(resultado.Errors);
-            }
+            
 
+        }
+        private   string creacionContrasena()
+        {
+            
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.*%$#@abcdefghijklmnopqursuvwxyz";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        private  string creacionUsuario(string nombreCliente, bool includeint = false)
+        {
+
+            string usuario = "";
+            string[] nombre = nombreCliente.Split(' ');
+            string[] apellido = nombreCliente.Split(' ');
+            usuario = nombre[0] + "." + apellido[1];
+
+            if (includeint)
+                usuario += (new Random()).Next(1, 10).ToString();
+
+            return usuario;
         }
 
         [HttpGet("listadoUsuarios")]
        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<List<UsuarioDTO>>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO)
+        public async Task<ActionResult<dynamic>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO, [FromQuery] string? Search, [FromQuery] string? UsuarioId)
         {
-           
+            try
+            {
+                var queryable = _ctx.Users.AsQueryable().Where(w => (UsuarioId == null || w.Id == UsuarioId));
 
-            var queryable = _ctx.Users.AsQueryable();
-            await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
-            var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
-            return _mapper.Map<List<UsuarioDTO>>(usuarios);
+                if (Search != null)
+                {
+                    queryable = (from e in queryable
+                                 where (e.Nombres.ToLower().Contains(Search.ToLower())
+                              || e.Email.ToLower().Contains(Search.ToLower()))
+                                 select e);
+                }
+                await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
+                var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
+                return usuarios;
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+           
+           
         }
+
+      
 
 
         [HttpPost("login")]
@@ -104,6 +157,20 @@ namespace Syscaf.ApiCore.Controllers
             {
                 return BadRequest("Login incorrecto");
             }
+        }
+
+
+        [HttpPost("CambiarEstadoUsuario")]
+        public async Task<ActionResult<bool>> CambiarEstadoUsuario([FromBody] string id)
+        {
+            var isfind = await userManager.FindByIdAsync(id);
+            if (isfind != null)
+            {
+                var resultado = await userManager.SetLockoutEnabledAsync(isfind, !isfind.LockoutEnabled);
+                return resultado.Succeeded;
+            }
+               return BadRequest("Usuario no encontrado en el sistema"); 
+
         }
 
 
@@ -176,7 +243,7 @@ namespace Syscaf.ApiCore.Controllers
 
                 return claims.Where(w => w.Type.Equals("UsuarioID")).FirstOrDefault().Value;
             }
-            return null ;
+            return BadRequest("Usuario no encontrado en el sistema");
         }
 
         private  string Decrypt(byte[] encryptedText, byte[] SaltKey, byte[] VIKey)

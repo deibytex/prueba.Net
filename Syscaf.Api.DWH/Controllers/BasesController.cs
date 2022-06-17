@@ -79,5 +79,7 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _listas.getDetalleListas(sigla);
         }
+
+     
     }
 }

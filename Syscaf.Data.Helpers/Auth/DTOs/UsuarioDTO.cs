@@ -14,10 +14,10 @@ namespace Syscaf.Data.Helpers.Auth.DTOs
         public string UserName { get; set; }
         public string Password { get; set; }
         public int PerfilId { get; set; }  
-
         public long ClienteId { get; set; }
         public int? usuarioIdS { get; set; }
         public bool? esMigrado { get; set; }
 
+        public bool lockoutEnabled { get; set; }
     }
 }
