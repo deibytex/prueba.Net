@@ -4,7 +4,7 @@ using Syscaf.Common.Models.PORTAL;
 using Syscaf.Service.Helpers;
 using System.ComponentModel.DataAnnotations;
 
-namespace Syscaf.Api.DWH.Controllers
+namespace Syscaf.ApiTx.Controllers
 {
     /// <summary>
     /// Controlador de transmisión

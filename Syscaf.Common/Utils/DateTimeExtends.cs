@@ -42,5 +42,9 @@ namespace Syscaf.Common.Utilities
         {
             return TimeZoneInfo.ConvertTime(Fecha, Constants.timezone);
         }
+        public static string FormatoyyyyMMddhhmmss(this DateTime dt)
+        {
+            return dt.ToString(Constants.FormatoyyyyMMddhhmmss);
+        }
     }
 }

@@ -115,13 +115,15 @@ namespace Syscaf.Api.DWH.Controllers
         /// <summary>
         /// Se consulta el servicio en mix y se guarda en la tabla creada.
         /// </summary>
-        /// <param name="EncScoringFlexDriver"></param>
+        /// <param name="ClienteIds"></param>
+        /// /// <param name="FechaInicial"></param>
+        /// /// <param name="FechaFinal"></param>
         /// <returns></returns>
-        [HttpPost("GuardarEncScoringDetalleScoringFlexDriver")]
-        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver([FromBody] EncScoringFlexDriverVM EncScoringFlexDriver)
+        [HttpGet("GuardarEncScoringDetalleScoringFlexDriver")]
+        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal)
         {
 
-            return await _portalService.GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriver);
+            return await _portalService.GuardarEncScoringDetalleScoringFlexDriver(ClienteIds, FechaInicial, FechaFinal);
         }
 
 

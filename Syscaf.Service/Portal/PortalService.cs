@@ -32,7 +32,7 @@ namespace Syscaf.Service.Portal
     public class PortalMService : IPortalMService
     {
         private readonly IAssetsService _asset;
-
+        private readonly IDriverService _driverService;
         private readonly IClientService _clientService;
         private readonly IMixIntegrateService _Mix;
         private readonly ILogService _logService;
@@ -46,9 +46,11 @@ namespace Syscaf.Service.Portal
 
         public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
-            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, ILogService _logService,
+            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, 
+            ILogService _logService,
             SyscafCoreConn _connCore,
-             IMixIntegrateService _MixService
+             IMixIntegrateService _MixService,
+             IDriverService _driverService
             )
         {
             this._logService = _logService;
@@ -62,6 +64,7 @@ namespace Syscaf.Service.Portal
             this._notificacionService = _notificacionService;
             this._connCore = _connCore;
             this._MixService = _MixService;
+            this._driverService = _driverService;
         }
         public async Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
         {
@@ -464,38 +467,62 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriverVM EncScoringFlexDriver)
+        public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal, string aggregationPeriod = "Daily")
         {
-            var r = new ResultObject();
-            try
+
+
+
+            ResultObject result = new();
+            string from = (FechaInicial ?? Constants.GetFechaServidor()).FormatoyyyyMMddhhmmss();
+            string to = (FechaFinal ?? Constants.GetFechaServidor()).FormatoyyyyMMddhhmmss();
+
+            // traemos el listado de clientes
+            var ListadoClientes = await _clientService.GetAsync(1, clienteIds: ClienteIds);
+            var nameOfProperty = "DriverId";
+            foreach (var item in ListadoClientes)
             {
-                var result = (await GetDriverxCliente(EncScoringFlexDriver.ClienteIds));
-                var Datos = new Report_FlexibleRAG();
-                var Data = new ResultObject();
-                Datos = await _MixService.GetFlexibleRAGScoreReportAsync(result, EncScoringFlexDriver.from, EncScoringFlexDriver.to, EncScoringFlexDriver.aggregationPeriod, EncScoringFlexDriver.ClienteIds, EncScoringFlexDriver.ClienteId);
-                Data.Data = JsonConvert.SerializeObject(Datos);
-                
-               // var stringsql = JsonConvert.SerializeObject(String.Join(",", nue.Score));
-                var parametros = new Dapper.DynamicParameters();
-                parametros.Add("JSON_STR", Data.Data);
                 try
                 {
-                    //Se ejecuta el procedimiento almacenado.
-                    var resultado = await Task.FromResult(_connCore.Get<string>(PortalQueryHelper.EncScoringDetalleScoringFlexDriver, parametros, commandType: CommandType.StoredProcedure));
-                    r.Mensaje = resultado.ToString();
-                    r.Exitoso = true;
+                    var conductores = (await _driverService.GetByClienteIds(item.clienteIdS, null)).Select(s => 
+                    {                       
+                        var propertyInfo = s.GetType().GetProperty(nameOfProperty);
+                        var value = propertyInfo.GetValue(s, null);
+
+                        return  long.Parse(value) ;
+                    }).ToList();
+                    var Datos = new Report_FlexibleRAG();
+                    var Data = new ResultObject();
+                   // Datos = await _MixService.GetFlexibleRAGScoreReportAsync(conductores, from, to, aggregationPeriod, item.clienteIdS, item.clienteId);
+                    Data.Data = JsonConvert.SerializeObject(Datos);
+
+                    // var stringsql = JsonConvert.SerializeObject(String.Join(",", nue.Score));
+                    var parametros = new Dapper.DynamicParameters();
+                    parametros.Add("JSON_STR", Data.Data);
+                    try
+                    {
+                        //Se ejecuta el procedimiento almacenado.
+                        var resultado = await Task.FromResult(_connCore.Get<string>(PortalQueryHelper.EncScoringDetalleScoringFlexDriver, parametros, commandType: CommandType.StoredProcedure));
+                        result.Mensaje = resultado.ToString();
+                        result.Exitoso = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Message.ToString();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    ex.Message.ToString();
+                   // result.error(ex.Message.ToString());
+                    throw;
                 }
             }
-            catch (Exception ex)
-            {
-                r.error(ex.Message.ToString());
-                throw;
-            }
-            return r;
+
+            return result;
+
+
+            
+            
+         
         }
 
 
@@ -508,6 +535,6 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
         Task<List<long>> GetDriverxCliente(int ClienteId);
         Task<long> GetCliente(int ClienteId);
-        Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriverVM EncScoringFlexDriver);
+        Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal, string aggregationPeriod = "Daily");
     }
 }
