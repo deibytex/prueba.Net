@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
@@ -42,7 +43,26 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _assetService.GetByClienteIdsAsync(ClienteIds, UsertState);
         }
+        //Obtiene assets
+        [HttpGet("getAssets")]
+        public async Task<ActionResult<ResultObject>> getAssets([Required] long ClienteId)
+        {
+            return await _assetService.getAssets(ClienteId);
+        }
 
+        //Obtiene estados TX o los uqe pidan
+        [HttpGet("getEstadosAssets")]
+        public async Task<ActionResult<ResultObject>> getEstadosAssets([Required] int tipoIdS)
+        {
+            return await _assetService.getEstadosTx(tipoIdS);
+        }
+
+        //Actualizar assets
+        [HttpPost("updateAssets")]
+        public async Task<ActionResult<ResultObject>> updateAssets([FromBody] AssetsVM assets)
+        {
+            return await _assetService.updateAssets(assets);
+        }
 
     }
 }

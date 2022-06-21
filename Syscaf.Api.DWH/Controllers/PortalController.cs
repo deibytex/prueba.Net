@@ -120,6 +120,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpPost("GuardarEncScoringDetalleScoringFlexDriver")]
         public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver([FromBody] EncScoringFlexDriverVM EncScoringFlexDriver)
         {
+
             return await _portalService.GuardarEncScoringDetalleScoringFlexDriver(EncScoringFlexDriver);
         }
 
