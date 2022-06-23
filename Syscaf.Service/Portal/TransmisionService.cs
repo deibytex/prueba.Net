@@ -232,9 +232,11 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-               var jsonconvert =  JsonConvert.SerializeObject(json);
+                DateTime Fecha = json[0].Fecha;
+                var jsonconvert =  JsonConvert.SerializeObject(json);
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("JSON_STR", jsonconvert);
+                parametros.Add("Fecha", Fecha);
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
