@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.PORTAL;
+using Syscaf.Common.Services;
+using Syscaf.Common.Utils;
 using Syscaf.Service.Helpers;
+using Syscaf.Service.Peg;
 using Syscaf.Service.Portal;
 using SyscafWebApi.Service;
 using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 
 namespace Syscaf.Api.DWH.Controllers
 {
@@ -13,17 +18,76 @@ namespace Syscaf.Api.DWH.Controllers
     [ApiController]
     public class PortalController : ControllerBase
     {
-       
+
         private readonly IPortalMService _portalService;
         private readonly IProcesoGeneracionService _procesoGeneracionService;
         private readonly INotificacionService _notificacionService;
         private readonly IMixIntegrateService _MixService;
-        public PortalController(IPortalMService _portalService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, IMixIntegrateService _MixService)
+        private readonly IClientService _clientService;
+        private readonly IPegasoService _pegasoService;
+     
+        readonly DateTime _fechaservidor = Constants.GetFechaServidor();
+        public PortalController(IPortalMService _portalService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService
+            , IMixIntegrateService _MixService, IClientService _clientService, IPegasoService _pegasoService)
         {
             this._portalService = _portalService;
             this._procesoGeneracionService = _procesoGeneracionService;
             this._notificacionService = _notificacionService;
             this._MixService = _MixService;
+            this._clientService = _clientService;
+           this._pegasoService = _pegasoService;
+          
+        }
+        [HttpGet]
+        public async Task<ResultObject> EjecucionesSimultaneasPortal()
+        {
+
+            // extrae informacion de trace cada minuto esto por la cantidad de datos que extrae
+            var result = await _portalService.Get_EventosPorClientes(909, null,  null);
+            if (!result.Exitoso)
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_eventos TRACE {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+            result = await _portalService.Get_EventosPorClientes(914, null, null);
+            if (!result.Exitoso)
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_eventos ESOMOS F {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+
+            //// revisa ejecucioin que es a cada minuto
+            //result = await _transmisionClass.PruebaSimCard();
+            //if (!result.Exitoso)
+            //    _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"PruebaSimCard  {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+            // obtiene las posiciones de los que tengan marcado como posiciones en la tabla clientes
+            result = await _portalService.Get_PositionsByClientPositionsActive();
+            if (!result.Exitoso)
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_Posiciones  {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+            //// estrae la informacion del proyecto esomos
+            //string period = $"{_fechaservidor.Month}{_fechaservidor.Year}";
+            //List<int> clientesIds = new List<int>() { 914 };
+            //foreach (int clienteid in clientesIds)
+            //{
+            //    result = await _eBusClass.SetEventosActivos(period, clienteid);
+            //    if (!result.Exitoso)
+            //        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar eventos Activos {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+            //}
+
+            //// cada 5 minutos envia notificacion
+            //if (_fechaservidor.Minute % 5 == 0)
+            //{
+            //    await _notificacionService.EnviarCorreosSistemaNotificacion();
+
+            //}
+
+
+            // cada minuto 10 ejecuta la extraccion
+            if (_fechaservidor.Minute % 10 == 0)
+            {
+
+                await _pegasoService.SendData();
+            }
+            return null;
         }
 
         [HttpGet("ObtenerViajesMetricas")]
@@ -33,14 +97,14 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
         [HttpGet("ObtenerViajesMetricasHistorico")]
-        public async Task<ActionResult<ResultObject>> GetViajesMetricasMixHistorico(int ClienteIds , DateTime FechaInicial, DateTime FechaFinal)
+        public async Task<ActionResult<ResultObject>> GetViajesMetricasMixHistorico(int ClienteIds, DateTime FechaInicial, DateTime FechaFinal)
         {
-            return await _portalService.Get_ViajesMetricasPorClientes(ClienteIds, FechaInicial, FechaFinal); 
+            return await _portalService.Get_ViajesMetricasPorClientes(ClienteIds, FechaInicial, FechaFinal);
         }
         [HttpGet("ObtenerEventos")]
-        public async Task<ActionResult<ResultObject>> GetEventosMix()
+        public async Task<ActionResult<ResultObject>> GetEventosMix(int? ClienteIds)
         {
-            return await _portalService.Get_EventosPorClientes(null, null, null); ;
+            return await _portalService.Get_EventosPorClientes(ClienteIds, null, null);
         }
 
         [HttpGet("ObtenerEventosHistorico")]
@@ -58,7 +122,7 @@ namespace Syscaf.Api.DWH.Controllers
 
             foreach (var fecha in procesoGeneracion)
             {
-                result = await _portalService.Get_PositionsByClient(null,fecha.ProcesoGeneracionDatosId);
+                result = await _portalService.Get_PositionsByClient(null, fecha.ProcesoGeneracionDatosId);
 
                 SetEstadoProcesoGeneracionDatos(fecha.ProcesoGeneracionDatosId, result.Exitoso, " Posiciones -  Error al sincronizar " + result.Mensaje);
             }
@@ -68,7 +132,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("GetPosicionesSinValidar")]
         public async Task<ActionResult<ResultObject>> GetPosicionesMixByGroupSinValidar(int? ClienteIds)
         {
-      
+
             return await _portalService.Get_PositionsByClient(ClienteIds, 0);
         }
 
@@ -126,6 +190,37 @@ namespace Syscaf.Api.DWH.Controllers
             return await _portalService.GuardarEncScoringDetalleScoringFlexDriver(ClienteIds, FechaInicial, FechaFinal);
         }
 
+        /// <summary>
+        /// Permite ejecutar de manera manual la extraccion de las pruebas simCard
+        /// </summary>
+
+        /// <returns></returns>
+        [HttpGet("ExecPruebaSimCard")]
+        public async Task<ResultObject> ExecPruebaSimCard()
+        {
+
+            return await _portalService.PruebaSimCard();
+        }
+
+      
+
+
+        [HttpPost("GetConsultasDinamicas")]
+        public async Task<List<dynamic>> GetConsultasDinamicas( [FromBody]  Dictionary<string, string> parametros , [FromQuery]  string Clase, [FromQuery]  string NombreConsulta)
+        {
+
+
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(  kvp.Key, kvp.Value);
+            }
+
+
+            return await _portalService.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+        }
+
+      
 
     }
 }

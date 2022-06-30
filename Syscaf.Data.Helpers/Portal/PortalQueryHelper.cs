@@ -33,9 +33,47 @@ namespace Syscaf.Data.Helpers.Portal
 
         public static string _insertaPosiciones = "TX.InsertPosiciones";
 
+        public static string _insertaPosicionesCliente = "PORTAL.InsertPosicionesByClient";
+
         public static string _listaDetalle = "PORTAL.GetDetalleLista";
         public static string DriverxCliente = "RAG.GetDriversxCliente";
         public static string OrganizacionMix = "RAG.GetClienteMix";
         public static string EncScoringDetalleScoringFlexDriver = "RAG.SetEncScoring&DetalleScoringFlexDriver";
+
+        public static string getAssetsProgramacion = @"SELECT ProcesoGeneracionDatosId
+                                                      ,a.AssetId
+	                                                  ,pa.clienteid
+                                                      ,pa.Description
+                                                  FROM dbo.TB_AssetProgramacion a 
+                                                  inner join portal.Assets pa on pa.AssetId =  a.AssetId
+                                                  where a.EsActivo  = 1";
+
+        public static string insertPruebasSimCard = @" INSERT INTO dbo.TB_PruebaSimCard
+                                                       (Placa
+                                                       , UltimoAvl
+                                                       , FechaSistema
+                                                       , ProcesoGeneracionDatosId
+                                                       , Latitud
+                                                       , Longitud
+                                                       , Velocidad)
+                                                 VALUES
+                                                       (@Placa
+                                                       , @UltimoAvl
+                                                       , @FechaSistema
+                                                       , @ProcesoGeneracionDatosId
+                                                       , @Latitud
+                                                       , @Longitud
+                                                       , @Velocidad)";
+
+        public static string getConsultasByClaseyNombre = @"  SELECT Consulta      
+                                                              FROM PORTAL.ConsultasPortalPorTipo
+                                                              where Clase = @Clase and NombreConsulta = @NombreConsulta";
+
+       
+
+
+
+
+
     }
 }

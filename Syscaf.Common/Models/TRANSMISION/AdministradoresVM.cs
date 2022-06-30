@@ -24,7 +24,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Base { get; set; }
         public string Billable { get; set; }
         public string Cliente { get; set; }
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime Date { get; set; }
         public string Estado { get; set; }
         public string Grupo { get; set; }

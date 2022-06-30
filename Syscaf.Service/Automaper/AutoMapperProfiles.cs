@@ -54,7 +54,7 @@ namespace Syscaf.Service.Automaper
             CreateMap<Event, EventsNew>()
                 .ForMember(f => f.Latitude, op => op.MapFrom(MapearLatitudLongitudFields))
                 .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
-                .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime)))
+                .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime, false)))
                 .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime))) ;
 
             CreateMap<TripRibasMetrics, MetricsNew>()

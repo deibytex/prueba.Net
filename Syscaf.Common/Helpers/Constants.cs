@@ -49,7 +49,7 @@ namespace Syscaf.Common.Helpers
         public static string Dominio = "";
         public static string FormatoHoraPacifico = "dd/MM/yyyy";
         public static string FormatoHoraPacificoHMS = "dd/MM/yyyy HH:mm:ss";
-        public static string FormatoyyyyMMddhhmmss = "yyyyMMddhhmmss";
+        public static string FormatoyyyyMMddHHmmss = "yyyyMMddHHmmss";
         
 
         public static DateTime GetFechaServidor()

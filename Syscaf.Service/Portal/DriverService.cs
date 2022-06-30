@@ -98,7 +98,7 @@ namespace Syscaf.Service.Portal
             return await _conn.GetAll(DriverQueryHelper._getByClientId, new { ClienteId, EsActivo }, commandType: CommandType.Text);
             // insertamos en la replica
         }
-        public async Task<List<dynamic>> GetByClienteIds(long? ClienteIds, int? EsActivo)
+        public async Task<List<dynamic>> GetByClienteIds(int? ClienteIds, int? EsActivo)
         {
             //// debe validr que la tabla a la que va a isnertar el mensaje exista            
             return await _conn.GetAll(DriverQueryHelper._getByClientIds, new { ClienteIds, EsActivo }, commandType: CommandType.Text);
@@ -111,7 +111,7 @@ namespace Syscaf.Service.Portal
 
         Task<ResultObject> Add(List<ClienteDTO> clientes);
         Task<List<dynamic>> GetByClienteId(long? ClienteId, int? EsActivo);
-        Task<List<dynamic>> GetByClienteIds(long? ClienteIds, int? EsActivo);
+        Task<List<dynamic>> GetByClienteIds(int? ClienteIds, int? EsActivo);
 
     }
 }

@@ -12,7 +12,7 @@ using Syscaf.Service.ViewModels.PORTAL;
 using System.Data;
 using System.Reflection;
 using Dapper;
-
+using System.Globalization;
 
 namespace Syscaf.Common.Integrate.PORTAL
 {
@@ -83,6 +83,11 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("fechasistema", Constants.GetFechaServidor(), DbType.DateTime);
                     parametros.Add("SinceToken", SinceToken, DbType.String);
                     valor = _conn.GetAll<string>(sqlCommand, parametros).FirstOrDefault();
+                    DateTime time = DateTime.ParseExact(valor,
+                                 "yyyyMMddHHmmssfff",
+                                  CultureInfo.InvariantCulture);
+                    if (valor == null || valor.Length == 0 || time <= Constants.GetFechaServidor().AddDays(-7))
+                        valor = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
                 }
                 catch (Exception ex)
                 {
@@ -140,13 +145,13 @@ namespace Syscaf.Common.Integrate.PORTAL
         {
             try
             {
-                string sqlCommand = "PORTAL.SetLog  @CredencialId ,  @Method ,@StatusResponse  ,  @Response ,@FechaSistema, @Clienteids ";
+                string sqlCommand = "PORTAL.SetLog  ";
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("CredencialId", CredencialId, DbType.Int32);
                 parametros.Add("Method", Method, DbType.String);
                 parametros.Add("StatusResponse", StatusResponse, DbType.Int32);
                 parametros.Add("Response", Response, DbType.String);
-                parametros.Add("FechaSistema", Response, DbType.DateTime);
+                parametros.Add("FechaSistema", FechaSistema, DbType.DateTime);
                 parametros.Add("Clienteids", clienteids, DbType.Int32);
                 _conn.Execute(sqlCommand, parametros);
 

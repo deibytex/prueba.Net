@@ -181,11 +181,7 @@ namespace SyscafWebApi.Service
         {
             string method = methodP == null ? "Trips.GetCreatedSinceForOrganisation" : methodP;
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
-            DateTime time = DateTime.ParseExact(sinceToken,
-                                  "yyyyMMddHHmmssfff",
-                                   CultureInfo.InvariantCulture);
-            if (sinceToken == null || sinceToken.Length == 0 || time <= FechaActual.AddDays(-7))
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetUltimosViajesCreadosByOrganization", new object[] { organizacion, sinceToken, cantidad });
             CreatedSinceResult<Trip> datos = (CreatedSinceResult<Trip>)result.Data;
@@ -197,8 +193,7 @@ namespace SyscafWebApi.Service
             string method = "Event.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetUltimosEventosCreadosPorOrganizacion", new object[] { organizacion, eventosImportantes, sinceToken, cantidad });
             CreatedSinceResult<Event> datos = (CreatedSinceResult<Event>)result.Data;
@@ -211,8 +206,6 @@ namespace SyscafWebApi.Service
             string method = "Active.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
             byte cantidad = 100;
 
 
@@ -226,8 +219,7 @@ namespace SyscafWebApi.Service
             string method = "Active.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
 
 
@@ -240,12 +232,7 @@ namespace SyscafWebApi.Service
         public async Task<List<Position>> getLastPositionsByGroups(List<long> organizacion, int ClienteIds)
         {
             string method = "getLastPositionsByGroups";
-            string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
-
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
-            //byte cantidad = 100;
-
+            string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);           
 
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getLastPositionsByGroups", new object[] { organizacion, sinceToken });
             CreatedSinceResult<Position> datos = (CreatedSinceResult<Position>)result.Data;

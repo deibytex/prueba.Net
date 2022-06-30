@@ -4,6 +4,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Syscaf.Api.DWH.ApiBehavior;
+using Syscaf.Api.DWH.Filters;
 using Syscaf.Api.DWH.Utilities;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
@@ -12,7 +14,7 @@ using Syscaf.Common.Services;
 using Syscaf.Common.Utils;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-
+using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
 using Syscaf.Service.Portal;
 
@@ -59,6 +61,11 @@ namespace Syscaf.Api.DWH
             services.Configure<GlobalVariables>(
                 Configuration.GetSection("Constants"));
 
+            services.Configure<PegVariablesConn>(
+               Configuration.GetSection("PegVariablesConn"));
+
+            
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
            
@@ -80,6 +87,16 @@ namespace Syscaf.Api.DWH
                 c.IncludeXmlComments(xmlPath);
             });
             Constants.Inicializar(Configuration);
+            ConfigValidatorService.Inicializar(Configuration);
+
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ExceptionFilter));
+                options.Filters.Add(typeof(ParserBadRequest));
+            }).ConfigureApiBehaviorOptions(BehaviorBadRequests.Parsear);
+
+
+
         }
        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,6 +123,8 @@ namespace Syscaf.Api.DWH
             app.UseRouting();
 
             app.UseCors();
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseAuthentication();
 

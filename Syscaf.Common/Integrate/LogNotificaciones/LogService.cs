@@ -22,6 +22,10 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
         {          
              await _conn.Insert(PortalQueryHelper._InsertLog, log, commandType: CommandType.Text);           
         }
+        public async void SetLog(string Method, string Cliente, string Description)
+        {
+            await _conn.Insert(PortalQueryHelper._InsertLog, getClassLogDTO("Error", 0, Method, Description), commandType: CommandType.Text);
+        }
 
         public async void SetLogError(int OptionId, string Method, string Description)
         {

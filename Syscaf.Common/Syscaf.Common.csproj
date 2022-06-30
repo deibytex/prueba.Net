@@ -18,7 +18,6 @@
   <ItemGroup>
     <Compile Remove="Dapper\DapperExtension.cs" />
     <Compile Remove="Helpers\MailNotification.cs" />
-    <Compile Remove="Integrate\PegasoServiceConn.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +41,6 @@
 
   <ItemGroup>
     <Folder Include="Dapper\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

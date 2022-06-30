@@ -35,3 +35,6 @@ dotnet_analyzer_diagnostic.severity = none
 
 # CS8629: Un tipo que acepta valores NULL puede ser nulo.
 dotnet_diagnostic.CS8629.severity = none
+
+# CS8632: La anotación para tipos de referencia que aceptan valores NULL solo debe usarse en el código dentro de un contexto de anotaciones "#nullable".
+dotnet_diagnostic.CS8632.severity = none

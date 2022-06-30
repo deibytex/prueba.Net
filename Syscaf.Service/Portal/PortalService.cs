@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Dapper;
+using Microsoft.Extensions.Options;
 using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Positions;
 using MiX.Integrate.Shared.Entities.Scoring;
@@ -9,11 +10,14 @@ using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.PORTAL;
+using Syscaf.Common.Services;
 using Syscaf.Common.Utilities;
+using Syscaf.Common.Utils;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.DataTableSql;
+using Syscaf.Service.dbo.Models;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal.Models;
 using SyscafWebApi.Service;
@@ -24,6 +28,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Syscaf.Common.Helpers.Enums;
 
@@ -43,10 +48,11 @@ namespace Syscaf.Service.Portal
         private readonly INotificacionService _notificacionService;
         private readonly SyscafCoreConn _connCore;
         private readonly IMixIntegrateService _MixService;
+      
 
         public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
-            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService, 
+            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService,
             ILogService _logService,
             SyscafCoreConn _connCore,
              IMixIntegrateService _MixService,
@@ -65,68 +71,72 @@ namespace Syscaf.Service.Portal
             this._connCore = _connCore;
             this._MixService = _MixService;
             this._driverService = _driverService;
+            
         }
         public async Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
         {
             ResultObject result = new();
             // traemos el listado de clientes
             var ListadoClientes = await _clientService.GetAsync(1);
-
-            foreach (var item in ListadoClientes)
+            try
             {
-                //// guardamos los viajes por periodo, se debe determinar a traves de los viajes cual es el perido al que pertenece la informacion y guardarlo al que corresponda
-                IList<Trip> trips =
-                    (FechaFinal == null && FechaFinal == null) ?
-                    await _Mix.GetUltimosViajesCreadosByOrganization(item.clienteId, item.clienteIdS, "GetViajesPortal")
-                    :
-                    await _Mix.getViajes(new List<long>() { item.clienteId }, FechaInicial.Value, FechaFinal.Value, item.clienteIdS);
-                ;
 
-                if (trips != null && trips.Count > 0)
+
+                foreach (var item in ListadoClientes)
                 {
-                    trips.GroupBy(g => new { Constants.GetFechaServidor(g.TripStart).Month, Constants.GetFechaServidor(g.TripStart).Year })
-                                              .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Viajes = s }).ToList().ForEach(async f =>
-                                              {
+                    //// guardamos los viajes por periodo, se debe determinar a traves de los viajes cual es el perido al que pertenece la informacion y guardarlo al que corresponda
+                    IList<Trip> trips =
+                        (FechaFinal == null && FechaFinal == null) ?
+                        await _Mix.GetUltimosViajesCreadosByOrganization(item.clienteId, item.clienteIdS, "GetViajesPortal")
+                        :
+                        await _Mix.getViajes(new List<long>() { item.clienteId }, FechaInicial.Value, FechaFinal.Value, item.clienteIdS);
+                    ;
+
+                    if (trips != null && trips.Count > 0)
+                    {
+                        trips.GroupBy(g => new { Constants.GetFechaServidor(g.TripStart).Month, Constants.GetFechaServidor(g.TripStart).Year })
+                                                  .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Viajes = s }).ToList().ForEach(async f =>
+                                                  {
                                                   //// verifica que existan y se manda la fecha desde el cual elsistema empieza a validar si existen
                                                   var ResultTrips = await GetIdsNoIngresadosByClienteAsync(f.Viajes.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.viajes, item.clienteIdS);
                                                   //// cruzamos el resultado con el listado general de eventos
                                                   var tripsFilters = f.Viajes.Where(w => ResultTrips.Any(a => a == w.TripId)).ToList();
 
-                                                  if (tripsFilters.Count > 0)
-                                                  {
+                                                      if (tripsFilters.Count > 0)
+                                                      {
 
-                                                      var tripsInserts = _mapper.Map<List<TripsNew>>(tripsFilters);
-                                                      result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsInserts), f.Period, "Trips", item.clienteIdS);
-                                                      if (!result.Exitoso)
-                                                          _logService.SetLogError(0, "Inserta Trips ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
-                                                  }
-                                              });
+                                                          var tripsInserts = _mapper.Map<List<TripsNew>>(tripsFilters);
+                                                          result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsInserts), f.Period, "Trips", item.clienteIdS);
+                                                          if (!result.Exitoso)
+                                                              _logService.SetLogError(0, "Inserta Trips ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
+                                                      }
+                                                  });
 
-                    if (item.Metrics)
-                    {
-                        DateTime minDateMetricas = trips.Min(min => min.TripStart);
-                        minDateMetricas = minDateMetricas.Date;
-                        DateTime maxDateMetricas = trips.Max(max => max.TripEnd);
-                        maxDateMetricas = maxDateMetricas.Date;
-
-                        while (minDateMetricas <= maxDateMetricas)
+                        if (item.Metrics)
                         {
+                            DateTime minDateMetricas = trips.Min(min => min.TripStart);
+                            minDateMetricas = minDateMetricas.Date;
+                            DateTime maxDateMetricas = trips.Max(max => max.TripEnd);
+                            maxDateMetricas = maxDateMetricas.Date;
 
-                            DateTime fechaconsulta = minDateMetricas;
-                            minDateMetricas = minDateMetricas.AddDays(1);
-                            DateTime fechaconsultaf = minDateMetricas;
-                            var totalTrips = trips.Where(w => w.TripStart >= fechaconsulta && w.TripStart <= fechaconsultaf);
-
-                            if (totalTrips.Count() > 0)
+                            while (minDateMetricas <= maxDateMetricas)
                             {
-                                //  treemos las metricas por rangos no superiores a  7 días dependiendo del los rangos de fechas
-                                List<TripRibasMetrics> metricasMix = await _Mix.GetMetricasPorDriver(trips.Select(s => s.DriverId).Distinct().ToList(), fechaconsulta.AddHours(-5), fechaconsultaf.AddHours(-5), item.clienteIdS);
+
+                                DateTime fechaconsulta = minDateMetricas;
+                                minDateMetricas = minDateMetricas.AddDays(1);
+                                DateTime fechaconsultaf = minDateMetricas;
+                                var totalTrips = trips.Where(w => w.TripStart >= fechaconsulta && w.TripStart <= fechaconsultaf);
+
+                                if (totalTrips.Count() > 0)
+                                {
+                                    //  treemos las metricas por rangos no superiores a  7 días dependiendo del los rangos de fechas
+                                    List<TripRibasMetrics> metricasMix = await _Mix.GetMetricasPorDriver(trips.Select(s => s.DriverId).Distinct().ToList(), fechaconsulta.AddHours(-5), fechaconsultaf.AddHours(-5), item.clienteIdS);
 
 
-                                metricasMix
-                                    .GroupBy(g => new { Constants.GetFechaServidor(g.TripStart).Month, Constants.GetFechaServidor(g.TripStart).Year })
-                                    .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Metricas = s }).ToList().ForEach(async f =>
-                                    {
+                                    metricasMix
+                                        .GroupBy(g => new { Constants.GetFechaServidor(g.TripStart).Month, Constants.GetFechaServidor(g.TripStart).Year })
+                                        .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Metricas = s }).ToList().ForEach(async f =>
+                                        {
 
                                         // verifica que existan 
                                         var ResultMetricas = await GetIdsNoIngresadosByClienteAsync(f.Metricas.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.metricas, item.clienteIdS);
@@ -134,50 +144,62 @@ namespace Syscaf.Service.Portal
                                         // cruzamos el resultado con el listado general de eventos
                                         var metricasFilter = f.Metricas.Where(w => ResultMetricas.Any(a => a == w.TripId)).ToList();
 
-                                        if (metricasFilter.Count > 0)
-                                        {
-                                            var tripsMetris = _mapper.Map<List<MetricsNew>>(metricasFilter);
+                                            if (metricasFilter.Count > 0)
+                                            {
+                                                var tripsMetris = _mapper.Map<List<MetricsNew>>(metricasFilter);
 
 
-                                            result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsMetris), f.Period, "TripsMetrics", item.clienteIdS);
+                                                result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsMetris), f.Period, "TripsMetrics", item.clienteIdS);
 
-                                            if (!result.Exitoso)
-                                                _logService.SetLogError(0, "Inserta Trips Metrics ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
-                                        }
+                                                if (!result.Exitoso)
+                                                    _logService.SetLogError(0, "Inserta Trips Metrics ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
+                                            }
 
-                                    });
+                                        });
+
+                                }
 
                             }
 
+
                         }
-
-
                     }
+
+                    // ejecuta los eventos
+                  
                 }
+            }
+            catch (Exception ex)
+            {
+
+                result.error(ex.ToString());
             }
 
             return result;
         }
 
-        public async Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal)
+        public async Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal)
         {
             ResultObject result = new();
-            // traemos el listado de clientes
-            var ListadoClientes = await _clientService.GetAsync(1);
-
-            foreach (var item in ListadoClientes)
+            string _Clientenombre = "";
+            try
             {
-                try
+                // traemos el listado de clientes
+                var ListadoClientes = await _clientService.GetAsync(1, ClienteIds);
+               
+                foreach (var item in ListadoClientes)
                 {
-                    // si tienen configurado al menos un evento que extraer
+                                       // si tienen configurado al menos un evento que extraer
                     var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
-
+                    _Clientenombre = item.clienteNombre;
                     if (getEventos != null && getEventos.Count > 0)
                     {
                         //////////////////////////////////////////////////////////////////////////////////////
                         ///  GUARDAMOS LOS ULTIMOS EVENTOS CREADOS POR ORGANIZACION
 
                         // nos traemos los últimos eventos creados por cada vehículo
+
+
                         var eventos =
                              (FechaFinal == null && FechaFinal == null) ?
                             await _Mix.GetUltimosEventosCreadosPorOrganizacion(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS)
@@ -214,27 +236,23 @@ namespace Syscaf.Service.Portal
                                             _logService.SetLogError(0, "Portal.GetEventos", resultevento.Mensaje);
 
                                     }
-
                                 });
                         }
-                        result.Exitoso = true;
-                    }
+                                            }
 
-                }
-                catch (Exception ex)
-                {
-
-                    //string mensaje = $" {FechaServidor} = { ex.Message}";
-                    //result.Mensaje = ex.Message.ToString();
-                    //_notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {clientes.clienteNombre} Error  = { mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
-                    //_logService.SetLog(mensaje, "", "Portal - Eventos");
-                    //if (ex.Message.Contains("500-") || ex.Message.Contains("504-") || ex.Message.Contains("503-"))
-                    //    break;
+                    result.success($"Cliente { item.clienteNombre } cargado satisfactoriametne  { Constants.GetFechaServidor()}");
                 }
 
-            }// fin del foreach 
-
-            result.Exitoso = true;
+              
+            }
+            catch (Exception ex)
+            {
+                string mensaje = $" {Constants.GetFechaServidor()} = { ex.Message}";              
+                result.error(ex.Message.ToString());
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {_Clientenombre} Error  = { mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
+                _logService.SetLogError(0, "Portal - Eventos", mensaje);             
+             
+            }
 
 
             return result;
@@ -336,7 +354,7 @@ namespace Syscaf.Service.Portal
 
                 try
                 {
-                    List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);                    
+                    List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);
 
                     if (positions != null)
                     {
@@ -364,7 +382,7 @@ namespace Syscaf.Service.Portal
                         var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosiciones, new { Lista }, CommandType.StoredProcedure);
 
                         result.success();
-                
+
                     }
 
                 }
@@ -383,12 +401,70 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
+        public async Task<ResultObject> Get_PositionsByClientPositionsActive()
+        {
+            ResultObject result = new();
+            // traemos el listado de clientes
+            var ListadoClientes = await _clientService.GetAsync(1);
+            ListadoClientes = ListadoClientes.Where(w => w.Position).ToList();
+            _logService.SetLogError(0, "Posiciones - obtenerPosiciones con Positions Active", "Operacion inicial en posiciones");
+            foreach (var item in ListadoClientes)
+            {
+                //// guardamos los viajes por periodo, se debe determinar a traves de los viajes cual es el perido al que pertenece la informacion y guardarlo al que corresponda
+
+                try
+                {
+                    List<Position> positions = await _Mix.getPositionsByGroups(new List<long>() { item.clienteId }, item.clienteIdS);
+
+                    if (positions != null)
+                    {
+                        var posiciones = positions.Select(s =>
+                            new
+                            {
+                                s.PositionId,
+                                s.AssetId,
+                                s.DriverId,
+                                s.FormattedAddress,
+                                s.Latitude,
+                                s.Longitude,
+                                s.NumberOfSatellites,
+                                s.SpeedLimit,
+                                s.AltitudeMetres,
+                                Timestamp = s.Timestamp.ToColombiaTime(),
+                                FechaSistema = Constants.GetFechaServidor()
+                            });
+
+                        string Lista = JsonConvert.SerializeObject(posiciones);
+                        var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosicionesCliente, new { Lista }, CommandType.StoredProcedure);
+
+                        result.success();
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
+                    result.error(ex.Message);
+                }
+                finally {
+                    _logService.SetLogError(0, "Posiciones - obtenerPosiciones con Positions Active", "Operacion final en posiciones");
+                }
+
+
+            }
+
+
+            return result;
+        }
+
         public async Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla)
         {
             var r = new ResultObject();
             try
             {
-               
+
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("ListaId", ListaId);
                 parametros.Add("Sigla", Sigla);
@@ -426,33 +502,6 @@ namespace Syscaf.Service.Portal
                     //Se ejecuta el procedimiento almacenado.
                     var result = await Task.FromResult(_connCore.GetAll<long>(PortalQueryHelper.DriverxCliente, parametros, commandType: CommandType.StoredProcedure));
                     r = result;
-                   
-                }
-                catch (Exception ex)
-                {
-                   ex.Message.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.Message.ToString();
-                throw;
-            }
-            return r;
-        }
-        public async Task<long> GetCliente(int ClienteId)
-        {
-            var r = new long();
-            try
-            {
-
-                var parametros = new Dapper.DynamicParameters();
-                parametros.Add("ClienteId", ClienteId);
-                try
-                {
-                    //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_connCore.Get<long>(PortalQueryHelper.OrganizacionMix, parametros, commandType: CommandType.StoredProcedure));
-                    r = result;
 
                 }
                 catch (Exception ex)
@@ -467,14 +516,12 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+        
         public async Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal, string aggregationPeriod = "Daily")
         {
-
-
-
             ResultObject result = new();
-            string from = (FechaInicial ?? Constants.GetFechaServidor()).FormatoyyyyMMddhhmmss();
-            string to = (FechaFinal ?? Constants.GetFechaServidor()).FormatoyyyyMMddhhmmss();
+            string from = (FechaInicial ?? Constants.GetFechaServidor()).Date.AddDays(-1).FormatoyyyyMMddHHmmss();
+            string to = (FechaFinal ?? Constants.GetFechaServidor()).Date.AddSeconds(-1).FormatoyyyyMMddHHmmss();
 
             // traemos el listado de clientes
             var ListadoClientes = await _clientService.GetAsync(1, clienteIds: ClienteIds);
@@ -483,16 +530,18 @@ namespace Syscaf.Service.Portal
             {
                 try
                 {
-                    var conductores = (await _driverService.GetByClienteIds(item.clienteIdS, null)).Select(s => 
-                    {                       
-                        var propertyInfo = s.GetType().GetProperty(nameOfProperty);
-                        var value = propertyInfo.GetValue(s, null);
+                    var datapura = (await _driverService.GetByClienteIds(item.clienteIdS, null));
+                    var conductores = datapura.Select(s =>
+                    {
+                        var propiedades = (IDictionary<string, object>)s;
+                        propiedades.TryGetValue(nameOfProperty, out object valor);
+                        return (long)valor;
+                    }
+                     ).ToList();
 
-                        return  long.Parse(value) ;
-                    }).ToList();
                     var Datos = new Report_FlexibleRAG();
                     var Data = new ResultObject();
-                   // Datos = await _MixService.GetFlexibleRAGScoreReportAsync(conductores, from, to, aggregationPeriod, item.clienteIdS, item.clienteId);
+                    Datos = await _MixService.GetFlexibleRAGScoreReportAsync(conductores, from, to, aggregationPeriod, item.clienteIdS, item.clienteId);
                     Data.Data = JsonConvert.SerializeObject(Datos);
 
                     // var stringsql = JsonConvert.SerializeObject(String.Join(",", nue.Score));
@@ -501,8 +550,8 @@ namespace Syscaf.Service.Portal
                     try
                     {
                         //Se ejecuta el procedimiento almacenado.
-                        var resultado = await Task.FromResult(_connCore.Get<string>(PortalQueryHelper.EncScoringDetalleScoringFlexDriver, parametros, commandType: CommandType.StoredProcedure));
-                        result.Mensaje = resultado.ToString();
+                        var resultado = await Task.FromResult(_connDWH.Get<string>(PortalQueryHelper.EncScoringDetalleScoringFlexDriver, parametros, commandType: CommandType.StoredProcedure));
+                        result.Mensaje = resultado?.ToString();
                         result.Exitoso = true;
                     }
                     catch (Exception ex)
@@ -512,7 +561,7 @@ namespace Syscaf.Service.Portal
                 }
                 catch (Exception ex)
                 {
-                   // result.error(ex.Message.ToString());
+                    // result.error(ex.Message.ToString());
                     throw;
                 }
             }
@@ -520,21 +569,92 @@ namespace Syscaf.Service.Portal
             return result;
 
 
-            
-            
-         
+
+
+
+        }
+        #region PRUEBAS SIMCARD
+
+
+        public async Task<ResultObject> PruebaSimCard()
+        {
+            ResultObject r = new();
+            try
+            {
+                //Se ejecuta el procedimiento almacenado.
+                var result = await Task.FromResult(_connDWH.GetAll<AssetsSimCardVM>(PortalQueryHelper.getAssetsProgramacion, null, commandType: CommandType.Text));
+
+                if (result.Count > 0)
+                {
+                    foreach (var vehiculo in result.GroupBy(g => g.clienteid))
+                    {
+                        var lstVehiculos = vehiculo.Select(s => s.AssetId).ToList();
+                        var posiciones = await _Mix.getPositions(lstVehiculos, 0);
+
+                        var lstPosiciones = posiciones.Select(
+                             s => new
+                             {
+                                 Placa = result.Find(f => f.AssetId == s.AssetId).Description,
+                                 UltimoAvl = Constants.GetFechaServidor(s.Timestamp),
+                                 Latitud = s.Latitude,
+                                 Longitud = s.Longitude,
+                                 FechaSistema = Constants.GetFechaServidor(),
+                                 ProcesoGeneracionDatosId = result.Find(f => f.AssetId == s.AssetId).ProcesoGeneracionDatosId,
+                                 Velocidad = s.SpeedKilometresPerHour
+                             }
+                             ).ToList();
+
+                        var resultado = await _connDWH.Insert(PortalQueryHelper.insertPruebasSimCard, lstPosiciones, commandType: CommandType.Text);
+
+                        r.Exitoso = (resultado > 0);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+
+            }
+            return r;
+        }
+        #endregion
+        public async Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams)
+        {
+            try
+            {
+                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+
+                if (consulta != null && consulta.Length > 0)
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta, lstparams, commandType: CommandType.Text));
+
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
+       
 
     }
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
-        Task<ResultObject> Get_EventosPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
+        Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
         Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
         Task<List<long>> GetDriverxCliente(int ClienteId);
-        Task<long> GetCliente(int ClienteId);
+      
         Task<ResultObject> GuardarEncScoringDetalleScoringFlexDriver(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal, string aggregationPeriod = "Daily");
+        Task<ResultObject> PruebaSimCard();
+
+        Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
+        Task<ResultObject> Get_PositionsByClientPositionsActive();
     }
 }

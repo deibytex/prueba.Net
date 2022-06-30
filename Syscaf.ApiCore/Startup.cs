@@ -1,4 +1,4 @@
-
+                                                                       
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -11,15 +11,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Syscaf.Api.ApiCore.Utilidades;
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
 using Syscaf.ApiCore.ViewModels;
+using Syscaf.Common.Helpers;
 using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
 
 using Syscaf.Data.Models.Auth;
+using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
 using Syscaf.Service.eBus.Gcp;
 
@@ -75,10 +78,11 @@ namespace Syscaf.ApiCore
 
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
-            services.AddTransient<IeBusGcpService, eBusGcpService>();
-            services.AddTransient<IAuthService, AuthService>();
+            services.AddScoped(options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
+            services.AddScoped<IeBusGcpService, eBusGcpService>();
+            services.AddScoped<IAuthService, AuthService>();
 
-
+            InterfacesAplication.ConfigureServices(services);
 
             services.AddIdentity<ApplicationUser, IdentityRole>( /*options => {
                 //options.Password.RequireDigit = false;
@@ -116,7 +120,8 @@ namespace Syscaf.ApiCore
                 options.Filters.Add(typeof(ParserBadRequest));
             }).ConfigureApiBehaviorOptions(BehaviorBadRequests.Parsear);
 
-
+            Constants.Inicializar(Configuration);
+            ConfigValidatorService.Inicializar(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

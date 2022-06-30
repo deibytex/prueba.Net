@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Syscaf.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,37 +16,11 @@ namespace Syscaf.Common.Services
 {
     public class PegasoServiceConn
     {
-        public string UrlToken
+        private readonly PegVariablesConn _UriVariables;
+        public PegasoServiceConn(PegVariablesConn _UriVariables)
         {
-            get
-            {
-                string data = ConfigurationManager.AppSettings["UrlToken"];
-                return data ?? @"http://18.222.244.24/api/ext/auth";
-            }
-        }
-        public string UrlRequest
-        {
-            get
-            {
-                string data = ConfigurationManager.AppSettings["UrlRequest"];
-                return data ?? @"http://18.222.244.24/api/ext/location";
-            }
-        }
-        public string PwsPeg
-        {
-            get
-            {
-                string data = ConfigurationManager.AppSettings["PwsPeg"];
-                return data ?? "LAPTECHSA2021*";
-            }
-        }
-        public string UserPeg
-        {
-            get
-            {
-                string data = ConfigurationManager.AppSettings["UserPeg"];
-                return data ?? "jvillamil@equitel.com.co";
-            }
+            this._UriVariables = _UriVariables;
+
         }
 
         public async Task<string> getToken()
@@ -52,12 +28,12 @@ namespace Syscaf.Common.Services
 
             var stringPayload = JsonConvert.SerializeObject(new
             {
-                email = UserPeg,
-                password = PwsPeg
+                email = _UriVariables.UserPeg,
+                password = _UriVariables.PwsPeg
             });
             using (var client = new HttpClient())
             {
-                var res = client.PostAsync(new Uri(UrlToken),
+                var res = client.PostAsync(new Uri(_UriVariables.UrlToken),
                   new StringContent(stringPayload,
                     Encoding.UTF8, "application/json")
                 );
@@ -87,7 +63,7 @@ namespace Syscaf.Common.Services
                 try
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                    var res = client.PostAsync(new Uri(UrlRequest), new StringContent(data, Encoding.UTF8, "application/json"));
+                    var res = client.PostAsync(new Uri(_UriVariables.UrlRequest), new StringContent(data, Encoding.UTF8, "application/json"));
                     var status = res.Result.StatusCode;
                     string result = await res.Result.Content.ReadAsStringAsync();
 
