@@ -49,5 +49,6 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Administrador { get; set; }
         public string TipodeTicket { get; set; }
         public int Cantidad { get; set; }
+        public string Cliente { get; set; }
     }
 }
