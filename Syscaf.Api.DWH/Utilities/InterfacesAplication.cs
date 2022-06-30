@@ -26,10 +26,7 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IProcesoGeneracionService, ProcesoGeneracionService>();
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
-            services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
-            services.AddTransient<IRagService, RagService>();
-
-            
+            //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }
 }

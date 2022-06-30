@@ -102,9 +102,10 @@ namespace Syscaf.Api.DWH.Controllers
             return await _Transmision.GetSemanasAnual(Anio);
         }
         /// <summary>
-        /// Inserta el json de las los tickets a la base de datos.
+        /// Inserta el json de los tickets a la base de datos.
         /// </summary>
         /// <param  name="json"></param>
+        /// <param  name="Fecha"></param>
         /// <format>textarea</format>
         /// <returns></returns>
         [HttpPost("SetSnapShotTickets")]

@@ -11,10 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Syscaf.Api.ApiCore.Utilidades;
+
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
+using Syscaf.ApiCore.Utilidades;
 using Syscaf.ApiCore.ViewModels;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.PORTAL;
@@ -25,7 +26,7 @@ using Syscaf.Data.Models.Auth;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
 using Syscaf.Service.eBus.Gcp;
-
+using Syscaf.Service.Portal;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -79,9 +80,7 @@ namespace Syscaf.ApiCore
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
             services.AddScoped(options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
-            services.AddScoped<IeBusGcpService, eBusGcpService>();
-            services.AddScoped<IAuthService, AuthService>();
-
+            // configura todas las interfaces a utilizar en la aplicacion
             InterfacesAplication.ConfigureServices(services);
 
             services.AddIdentity<ApplicationUser, IdentityRole>( /*options => {

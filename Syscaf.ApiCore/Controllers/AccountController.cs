@@ -114,11 +114,11 @@ namespace Syscaf.ApiCore.Controllers
 
         [HttpGet("listadoUsuarios")]
        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<dynamic>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO, [FromQuery] string? Search, [FromQuery] string? UsuarioId)
+        public async Task<ActionResult<dynamic>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO, [FromQuery] string? Search, [FromQuery] string? UsuarioId, [FromQuery] int? UsuarioIds)
         {
             try
             {
-                var queryable = _ctx.Users.AsQueryable().Where(w => (UsuarioId == null || w.Id == UsuarioId));
+                var queryable = _ctx.Users.AsQueryable().Where(w => (UsuarioId == null || w.Id == UsuarioId) && (UsuarioIds == null || w.usuarioIdS == UsuarioIds));
 
                 if (Search != null)
                 {
