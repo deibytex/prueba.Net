@@ -4,6 +4,7 @@ using SyscafWebApi.Service;
 using Syscaf.Service.Portal;
 using Syscaf.Common.Integrate.PORTAL;
 using Syscaf.Service.RAG;
+using Syscaf.Service.Peg;
 
 namespace Syscaf.Api.DWH.Utilities
 {
@@ -26,6 +27,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IProcesoGeneracionService, ProcesoGeneracionService>();
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
+            services.AddTransient<IRagService, RagService>();
+            services.AddTransient<IPegasoService, PegasoService>();
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Data;
+using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal.Models.RAG;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,29 @@ namespace Syscaf.Service.RAG
         {
             return await _conProd.GetAll<SafetyVM>("RAG.GetDataPowerBiByCliente", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte)
+        {
+            return await _conProd.GetAll<SafetyEventosVM>("EBUS.GetTablesPBI", new { clienteIdS, Reporte }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<List<SafetyEventosVM>> setEsProcesadoTablaSafety(int clienteIdS, string Reporte, string ReporteIds)
+        {
+            return await _conProd.GetAll<SafetyEventosVM>("EBUS.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int> RellenoTripsEventScoring(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
+        {
+            return  await _conProd.Execute("RAG.RellenoTripsEventScoring", new { clienteIdS, PeriodoFecha = FechaInicial.Date, FechaInicial, FechaFinal });            
+        }
     }
+    
 
     public interface IRagService
     {
         Task<List<SafetyVM>> getInformacionSafetyByClient(int ClienteIds, DateTime? Fecha);
+        Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte);
+        Task<List<SafetyEventosVM>> setEsProcesadoTablaSafety(int clienteIdS, string Reporte, string ReporteIds);
+        Task<int> RellenoTripsEventScoring(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal);
     }
 }

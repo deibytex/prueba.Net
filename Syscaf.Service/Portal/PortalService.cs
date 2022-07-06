@@ -257,6 +257,65 @@ namespace Syscaf.Service.Portal
 
             return result;
         }
+
+        public async Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds)
+        {
+            ResultObject result = new();
+            string _Clientenombre = "";
+            try
+            {
+                // traemos el listado de clientes
+                var ListadoClientes = await _clientService.GetAsync(1, ClienteIds);
+
+                foreach (var item in ListadoClientes.Where(w => w.ActiveEvent == true)) 
+                {
+                    // si tienen configurado al menos un evento que extraer
+                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
+                    _Clientenombre = item.clienteNombre;
+                    if (getEventos != null && getEventos.Count > 0)
+                    {
+                        //////////////////////////////////////////////////////////////////////////////////////
+                        ///  GUARDAMOS LOS ULTIMOS EVENTOS CREADOS POR ORGANIZACION
+
+                        // nos traemos los últimos eventos creados por cada vehículo
+
+
+                        var eventos =  await _Mix.GetEventosActivosCreadosPorOrganizacion( item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS);
+                        // filtramos por los eventos que necesitamos consultar
+                        //if (eventos != null && eventos.Count > 0)
+                        //{
+                           
+                        //    eventos.
+                        //        GroupBy(g => new { Constants.GetFechaServidor(g.EventDateTime, false)?.Month, Constants.GetFechaServidor(g.EventDateTime, false)?.Year })
+                        //        .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
+                        //        {
+
+                                    
+                        //            var listado = 
+                                       
+
+                                    
+                        //        });
+                        //}
+                    }
+
+                    result.success($"Cliente { item.clienteNombre } cargado satisfactoriametne  { Constants.GetFechaServidor()}");
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = $" {Constants.GetFechaServidor()} = { ex.Message}";
+                result.error(ex.Message.ToString());
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {_Clientenombre} Error  = { mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
+                _logService.SetLogError(0, "Portal - Eventos", mensaje);
+
+            }
+
+
+            return result;
+        }
         // ingreso de informacion del reporte sotramac
         #region REPORTE SOTRAMAC
         #endregion
@@ -327,6 +386,27 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     string sqlCommand = $" Where (TPDW.TipoPreferencia > 2) AND TPDW.ClientesId LIKE '%{clienteIdS}%'";
+                    preferencias = _connDWH.GetAll<PreferenciasDescargarWS>(PortalQueryHelper._SelectPreferenciasDescargas + sqlCommand, null, CommandType.Text).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
+                }
+            });
+
+            task.Wait();
+
+            return preferencias;
+        }
+        public List<PreferenciasDescargarWS> GetPreferenciasDescargarEventos(int clienteIdS, int TipoPreferencia)
+        {
+            List<PreferenciasDescargarWS> preferencias = new List<PreferenciasDescargarWS>();
+            Task task = Task.Run(() =>
+            {
+                try
+                {
+                    string sqlCommand = $" Where (TPDW.TipoPreferencia = {TipoPreferencia}) AND TPDW.ClientesId LIKE '%{clienteIdS}%'";
                     preferencias = _connDWH.GetAll<PreferenciasDescargarWS>(PortalQueryHelper._SelectPreferenciasDescargas + sqlCommand, null, CommandType.Text).ToList();
 
                 }

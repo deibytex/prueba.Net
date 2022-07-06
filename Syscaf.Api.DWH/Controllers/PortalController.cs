@@ -113,6 +113,12 @@ namespace Syscaf.Api.DWH.Controllers
             return await _portalService.Get_EventosPorClientes(ClienteIds, FechaInicial, FechaFinal);
         }
 
+        [HttpGet("ObtenerEventosActivos")]
+        public async Task<ActionResult<ResultObject>> GetEventosActivos(int? ClienteIds)
+        {
+            return await _portalService.Get_EventosPorClientes(ClienteIds, null, null);
+        }
+
         [HttpGet("GetPosiciones")]
         public async Task<ActionResult<ResultObject>> GetPosicionesMixByGroup()
         {
