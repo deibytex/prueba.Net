@@ -32,11 +32,14 @@ namespace Syscaf.ApiCore.Auth
             var claimsDB = await _userManager.GetClaimsAsync(usuario);
 
             claims.AddRange(claimsDB);
+            if (usuario.usuarioIdS.HasValue)
+                claims.Add(new Claim("usuarioIds", usuario.usuarioIdS.ToString()));
+            claims.Add(new Claim("Id", usuario.Id));
 
             var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["llavejwt"]));
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
 
-            var expiracion = DateTime.UtcNow.AddYears(1);
+            var expiracion = DateTime.UtcNow.AddDays(1);
 
             var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
                 expires: expiracion, signingCredentials: creds);
@@ -48,11 +51,11 @@ namespace Syscaf.ApiCore.Auth
             };
         }
 
-       
+
     }
 
     public interface IAuthService
     {
-         Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales);
+        Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales);
     }
 }
