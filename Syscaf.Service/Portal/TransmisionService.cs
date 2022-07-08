@@ -226,7 +226,33 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-
+        public async Task<ResultObject> GetSemanasAnualByTipo(int Anio)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Anio", Anio);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(_conn.GetAll<ListaSemanasAnualVM>(TransmisionQueryHelper._GetSemanasAnualbyTipo, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result.ToList();
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
         public async Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json)
         {
             var r = new ResultObject();
@@ -330,6 +356,7 @@ public interface ITransmisionService
     Task<ResultObject> SetSnapShotUnidadesActivas();
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
     Task<ResultObject> GetSemanasAnual(int Anio);
+    Task<ResultObject> GetSemanasAnualByTipo(int Anio);
     Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json);
     Task<ResultObject> GetSnapShotTickets(string Usuario, DateTime? Fecha);
     Task<ResultObject> GetSnapShotTicketsTable(string Usuario, DateTime? Fecha);
