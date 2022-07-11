@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Syscaf.Service.Helpers;
+using Syscaf.Service.Auth;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -36,13 +37,14 @@ namespace Syscaf.ApiCore.Controllers
         private readonly ISyscafConn _ctxDwh;
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
+        private readonly IUsuarioService _usuarioService;
 
         public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration _configuration,
             SyscafBDCore _ctx,
             ISyscafConn _ctxDwh,
-            IMapper mapper, IAuthService _authService)
+            IMapper mapper, IAuthService _authService, IUsuarioService _usuarioService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -51,6 +53,7 @@ namespace Syscaf.ApiCore.Controllers
             this._ctxDwh = _ctxDwh;
             this._mapper = mapper;
             this._authService = _authService;
+            this._usuarioService = _usuarioService;
         }
 
         [HttpPost("Crear")]
@@ -194,7 +197,41 @@ namespace Syscaf.ApiCore.Controllers
 
         }
 
+        [HttpGet("GetAspnetUsers")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<List<dynamic>>> GetAspnetUsers(string? UserId, int? PerfilId)
+        {
+            try
+            {
+               return await _usuarioService.GetUsuarios(UserId, PerfilId);
+               
+            }
+            catch (Exception ex)
+            {
 
+                return BadRequest(ex.Message);
+            }
+
+
+        }
+
+        [HttpGet("GetMenuUsuario")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<List<dynamic>>> GetMenuUsuario(string UserId)
+        {
+            try
+            {
+                return await _usuarioService.GetMenuUsuario(UserId);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+
+        }
 
 
         [HttpPost("login")]
