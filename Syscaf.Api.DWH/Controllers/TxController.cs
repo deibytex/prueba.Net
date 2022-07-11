@@ -102,6 +102,20 @@ namespace Syscaf.Api.DWH.Controllers
             return await _Transmision.GetSemanasAnual(Anio);
         }
         /// <summary>
+        /// Consulta el listado de semana pero esta vez por tipo
+        /// 1 = unidades activas
+        /// 2 = transmisión
+        /// 3 = tickets
+        /// </summary>
+        /// <param name="Anio"></param>
+        /// <param name="Tipo"></param>
+        /// <returns></returns>
+        [HttpGet("GetListaSemanaReportesByTipo")]
+        public async Task<ResultObject> GetSemanasAnualByTipo(int Anio)
+        {
+            return await _Transmision.GetSemanasAnualByTipo(Anio);
+        }
+        /// <summary>
         /// Inserta el json de los tickets a la base de datos.
         /// </summary>
         /// <param  name="json"></param>

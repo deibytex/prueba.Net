@@ -16,6 +16,7 @@ namespace Syscaf.Common.Models.TRANSMISION
     {
         public string Semana { get; set; }
         public string Fecha { get; set; }
+        public int Tipo { get; set; }
     }
 
     public class TicketsVM
@@ -49,5 +50,6 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string Administrador { get; set; }
         public string TipodeTicket { get; set; }
         public int Cantidad { get; set; }
+        public string Cliente { get; set; }
     }
 }
