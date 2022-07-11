@@ -1,4 +1,5 @@
 ﻿using Syscaf.Data;
+using Syscaf.Service.Auth.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,16 +22,16 @@ namespace Syscaf.Service.Auth
 
             return await _conn.GetAll("ADM.GetAspnetUsers", new { UserId  , PerfilId });
         }
-        public async Task<List<dynamic>> GetMenuUsuario(string UserId)
+        public async Task<List<MenuDesagregadoDTO>> GetMenuUsuario(string UserId)
         {
 
-            return await _conn.GetAll("ADM.GetMenuUsuario", new { UserId });
+            return await _conn.GetAll<MenuDesagregadoDTO>("ADM.GetMenuUsuario", new { UserId });
         }
     }
 
     public interface IUsuarioService
     {
         Task<List<dynamic>> GetUsuarios(string? UserId, int? PerfilId);
-         Task<List<dynamic>> GetMenuUsuario(string UserId);
+         Task<List<MenuDesagregadoDTO>> GetMenuUsuario(string UserId);
     }
 }

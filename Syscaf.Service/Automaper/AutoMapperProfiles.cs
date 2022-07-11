@@ -9,6 +9,7 @@ using Syscaf.Common.Helpers;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
 using Syscaf.Data.Models.Portal;
+using Syscaf.Service.Auth.Models;
 using Syscaf.Service.Automaper.MapperDTO;
 using Syscaf.Service.Portal.Models;
 using System;
@@ -63,7 +64,8 @@ namespace Syscaf.Service.Automaper
                 .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
 
 
-            //CreateMap<IdentityUser, UsuarioDTO>();
+           
+
         }
         private double? MapearLatitudLongitudFields(Event driver, EventsNew result)
         {

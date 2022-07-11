@@ -102,7 +102,7 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<ActionResult<dynamic>> ResetPassWord([FromBody] ResetPassWord usuarioModel)
         {
             // verifica que exista el usuario y manda un badrequest
-            
+
             var isfind = await userManager.FindByNameAsync(usuarioModel.UserName.ToUpper().Trim());
             if (isfind != null)
             {
@@ -112,7 +112,7 @@ namespace Syscaf.ApiCore.Controllers
                 {
 
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(isfind);
-                    var resultIdentity  =  await userManager.ConfirmEmailAsync(isfind, token);
+                    var resultIdentity = await userManager.ConfirmEmailAsync(isfind, token);
 
                     ////LOGUEAR TODO
                 }
@@ -203,8 +203,8 @@ namespace Syscaf.ApiCore.Controllers
         {
             try
             {
-               return await _usuarioService.GetUsuarios(UserId, PerfilId);
-               
+                return await _usuarioService.GetUsuarios(UserId, PerfilId);
+
             }
             catch (Exception ex)
             {
@@ -221,7 +221,36 @@ namespace Syscaf.ApiCore.Controllers
         {
             try
             {
-                return await _usuarioService.GetMenuUsuario(UserId);
+                var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(UserId);
+
+                return MenuDesagregadoDTO.GroupBy(g => new
+                {
+                    g.UserName,
+                    g.NombreOpcion,
+                    g.Accion,
+                    g.Controlador,
+                    g.Logo,
+                    g.EsVisible,
+                    g.OpcionId,
+                    g.OpcionPadreId,
+                    g.Orden                  
+
+                }).Select(
+                    s => new
+                    {
+                        s.Key.UserName,                       
+                        s.Key.NombreOpcion,
+                        s.Key.Accion,
+                        s.Key.Controlador,
+                        s.Key.Logo,
+                        s.Key.EsVisible,
+                        s.Key.OpcionId,
+                        s.Key.OpcionPadreId,
+                        s.Key.Orden,
+                        lstOperacion = s.Select(s => new { s.NombreOperacion, s.Operacion })
+                    }
+                    ).ToList<dynamic>();
+
 
             }
             catch (Exception ex)
