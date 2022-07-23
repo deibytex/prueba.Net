@@ -161,7 +161,7 @@ namespace Syscaf.Service.Portal
             return r;
         }
 
-        // Cambia estado Assets
+        // Cambia estado Assets validar
         public async Task<ResultObject> updateAssets(AssetsVM assets)
         {
             var r = new ResultObject();
