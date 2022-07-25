@@ -14,7 +14,6 @@ using Syscaf.ApiCore.Utilidades;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Syscaf.Data.Helpers.Auth;
-
 using Syscaf.Data.Models.Auth;
 using System.Data;
 using System.Security.Cryptography;
@@ -102,37 +101,60 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<ActionResult<dynamic>> ResetPassWord([FromBody] ResetPassWord usuarioModel)
         {
             // verifica que exista el usuario y manda un badrequest
-
+            ResultObject result = new();
             var isfind = await userManager.FindByNameAsync(usuarioModel.UserName.ToUpper().Trim());
             if (isfind != null)
             {
                 var resultado = await userManager.ResetPasswordAsync(isfind, usuarioModel.token, usuarioModel.NewPassword);
 
-                if (usuarioModel.EmailConfirm)
-                {
-
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(isfind);
-                    var resultIdentity = await userManager.ConfirmEmailAsync(isfind, token);
-
-                    ////LOGUEAR TODO
-                }
-
+                result.Exitoso = resultado.Succeeded;
                 if (resultado.Succeeded)
                 {
-                    return new ResultObject()
+                    if (usuarioModel.EmailConfirm)
                     {
-                        Exitoso = true
-                    };
+
+                        var token = await userManager.GenerateEmailConfirmationTokenAsync(isfind);
+                        var resultIdentity = await userManager.ConfirmEmailAsync(isfind, token);
+
+                        ////LOGUEAR TODO
+                    }
+
                 }
                 else
-                    return BadRequest(resultado.Errors);
+                    result.Mensaje = resultado.Errors.Select(s => getMensajeByCode(s.Code, s.Description)).Aggregate((a, b) => $"{a},{b}");
+                return result;
 
             }
 
             return BadRequest($" Username: {usuarioModel.UserName} No existe ");
         }
 
+        private string getMensajeByCode(string Code, string Description) {
+           
+            switch (Code) {
+                case "InvalidToken":
+                    Description = "Token ha expirado, favor vuelva a la opción de Recuperar contraseña.";
+                    break;
+                case "PasswordRequiresLower":
+                    Description = "Password al menos debe contener una letra minúscula.";
+                    break;
+                case "PasswordRequiresUpper":
+                    Description = "Password al menos debe contener una letra Mayúscula.";
+                    
+                    break;
+                case "PasswordTooShort":
+                    Description = "Password debe ser al menos 6 caracteres.";
+                    break;
+                case "PasswordRequiresDigit":
+                    Description = "Password al menos debe contener un número";                    
+                    break;
+                case "PasswordRequiresNonAlphanumeric":
+                    Description = "Password debe contener al menos un caracter no alphanumérico.";
+                    break;
+            }
 
+            return Description;
+        }
 
         [HttpPost("GetTokenRecuperarContrasenia")]
         public async Task<ActionResult<dynamic>> GetTokenPassword([FromBody] string correo)
@@ -170,7 +192,7 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpGet("listadoUsuarios")]
-        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<dynamic>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO, [FromQuery] string? Search, [FromQuery] string? UsuarioId, [FromQuery] int? UsuarioIds)
         {
             try
@@ -233,12 +255,13 @@ namespace Syscaf.ApiCore.Controllers
                     g.EsVisible,
                     g.OpcionId,
                     g.OpcionPadreId,
-                    g.Orden                  
+                    g.Orden,
+                    g.ParametrosAdicionales
 
                 }).Select(
                     s => new
                     {
-                        s.Key.UserName,                       
+                        s.Key.UserName,
                         s.Key.NombreOpcion,
                         s.Key.Accion,
                         s.Key.Controlador,
@@ -247,6 +270,7 @@ namespace Syscaf.ApiCore.Controllers
                         s.Key.OpcionId,
                         s.Key.OpcionPadreId,
                         s.Key.Orden,
+                        s.Key.ParametrosAdicionales,
                         lstOperacion = s.Select(s => new { s.NombreOperacion, s.Operacion })
                     }
                     ).ToList<dynamic>();
@@ -313,24 +337,15 @@ namespace Syscaf.ApiCore.Controllers
                 var isfind = await userManager.FindByNameAsync(item.usuario.ToUpper().Trim());
                 if (isfind != null)
                 {
-                    var claim = await userManager.GetClaimsAsync(isfind);
-
-                    var claimid = claim.Where(w => w.Type.Equals("Password")).FirstOrDefault();
-                    await userManager.RemovePasswordAsync(isfind);
-
-                    var isActualizado = await userManager.AddPasswordAsync(isfind, password);
-
-
                     isfind.Nombres = $"{item.nombre} {item.apellido}";
                     isfind.PerfilId = item.perfilIdS;
                     isfind.ClienteId = -1;
                     isfind.UserName = item.usuario;
                     isfind.usuarioIdS = item.usuarioIdS;
-                    isfind.esMigrado = isActualizado.Succeeded;
+                    isfind.esMigrado = true;
                     await userManager.UpdateAsync(isfind);
 
 
-                    await userManager.ReplaceClaimAsync(isfind, claimid, new Claim("Password", password));
                 }
                 else
                 {

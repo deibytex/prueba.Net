@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Models.PORTAL;
 using Syscaf.Service.Helpers;
+using Syscaf.Service.Portal;
 using System.ComponentModel.DataAnnotations;
 
 namespace Syscaf.ApiTx.Controllers
@@ -11,12 +14,15 @@ namespace Syscaf.ApiTx.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AdmController : ControllerBase
     {
         private readonly IGruposSeguridadService _GruposSeguridad;
+        
         public AdmController(IGruposSeguridadService _GruposSeguridad)
         {
             this._GruposSeguridad = _GruposSeguridad;
+           
         }
         /// <summary>
         /// Obtiene la lista de organizaciones.
@@ -195,5 +201,27 @@ namespace Syscaf.ApiTx.Controllers
         {
             return await _GruposSeguridad.GurdarEditarGrupoSeguridad(Modelo);
         }
+
+        [HttpPost("GetConsultasDinamicas")]
+        public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        {
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+            return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+        }
+
+      
+        /*
+         select distinct uu.Nombres, u.UserId, RU.UserId, RolId from adm.TB_UsuarioOrganizacion u
+left outer join ( select * from adm.TB_RolesUsuario 
+where rolid = 4
+) RU  on u.userid = RU.Userid
+inner join dbo.AspNetUsers uu on uu.id = u.UserId
+where OrganizacionId = 1 
+
+         */
     }
 }

@@ -35,5 +35,7 @@ namespace Syscaf.Service.Auth.Models
         public int? Orden { get; set; }
         public string NombreOperacion { get; set; }
 
+        public string ParametrosAdicionales { get; set; }
+
     }
 }

@@ -12,22 +12,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Dapper;
 
 namespace Syscaf.Service.Portal
 {
     public class GruposSeguridadService : IGruposSeguridadService
     {
-        private readonly SyscafCoreConn _conn;
-        private readonly ISyscafConn __conn;
+        private readonly SyscafCoreConn _connCore;
+        private readonly ISyscafConn _conDWH;
         private readonly IMapper _mapper;
         private readonly ILogService _log;
 
         public GruposSeguridadService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, ISyscafConn __conn)
         {
-            _conn = conn;
+            _connCore = conn;
             this._log = _log;
             this._mapper = _mapper;
-            this.__conn = __conn;
+            this._conDWH = __conn;
         }
         public async Task<DataTableVM> GetListaOrganizaciones(int? OrganzacionId)
         {
@@ -39,7 +40,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<OrganizacionVM>(GruposSeguridadQueryHelper.getOrganizaciones, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<OrganizacionVM>(GruposSeguridadQueryHelper.getOrganizaciones, parametros, commandType: CommandType.StoredProcedure));
                     r.data = result.ToList();
                     r.recordsTotal = result.Count;
                     r.recordsFiltered = result.Count;
@@ -67,7 +68,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<UsuarioOrganizacionVM>(GruposSeguridadQueryHelper.getUsuariosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<UsuarioOrganizacionVM>(GruposSeguridadQueryHelper.getUsuariosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -89,7 +90,7 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-               
+
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("OrganzacionId", Organzacion.OrganizacionId);
                 parametros.Add("Nombre", Organzacion.Nombre);
@@ -99,7 +100,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.postOrganizacion, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.postOrganizacion, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = null;
                     r.Exitoso = true;
                     r.Mensaje = result.ToString();
@@ -128,7 +129,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.SetEstadosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.SetEstadosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = null;
                     r.Exitoso = true;
                     r.Mensaje = result.ToString();
@@ -157,7 +158,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.SetUsuariosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.SetUsuariosOrganizacion, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = null;
                     r.Exitoso = true;
                     r.Mensaje = result.ToString();
@@ -179,13 +180,13 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-                
+
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("UsuarioId", UsuarioId);
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<GrupoSeguridadListaVM>(GruposSeguridadQueryHelper.GetUsuariosGruposSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<GrupoSeguridadListaVM>(GruposSeguridadQueryHelper.GetUsuariosGruposSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -205,9 +206,9 @@ namespace Syscaf.Service.Portal
         public async Task<ResultObject> ObtenerDataSiteCliente(List<string> ClienteId)
         {
             var r = new ResultObject();
-            try 
+            try
             {
-               
+
                 var Clientes = JsonConvert.SerializeObject(String.Join(",", ClienteId.ToArray()));
                 string str = Regex.Replace(Clientes, "[@\\.\"'\\\\]", string.Empty);
                 var parametros = new Dapper.DynamicParameters();
@@ -215,7 +216,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<SitiosVM>(GruposSeguridadQueryHelper.GetDataSiteCliente, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<SitiosVM>(GruposSeguridadQueryHelper.GetDataSiteCliente, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -242,7 +243,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<GruposSitiosVM>(GruposSeguridadQueryHelper.GetGrupoSeguridadSitios, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<GruposSitiosVM>(GruposSeguridadQueryHelper.GetGrupoSeguridadSitios, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -269,7 +270,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<GruposSitiosSelectVM>(GruposSeguridadQueryHelper.GetSitiosGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<GruposSitiosSelectVM>(GruposSeguridadQueryHelper.GetSitiosGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result.ToList();
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -310,7 +311,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.InsertSitioAgrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.InsertSitioAgrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = null;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -338,7 +339,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<int>(GruposSeguridadQueryHelper.EliminarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<int>(GruposSeguridadQueryHelper.EliminarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -355,7 +356,7 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> ConsultarGrupoSeguridad(int? GrupoSeguridadId,string UsuarioIds)
+        public async Task<ResultObject> ConsultarGrupoSeguridad(int? GrupoSeguridadId, string UsuarioIds)
         {
             var r = new ResultObject();
             try
@@ -367,7 +368,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<GrupoSeguirdadUsuarioSeleccionadosVM>(GruposSeguridadQueryHelper.ConsultarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<GrupoSeguirdadUsuarioSeleccionadosVM>(GruposSeguridadQueryHelper.ConsultarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -404,7 +405,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.AsignarUsuarioAgrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.AsignarUsuarioAgrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = null;
                     r.Exitoso = true;
                     r.Mensaje = result?.ToString();
@@ -432,7 +433,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<GruposSeguridadClientesVM>(GruposSeguridadQueryHelper.ConsultarGrupoSeguridadClientes, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<GruposSeguridadClientesVM>(GruposSeguridadQueryHelper.ConsultarGrupoSeguridadClientes, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -461,7 +462,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.GetAll<SitioClienteVM>(GruposSeguridadQueryHelper.ConsultarSitiosGrupoSeguridadCliente, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<SitioClienteVM>(GruposSeguridadQueryHelper.ConsultarSitiosGrupoSeguridadCliente, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -508,7 +509,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<string>(GruposSeguridadQueryHelper.GuardarEditarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.GuardarEditarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
@@ -524,6 +525,28 @@ namespace Syscaf.Service.Portal
                 throw;
             }
             return r;
+        }
+
+
+        public async Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams)
+        {
+            try
+            {
+                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+
+                if (consulta != null && consulta.Length > 0)
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connCore.GetAll<dynamic>(consulta, lstparams, commandType: CommandType.Text));
+
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
     }
@@ -543,7 +566,8 @@ public interface IGruposSeguridadService
     Task<ResultObject> EliminarGrupoSeguridad(int GrupoSeguridadId);
     Task<ResultObject> ConsultarGrupoSeguridad(int? GrupoSeguridadId, string UsuarioIds);
     Task<ResultObject> AsignarUsuarioAgrupoSeguridad(UsuarioGrupoSeguridadVM Modelo);
-    Task<ResultObject>  ConsultarGrupoSeguridadClientes(int? clienteIdS);
+    Task<ResultObject> ConsultarGrupoSeguridadClientes(int? clienteIdS);
     Task<ResultObject> ConsultarSitiosGrupoSeguridadCliente(int? clienteIds, int GrupoSeguridadID);
     Task<ResultObject> GurdarEditarGrupoSeguridad(GrupoSeguridadPostVM Modelo);
+    Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
 }

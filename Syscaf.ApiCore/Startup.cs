@@ -83,14 +83,16 @@ namespace Syscaf.ApiCore
             // configura todas las interfaces a utilizar en la aplicacion
             InterfacesAplication.ConfigureServices(services);
 
-            services.AddIdentity<ApplicationUser, IdentityRole>( /*options => {
-                //options.Password.RequireDigit = false;
-                //options.Password.RequiredLength = 5;
-                //options.Password.RequireLowercase = false;
-                //options.Password.RequireNonAlphanumeric = false;
-                //options.Password.RequireUppercase = false;
-         
-            }*/)
+            services.AddIdentity<ApplicationUser, IdentityRole>(
+                options =>
+                {
+                   //options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 6;
+                 
+                    //options.Password.RequireNonAlphanumeric = false;
+
+                }
+        )
                 .AddEntityFrameworkStores<SyscafBDCore>()
                 .AddDefaultTokenProviders();
 

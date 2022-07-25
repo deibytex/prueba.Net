@@ -94,7 +94,7 @@ namespace Syscaf.Common.Models.PORTAL
     }
     public class UsuarioGrupoSeguridadVM
     {
-        public int usuarioIdS { get; set; }
+        public string usuarioIdS { get; set; }
         public string? UsuarioId { get; set; }
         public List<int> GruposSeguridadIds { get; set; } = new List<int> { };
         public bool? EsActivo { get; set; }
