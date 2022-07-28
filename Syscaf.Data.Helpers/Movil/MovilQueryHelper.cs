@@ -9,5 +9,6 @@ namespace Syscaf.Data.Helpers.Movil
     public static class MovilQueryHelper
     {
         public static string _Insert = "MOV.InsertarRespuestas";
+        public static string _GetRespuestas = "MOV.SP_RespuestasPreoperacional";
     }
 }

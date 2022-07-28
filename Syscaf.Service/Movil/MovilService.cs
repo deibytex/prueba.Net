@@ -29,7 +29,7 @@ namespace Syscaf.Service.Portal
         }
 
 
-        public async Task<ResultObject> SetRespuestasPreoperacional(List<RespuestasVM> Respuestas)
+        public async Task<ResultObject> SetRespuestasPreoperacional(RespuestasVM Respuestas)
         {
             var r = new ResultObject();
             try
@@ -56,9 +56,44 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
+
+        public async Task<ResultObject> GetRespuestasPreoperacional(string Fecha, string UsuarioId,Int64? ClienteId)
+        {
+            var r = new ResultObject();
+            try
+            {
+                DateTime? FechaConvert = null;
+                if (!String.IsNullOrEmpty(Fecha))
+                    FechaConvert = Convert.ToDateTime(Fecha);
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Fecha", FechaConvert);
+                parametros.Add("UsuarioId", UsuarioId);
+                parametros.Add("ClienteId", ClienteId);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(__conn.GetAll<getRespuestasVM>(MovilQueryHelper._GetRespuestas, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
+
     }
     public interface IMovilService
     {
-        Task<ResultObject> SetRespuestasPreoperacional(List<RespuestasVM> Respuestas);
+        Task<ResultObject> SetRespuestasPreoperacional(RespuestasVM Respuestas);
+        Task<ResultObject> GetRespuestasPreoperacional(string Fecha, string UsuarioId, Int64? ClienteId);
     }
 }

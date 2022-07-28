@@ -29,4 +29,6 @@ namespace Syscaf.Data.Models.Portal
         public string clienteNombre { get; set; }
         public DateTime fechaIngreso { get; set; }
     }
+
+   
 }
