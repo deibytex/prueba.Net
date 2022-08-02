@@ -26,4 +26,18 @@ namespace Syscaf.Common.Models.MOVIL
         public DateTime Fecha { get; set; }
         public int Secuencia { get; set; }
     }
+    public class getPreguntasVM
+    {
+        public int PreguntaId { get; set; }
+        public int PlantillaId { get; set; }
+        public string NombrePlantilla { get; set; }
+        public int TipoPreguntaId { get; set; }
+        public string TipoPregunta { get; set; }
+        public string Valores { get; set; }
+        public int Secuencia { get; set; }
+        public string Descripcion { get; set; }
+        public string UsuarioId { get; set; }
+        public DateTime FechaSistema { get; set; }
+        public bool EsActivo { get; set; }
+    }
 }

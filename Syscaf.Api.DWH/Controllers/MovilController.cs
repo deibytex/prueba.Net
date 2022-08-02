@@ -40,5 +40,19 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Movil.GetRespuestasPreoperacional(Fecha, UsuarioId, ClienteId);
         }
+        /// <summary>
+        /// Se consultan las preguntas de preoperacional.
+        /// </summary>
+        /// <param name="UsuarioId"></param>
+        /// <param name="NombrePlantilla"></param>
+        /// <param name="TipoPregunta"></param>
+        /// <param name="ClienteId"></param>
+        /// <returns></returns>
+        [HttpGet("GetPreguntasPreoperacional")]
+        public async Task<ResultObject> GetPreguntasPreoperacional(string? UsuarioId, string? NombrePlantilla, string? TipoPregunta, long? ClienteId)
+        {
+            return await _Movil.GetPreguntasPreoperacional(UsuarioId, NombrePlantilla, TipoPregunta, ClienteId);
+        }
+        
     }
 }

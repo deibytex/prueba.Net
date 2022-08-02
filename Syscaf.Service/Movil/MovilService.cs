@@ -89,11 +89,41 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-
+        public async Task<ResultObject> GetPreguntasPreoperacional(string UsuarioId, string NombrePlantilla, string TipoPregunta, long? ClienteId)
+        {
+            var r = new ResultObject();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("UsuarioId", UsuarioId);
+                parametros.Add("NombrePlantilla", NombrePlantilla);
+                parametros.Add("TipoPregunta", TipoPregunta);
+                parametros.Add("ClienteId", ClienteId);
+                try
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    var result = await Task.FromResult(__conn.GetAll<getPreguntasVM>(MovilQueryHelper._GetPreguntas, parametros, commandType: CommandType.StoredProcedure));
+                    r.Data = result;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                }
+                catch (Exception ex)
+                {
+                    r.error(ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+                throw;
+            }
+            return r;
+        }
     }
     public interface IMovilService
     {
         Task<ResultObject> SetRespuestasPreoperacional(RespuestasVM Respuestas);
         Task<ResultObject> GetRespuestasPreoperacional(string Fecha, string UsuarioId, Int64? ClienteId);
+        Task<ResultObject> GetPreguntasPreoperacional(string UsuarioId, string NombrePlantilla, string TipoPregunta, long? ClienteId);
     }
 }
