@@ -174,8 +174,10 @@ namespace Syscaf.Service.Portal
                 parametros.Add("unitSCID", assets.UnitSCID);
                 parametros.Add("clasificacionId", assets.ClasificacionId);
                 parametros.Add("verticalId", assets.VerticalId);
+                parametros.Add("ingresoSalidaId", assets.ingresoSalidaId);
                 parametros.Add("EstadoTxId", assets.EstadoTxId);
                 parametros.Add("EsManual", (assets.EsManual == true ? 1 : 0));
+                parametros.Add("UsuarioPrueba", assets.UsuarioPrueba);
 
                 try
                 {

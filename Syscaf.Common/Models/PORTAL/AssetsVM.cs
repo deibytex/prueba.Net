@@ -19,10 +19,13 @@ namespace Syscaf.Common.Models.PORTAL
         public string? estado { get; set; }
         public int VerticalId { get; set; }
         public int ClasificacionId { get; set; }
+        public int ingresoSalidaId { get; set; }
         public string? UnitIMEI { get; set; }
         public string? UnitSCID { get; set; }
         public string? vertical { get; set; }
         public string? clasificacion { get; set; }
+        public string? ingresoSalida { get; set; }
         public bool? EsManual { get; set; }
+        public string? UsuarioPrueba { get; set; }
     }
 }
