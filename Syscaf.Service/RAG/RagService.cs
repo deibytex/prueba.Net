@@ -27,6 +27,10 @@ namespace Syscaf.Service.RAG
         {
             return await _conProd.GetAll<SafetyVM>("RAG.GetDataPowerBiByCliente", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
         }
+        public async Task<int> setEsProcesadoTablaRAG(int clienteIdS, string Reporte, string ReporteIds)
+        {
+            return await _conProd.Execute("RAG.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
+        }
 
         public async Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte)
         {
@@ -51,5 +55,6 @@ namespace Syscaf.Service.RAG
         Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte);
         Task<List<SafetyEventosVM>> setEsProcesadoTablaSafety(int clienteIdS, string Reporte, string ReporteIds);
         Task<int> RellenoTripsEventScoring(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal);
+        Task<int> setEsProcesadoTablaRAG(int clienteIdS, string Reporte, string ReporteIds);
     }
 }

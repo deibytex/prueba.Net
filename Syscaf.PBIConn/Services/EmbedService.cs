@@ -509,7 +509,7 @@ namespace Syscaf.PBIConn.Services
 
                 //Metodo para enviar la información a power BI
                 await pbiClient.Datasets.PostRowsInGroupAsync(workspaceId, datasetid, tableName, postRows);
-
+                 result.success();
             }
             catch (Exception ex)
             {
@@ -517,7 +517,7 @@ namespace Syscaf.PBIConn.Services
 
             }
 
-            result.success();
+           
 
             return result;
 

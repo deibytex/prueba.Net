@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Syscaf.Common.Models.PORTAL;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
@@ -212,8 +213,19 @@ namespace Syscaf.ApiTx.Controllers
             }
             return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
         }
+        [HttpPost("GetConsultasDinamicasString")]
+        public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] string parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        {
+            var pdes = JsonConvert.DeserializeObject<Dictionary<string, string>>(parametros);
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in pdes)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+            return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+        }
 
-      
+
         /*
          select distinct uu.Nombres, u.UserId, RU.UserId, RolId from adm.TB_UsuarioOrganizacion u
 left outer join ( select * from adm.TB_RolesUsuario 
