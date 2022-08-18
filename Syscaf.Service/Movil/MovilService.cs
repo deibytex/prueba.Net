@@ -29,14 +29,18 @@ namespace Syscaf.Service.Portal
         }
 
 
-        public async Task<ResultObject> SetRespuestasPreoperacional(RespuestasVM Respuestas)
+        public async Task<ResultObject> SetRespuestasPreoperacional(String Encabezado)
         {
             var r = new ResultObject();
             try
             {
-                var jsonconvert = JsonConvert.SerializeObject(Respuestas);
+                var Preoperacional = JsonConvert.DeserializeObject<Preoperacional>(Encabezado);
+                var JSONSTRING = JsonConvert.SerializeObject(Preoperacional.Respuestas);
+                var JSONENCA = JsonConvert.SerializeObject(Preoperacional.Encabezado);
                 var parametros = new Dapper.DynamicParameters();
-                parametros.Add("JSONSTRING", jsonconvert);
+                parametros.Add("JSONSTRING", JSONSTRING);
+                parametros.Add("JSONENCA", JSONENCA);
+                
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
@@ -122,7 +126,7 @@ namespace Syscaf.Service.Portal
     }
     public interface IMovilService
     {
-        Task<ResultObject> SetRespuestasPreoperacional(RespuestasVM Respuestas);
+        Task<ResultObject> SetRespuestasPreoperacional(String Respuestas);
         Task<ResultObject> GetRespuestasPreoperacional(string Fecha, string UsuarioId, Int64? ClienteId);
         Task<ResultObject> GetPreguntasPreoperacional(string UsuarioId, string NombrePlantilla, string TipoPregunta, long? ClienteId);
     }

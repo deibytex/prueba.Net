@@ -21,12 +21,12 @@ namespace Syscaf.Api.DWH.Controllers
         /// <summary>
         /// Setea las respuestas del usuario desde el movil
         /// </summary>
-        /// <param name="Respuestas"></param>
+        /// <param name="RespuestasPreoperacional"></param>
         /// <returns></returns>
         [HttpPost("SetRespuestasPreoperacional")]
-        public async Task<ResultObject> SetRespuestasPreoperacional([FromBody] RespuestasVM Respuestas)
+        public async Task<ResultObject> SetRespuestasPreoperacional([FromBody] String RespuestasPreoperacional)
         {
-            return await _Movil.SetRespuestasPreoperacional(Respuestas);
+            return await _Movil.SetRespuestasPreoperacional(RespuestasPreoperacional);
         }
         /// <summary>
         /// Se consultan las respuestas ya sea por cliente, por pregunta, o por usuarios pero opcional
