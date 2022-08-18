@@ -17,15 +17,14 @@ namespace Syscaf.Service.Portal
     public class MovilService : IMovilService
     {
         private readonly SyscafCoreConn _conn;
-        private readonly ISyscafConn __conn;
+     
         private readonly IMapper _mapper;
         private readonly ILogService _log;
-        public MovilService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, ISyscafConn __conn)
+        public MovilService(SyscafCoreConn conn, ILogService _log, IMapper _mapper)
         {
             _conn = conn;
             this._log = _log;
             this._mapper = _mapper;
-            this.__conn = __conn;
         }
 
 
@@ -44,7 +43,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(__conn.Insert<string>(MovilQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.Insert<string>(MovilQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
                 }
@@ -76,7 +75,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(__conn.GetAll<getRespuestasVM>(MovilQueryHelper._GetRespuestas, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.GetAll<getRespuestasVM>(MovilQueryHelper._GetRespuestas, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";
@@ -106,7 +105,7 @@ namespace Syscaf.Service.Portal
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(__conn.GetAll<getPreguntasVM>(MovilQueryHelper._GetPreguntas, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conn.GetAll<getPreguntasVM>(MovilQueryHelper._GetPreguntas, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";

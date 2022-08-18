@@ -17,9 +17,11 @@ namespace Syscaf.ApiCore.Utilidades
             services.AddTransient<ILogService, LogService>();
             services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
             services.AddTransient<IUsuarioService, UsuarioService>();
-          
+            services.AddTransient<IMovilService, MovilService>();
 
-         
+            
+
+
 
 
         }
