@@ -548,6 +548,26 @@ namespace Syscaf.Service.Portal
             }
 
         }
+        public async Task<int> setDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams)
+        {
+            try
+            {
+                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+
+                if (consulta != null && consulta.Length > 0)
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connCore.Execute(consulta, lstparams, commandType: CommandType.StoredProcedure));
+
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
 
     }
 }
@@ -570,4 +590,5 @@ public interface IGruposSeguridadService
     Task<ResultObject> ConsultarSitiosGrupoSeguridadCliente(int? clienteIds, int GrupoSeguridadID);
     Task<ResultObject> GurdarEditarGrupoSeguridad(GrupoSeguridadPostVM Modelo);
     Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
+    Task<int> setDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
 }

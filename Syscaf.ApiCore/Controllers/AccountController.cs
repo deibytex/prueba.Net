@@ -87,7 +87,7 @@ namespace Syscaf.ApiCore.Controllers
                 return new ResultObject()
                 {
                     Exitoso = true,
-                    Data = new { token, username }
+                    Data = new { token, username, nombres = usuario.Nombres }
                 };
             }
             else

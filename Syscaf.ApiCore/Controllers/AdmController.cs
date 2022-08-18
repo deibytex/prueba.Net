@@ -225,6 +225,19 @@ namespace Syscaf.ApiTx.Controllers
             return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
         }
 
+        [HttpPost("ExecProcedureByTipoConsulta")]
+        public async Task<ResultObject> ExecProcedureByTipoConsulta([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        {
+           
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+            int r = await _GruposSeguridad.setDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            return new ResultObject() { Exitoso = (r > 0), Mensaje = (r < 0) ? "No se actaulizaron registros." : "Actualizado exitosamente."};
+        }
+
 
         /*
          select distinct uu.Nombres, u.UserId, RU.UserId, RolId from adm.TB_UsuarioOrganizacion u
