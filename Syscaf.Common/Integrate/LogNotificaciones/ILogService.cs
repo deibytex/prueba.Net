@@ -6,5 +6,6 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
     {
         void SetLog(LogDTO log);
         void SetLogError(int OptionId, string Method, string Description);
+        void SetLog(string Method, string Cliente, string Description);
     }
 }

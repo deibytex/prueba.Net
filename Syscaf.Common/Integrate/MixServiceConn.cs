@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MiX.Integrate.API.Client;
 using MiX.Integrate.Shared.Entities.Events;
+using MiX.Integrate.Shared.Entities.Scoring;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Models;
 using Syscaf.Common.PORTAL;
@@ -168,7 +169,7 @@ namespace Syscaf.Common.Services
             }
             catch (Exception exp)
             {
-                throw;
+                throw exp;
             }
 
 
@@ -528,6 +529,19 @@ namespace Syscaf.Common.Services
             }
         }
 
+       public async Task<MixServiceVM> GetFlexibleRAGScoreReportAsync(List<long> drivers, string from, string to, string aggregationPeriod, long Cliente)
+        {
+            try
+            {
+                var xx = new ScoringClient(ApiBaseUrl, ClientSettings);
+               return ReturnSuccess(await xx.GetFlexibleRAGScoreReportAsync(new ReportQuery() { DriverIds = drivers, From = from, To = to ,  AggregationPeriod = aggregationPeriod, OrganisationId = Cliente, }));
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+        }
+
     }
 
     public interface IMixServiceConn
@@ -567,5 +581,7 @@ namespace Syscaf.Common.Services
         Task<MixServiceVM> GetConfigurationState(long groupId, List<long> AssetIds);
         Task<MixServiceVM> GetAssetDiagnostics(long groupId, List<long> AssetIds);
         #endregion
+
+        Task<MixServiceVM> GetFlexibleRAGScoreReportAsync(List<long> drivers, string from, string to, string aggregationPeriod, long Cliente);
     }
 }

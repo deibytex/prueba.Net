@@ -16,7 +16,7 @@ namespace Syscaf.Common.Helpers
         private static DateTime? timeNull = null;
 
         //TimeZoneInfo multiplataforma
-        private static TimeZoneInfo timezone = null;
+        public static TimeZoneInfo timezone = null;
 
 
         public static void Inicializar(IConfiguration configuration)
@@ -49,6 +49,8 @@ namespace Syscaf.Common.Helpers
         public static string Dominio = "";
         public static string FormatoHoraPacifico = "dd/MM/yyyy";
         public static string FormatoHoraPacificoHMS = "dd/MM/yyyy HH:mm:ss";
+        public static string FormatoyyyyMMddHHmmss = "yyyyMMddHHmmss";
+        
 
         public static DateTime GetFechaServidor()
         {

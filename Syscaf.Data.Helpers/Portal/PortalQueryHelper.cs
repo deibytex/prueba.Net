@@ -14,15 +14,66 @@ namespace Syscaf.Data.Helpers.Portal
 	   (       @Level,  @OptionId, @Method,   @Description,   @Date	       )";
 
 		public static string _SelectPreferenciasDescargas = @"SELECT TPDW.PreferenciasIdS,
-       TPDW.clienteIdS,
-       TPDW.eventTypeIdS,
-       TPDW.usuarioIdS,
-       TPDW.EsActivo,
-       TPDW.FechaSistema,
-       TPDW.TipoPreferencia,
-       TPDW.EventTypeId,
-       TPDW.ClientesId,
-       TPDW.isActive,
-       TPDW.Parametrizacion FROM dbo.TB_PreferenciasDescargarWS AS TPDW";
-	}
+                                   TPDW.clienteIdS,
+                                   TPDW.eventTypeIdS,
+                                   TPDW.usuarioIdS,
+                                   TPDW.EsActivo,
+                                   TPDW.FechaSistema,
+                                   TPDW.TipoPreferencia,
+                                   TPDW.EventTypeId,
+                                   TPDW.ClientesId,
+                                   TPDW.isActive,
+                                   TPDW.Parametrizacion FROM dbo.TB_PreferenciasDescargarWS AS TPDW";
+
+        public static string _verificaIdExistentes = "PORTAL.VerifyDataStageByPeriodAndClient";
+
+        
+        public static Func<string,string> _guardaTablasPortal = (tabla) => $"PORTAL.Insert{tabla}ByPeriodAndClient";
+
+
+        public static string _insertaPosiciones = "TX.InsertPosiciones";
+
+        public static string _insertaPosicionesCliente = "PORTAL.InsertPosicionesByClient";
+
+        public static string _listaDetalle = "PORTAL.GetDetalleLista";
+        public static string DriverxCliente = "RAG.GetDriversxCliente";
+        public static string OrganizacionMix = "RAG.GetClienteMix";
+        public static string EncScoringDetalleScoringFlexDriver = "RAG.SetEncScoring&DetalleScoringFlexDriver";
+
+        public static string getAssetsProgramacion = @"SELECT ProcesoGeneracionDatosId
+                                                      ,a.AssetId
+	                                                  ,pa.clienteid
+                                                      ,pa.Description
+                                                  FROM dbo.TB_AssetProgramacion a 
+                                                  inner join portal.Assets pa on pa.AssetId =  a.AssetId
+                                                  where a.EsActivo  = 1";
+
+        public static string insertPruebasSimCard = @" INSERT INTO dbo.TB_PruebaSimCard
+                                                       (Placa
+                                                       , UltimoAvl
+                                                       , FechaSistema
+                                                       , ProcesoGeneracionDatosId
+                                                       , Latitud
+                                                       , Longitud
+                                                       , Velocidad)
+                                                 VALUES
+                                                       (@Placa
+                                                       , @UltimoAvl
+                                                       , @FechaSistema
+                                                       , @ProcesoGeneracionDatosId
+                                                       , @Latitud
+                                                       , @Longitud
+                                                       , @Velocidad)";
+
+        public static string getConsultasByClaseyNombre = @"  SELECT Consulta      
+                                                              FROM PORTAL.ConsultasPortalPorTipo
+                                                              where Clase = @Clase and NombreConsulta = @NombreConsulta";
+
+       
+
+
+
+
+
+    }
 }

@@ -16,13 +16,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Dapper\DapperExtension.cs" />
     <Compile Remove="Helpers\MailNotification.cs" />
-    <Compile Remove="Integrate\PegasoServiceConn.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Integrate\LogNotificaciones\CommonService.cs" />
+    <Compile Include="Integrate\LogNotificaciones\ICommonService.cs" />
     <Compile Include="Integrate\LogNotificaciones\ILogService.cs" />
+    <Compile Include="Integrate\LogNotificaciones\INotificacionService.cs" />
     <Compile Include="Integrate\LogNotificaciones\LogService.cs" />
+    <Compile Include="Integrate\LogNotificaciones\NotificacionService.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +37,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
     <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dapper\" />
   </ItemGroup>
 
 </Project>

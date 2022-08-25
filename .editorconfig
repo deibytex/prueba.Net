@@ -1,0 +1,40 @@
+﻿[*.cs]
+
+# CS1591: Falta el comentario XML para el tipo o miembro visible públicamente
+dotnet_diagnostic.CS1591.severity = none
+
+# CS8603: Posible tipo de valor devuelto de referencia nulo
+dotnet_diagnostic.CS8603.severity = none
+
+# CS8625: No se puede convertir un literal NULL en un tipo de referencia que no acepta valores NULL.
+dotnet_diagnostic.CS8625.severity = none
+
+# CS8600: Se va a convertir un literal nulo o un posible valor nulo en un tipo que no acepta valores NULL
+dotnet_diagnostic.CS8600.severity = none
+
+# CA2200: Iniciar de nuevo para preservar los detalles de la pila
+dotnet_diagnostic.CA2200.severity = none
+
+# CS8618: Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+dotnet_diagnostic.CS8618.severity = none
+
+# CS8602: Desreferencia de una referencia posiblemente NULL.
+dotnet_diagnostic.CS8602.severity = none
+
+# CS8601: Posible asignación de referencia nula
+dotnet_diagnostic.CS8601.severity = none
+
+# IDE0022: Usar cuerpo del bloque para los métodos
+dotnet_diagnostic.IDE0022.severity = none
+
+# CS8604: Posible argumento de referencia nulo
+dotnet_diagnostic.CS8604.severity = none
+
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = none
+
+# CS8629: Un tipo que acepta valores NULL puede ser nulo.
+dotnet_diagnostic.CS8629.severity = none
+
+# CS8632: La anotación para tipos de referencia que aceptan valores NULL solo debe usarse en el código dentro de un contexto de anotaciones "#nullable".
+dotnet_diagnostic.CS8632.severity = none

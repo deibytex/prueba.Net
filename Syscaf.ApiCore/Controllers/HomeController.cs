@@ -90,6 +90,7 @@ namespace Syscaf.ApiTx.Controllers
 
 
             string AuthorizationHeader = Request.Headers["Authorization"];
+           
             string ProfileString = null;
             if (AuthorizationHeader != null || AuthorizationHeader.Length != 0
                     || AuthorizationHeader.Split(" ").Length == 2)

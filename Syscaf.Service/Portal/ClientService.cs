@@ -1,7 +1,14 @@
-﻿using Syscaf.Common.Integrate.LogNotificaciones;
+﻿using AutoMapper;
+using Dapper;
+using Syscaf.Common.Helpers;
+using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Data;
 using Syscaf.Data.Helpers.Portal;
-using Syscaf.Data.Interface;
+
 using Syscaf.Data.Models.Portal;
+using Syscaf.Service.DataTableSql;
+using Syscaf.Service.Helpers;
+using SyscafWebApi.Service;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,18 +21,65 @@ namespace Syscaf.Service.Portal
 
     public class ClientService : IClientService
     {
-        private readonly ISyscafConn _conn;
-      
-        public ClientService(ISyscafConn conn)
+        private readonly SyscafCoreConn _conn;
+        private readonly IMixIntegrateService _Mix;
+        private readonly INotificacionService _notificacionService;
+        private readonly IMapper _mapper;
+        private readonly ISyscafConn _conprod;
+        public ClientService(SyscafCoreConn conn, IMixIntegrateService _Mix, INotificacionService _notificacionService, IMapper _mapper, ISyscafConn _conprod)
         {
-            _conn = conn;          
+            _conn = conn;
+            this._Mix = _Mix;
+            this._notificacionService = _notificacionService;
+            this._mapper = _mapper;
+            this._conprod = _conprod;
         }
-        // adiciona los mensajes a la tabla con el periodo seleccionado
 
-        public async Task<List<ClienteDTO>> GetAsync(int Estado)
+        public async Task<ResultObject> Add()
+        {
+            ResultObject result = new();
+            try
+            {
+                var clientesMix = await _Mix.getClientes();
+                var resultadolista = _mapper.Map<List<ClienteSaveDTO>>(clientesMix);
+                var parametros = new Dapper.DynamicParameters();
+                resultadolista = resultadolista.Select(s => { s.fechaIngreso = Constants.GetFechaServidor(); return s; }).ToList();
+                parametros.Add("clientes", HelperDatatable.ToDataTable(resultadolista).AsTableValuedParameter("PORTAL.UDT_Cliente"));
+
+
+                try
+                {
+                    //// debe validr que la tabla a la que va a isnertar el mensaje exista            
+
+                    await Task.FromResult(_conn.GetAll<int>(ClientQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    // inserta la replica en la base de datos de produccion 
+                    await Task.FromResult(_conprod.GetAll<int>(ClientQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    result.success(_mapper.Map<List<ClienteDTO>>(resultadolista));
+                }
+                catch (Exception ex)
+                {
+
+                    result.error(ex.Message);
+                }
+
+            }
+            catch (Exception ex)
+            {
+              await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem,  ex.Message, Enums.ListaDistribucion.LSSISTEMA);              
+
+            }
+
+            return result;
+        }
+
+    // adiciona los mensajes a la tabla con el periodo seleccionado
+
+    public async Task<List<ClienteDTO>> GetAsync(int Estado, int? clienteIds = null, long? ClienteId =  null)
         {    
             var parametros = new Dapper.DynamicParameters();           
-            parametros.Add("Estado", Estado, DbType.Int32);      
+            parametros.Add("Estado", Estado, DbType.Int32);
+            parametros.Add("clienteIds", clienteIds, DbType.Int32);
+            parametros.Add("clienteId", ClienteId, DbType.Int64);
 
             return await Task.FromResult(_conn.GetAll<ClienteDTO>(ClientQueryHelper._Get, parametros, commandType: CommandType.Text).ToList());
            
@@ -35,7 +89,9 @@ namespace Syscaf.Service.Portal
     public interface IClientService
     {
 
-        Task<List<ClienteDTO>> GetAsync(int Estado);
+        Task<List<ClienteDTO>> GetAsync(int Estado, int? clienteIds = null, long? ClienteId = null);
+
+        Task<ResultObject> Add();
 
     }
 }

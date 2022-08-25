@@ -1,4 +1,5 @@
-
+                                                                       
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,16 +11,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
+using Syscaf.ApiCore.Utilidades;
 using Syscaf.ApiCore.ViewModels;
+using Syscaf.Common.Helpers;
 using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-using Syscaf.Data.Interface;
-using Syscaf.Service.eBus.Gcp;
 
+using Syscaf.Data.Models.Auth;
+using Syscaf.PBIConn.Services;
+using Syscaf.Service.Automaper;
+using Syscaf.Service.eBus.Gcp;
+using Syscaf.Service.Portal;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -43,6 +50,11 @@ namespace Syscaf.ApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
+            services.AddSingleton(provider =>
+               new MapperConfiguration(config =>
+               {
+                   config.AddProfile(new AutoMapperProfiles());
+               }).CreateMapper());
             services.AddControllers();
             services.AddOptions();
             // variables para ITS ebus
@@ -66,13 +78,21 @@ namespace Syscaf.ApiCore
                               Configuration.GetConnectionString("SyscafBDCore")));
 
             //Register dapper in scope    
-            services.AddTransient<ISyscafConn, SyscafConn>();          
-            services.AddTransient<IeBusGcpService, eBusGcpService>();
-            services.AddTransient<IAuthService, AuthService>();
+            services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
+            services.AddScoped(options => new Data.SyscafCoreConn(Configuration.GetConnectionString("SyscafBDCore")));
+            // configura todas las interfaces a utilizar en la aplicacion
+            InterfacesAplication.ConfigureServices(services);
 
+            services.AddIdentity<ApplicationUser, IdentityRole>(
+                options =>
+                {
+                   //options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 6;
+                 
+                    //options.Password.RequireNonAlphanumeric = false;
 
-
-            services.AddIdentity<IdentityUser, IdentityRole>()
+                }
+        )
                 .AddEntityFrameworkStores<SyscafBDCore>()
                 .AddDefaultTokenProviders();
 
@@ -101,18 +121,19 @@ namespace Syscaf.ApiCore
                 options.Filters.Add(typeof(ParserBadRequest));
             }).ConfigureApiBehaviorOptions(BehaviorBadRequests.Parsear);
 
-
+            Constants.Inicializar(Configuration);
+            ConfigValidatorService.Inicializar(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Syscaf ApiCore v1"));
-            }
+            //}
 
             app.UseHttpsRedirection();
 

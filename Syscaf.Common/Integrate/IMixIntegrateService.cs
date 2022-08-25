@@ -6,8 +6,10 @@ using MiX.Integrate.Shared.Entities.Groups;
 using MiX.Integrate.Shared.Entities.LibraryEvents;
 using MiX.Integrate.Shared.Entities.Locations;
 using MiX.Integrate.Shared.Entities.Positions;
+using MiX.Integrate.Shared.Entities.Scoring;
 using MiX.Integrate.Shared.Entities.Trips;
 using Syscaf.Common.Models;
+using Syscaf.Common.PORTAL;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -46,5 +48,6 @@ namespace SyscafWebApi.Service
         Task<List<MobileUnitConfigurationState>> GetConfigurationState(long groupId, List<long> AssetIds, int ClienteIds);
         Task<List<AssetDiagnostics>> GetAssetDiagnostics(long groupId, List<long> AssetIds, int ClienteIds);
         Task<List<ReporteConfiguracion>> GetConfiguracionAsync(long groupId);
+        Task<Report_FlexibleRAG> GetFlexibleRAGScoreReportAsync(List<long> drivers, string from, string to, string aggregationPeriod, int ClienteId, long organizacion);
     }
 }

@@ -9,12 +9,14 @@ using MiX.Integrate.Shared.Entities.Groups;
 using MiX.Integrate.Shared.Entities.LibraryEvents;
 using MiX.Integrate.Shared.Entities.Locations;
 using MiX.Integrate.Shared.Entities.Positions;
+using MiX.Integrate.Shared.Entities.Scoring;
 using MiX.Integrate.Shared.Entities.Trips;
 using Syscaf.Common.Helpers;
+using Syscaf.Common.Integrate.PORTAL;
 using Syscaf.Common.Models;
 using Syscaf.Common.PORTAL;
 using Syscaf.Common.Services;
-using Syscaf.Service.PORTAL;
+
 using Syscaf.Service.ViewModels.PORTAL;
 using SyscafWebApi.App_Data;
 using System;
@@ -34,9 +36,9 @@ namespace SyscafWebApi.Service
 
     public class MixIntegrateService : IMixIntegrateService
     {
-        private readonly IPortalService _portalService;    
+        private readonly IPortalService _portalService;
         private readonly MixCredenciales _options;
-       
+
 
         private readonly string AssemblyName = "Syscaf.Common.Services.MixServiceConn, Syscaf.Common";
         private DateTime FechaActual
@@ -52,9 +54,9 @@ namespace SyscafWebApi.Service
         public MixIntegrateService(IPortalService _portalService
             , IOptions<MixCredenciales> _options)
         {
-            this._portalService = _portalService;       
+            this._portalService = _portalService;
             this._options = _options.Value;
-            
+
             //  _cache = memoryCache;
         }
 
@@ -101,7 +103,7 @@ namespace SyscafWebApi.Service
                     if (diifH < 3600)
                         Thread.Sleep(((3600 - diifH)) * 1000); // si las llamadas son mas de 500 por hora duerme hasta la siguiente ejecucion
 
-                    call.dateHour = FechaActual;                    
+                    call.dateHour = FechaActual;
                     call.TotalCallsHour = 0;
                 }
 
@@ -179,11 +181,7 @@ namespace SyscafWebApi.Service
         {
             string method = methodP == null ? "Trips.GetCreatedSinceForOrganisation" : methodP;
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
-            DateTime time = DateTime.ParseExact(sinceToken,
-                                  "yyyyMMddHHmmssfff",
-                                   CultureInfo.InvariantCulture);
-            if (sinceToken == null || sinceToken.Length == 0 || time <= FechaActual.AddDays(-7))
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetUltimosViajesCreadosByOrganization", new object[] { organizacion, sinceToken, cantidad });
             CreatedSinceResult<Trip> datos = (CreatedSinceResult<Trip>)result.Data;
@@ -195,8 +193,7 @@ namespace SyscafWebApi.Service
             string method = "Event.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetUltimosEventosCreadosPorOrganizacion", new object[] { organizacion, eventosImportantes, sinceToken, cantidad });
             CreatedSinceResult<Event> datos = (CreatedSinceResult<Event>)result.Data;
@@ -209,8 +206,6 @@ namespace SyscafWebApi.Service
             string method = "Active.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
             byte cantidad = 100;
 
 
@@ -224,8 +219,7 @@ namespace SyscafWebApi.Service
             string method = "Active.GetCreatedSinceForOrganisation";
             string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
 
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+           
             byte cantidad = 100;
 
 
@@ -238,12 +232,7 @@ namespace SyscafWebApi.Service
         public async Task<List<Position>> getLastPositionsByGroups(List<long> organizacion, int ClienteIds)
         {
             string method = "getLastPositionsByGroups";
-            string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);
-
-            if (sinceToken == null || sinceToken.Length == 0)
-                sinceToken = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
-            //byte cantidad = 100;
-
+            string sinceToken = _portalService.GetTokenClientes(ClienteIds, method);           
 
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getLastPositionsByGroups", new object[] { organizacion, sinceToken });
             CreatedSinceResult<Position> datos = (CreatedSinceResult<Position>)result.Data;
@@ -252,7 +241,7 @@ namespace SyscafWebApi.Service
         }
 
 
-        
+
         public async Task<List<Event>> GetEventosCliente(List<long> ll, DateTime fechaInicial, DateTime fechaFinal, List<long> eventosImportantes, int ClienteIds)
         {
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetEventosCliente", new object[] { ll, fechaInicial, fechaFinal, eventosImportantes });
@@ -268,7 +257,7 @@ namespace SyscafWebApi.Service
         public async Task<List<Location>> GetLocationsByGroup(long organizacion, int ClienteIds)
         {
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetLocationsByGroup", new object[] { organizacion });
-           return (List<Location>)result.Data;
+            return (List<Location>)result.Data;
         }
 
         public async Task<List<Location>> GetLocationsInRangeByGroup(long organizacion, double Latitude, double Longitude, long meters, int ClienteIds)
@@ -285,14 +274,15 @@ namespace SyscafWebApi.Service
         }
 
         public async Task<List<Position>> getPositions(List<long> assetsId, int ClienteIds)
-        {    MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getPositions", new object[] { assetsId });
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getPositions", new object[] { assetsId });
             return (List<Position>)result.Data;
         }
 
         public async Task<List<ActiveEvent>> GetEventosActivosHistoricalCreadosPorOrganizacion(long organizacion, List<long> eventosImportantes, int ClienteIds)
         {
             byte cantidad = 100;
-            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetEventosActivosHistoricalCreadosPorOrganizacion", new object[] { organizacion, eventosImportantes,  cantidad });           
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "GetEventosActivosHistoricalCreadosPorOrganizacion", new object[] { organizacion, eventosImportantes, cantidad });
             return (List<ActiveEvent>)result.Data;
         }
 
@@ -323,46 +313,53 @@ namespace SyscafWebApi.Service
             MixServiceVM result = await invokeMethodAsync(-1, AssemblyName, "GetConfiguracionAsync", new object[] { groupId });
             return (List<ReporteConfiguracion>)result.Data;
         }
-      
+
         private async Task<MixServiceVM> invokeMethodAsync(int ClienteIds, string clase, string methodo, object[] parametros)
         {
             try
             {
 
-           
-            //obtiene las credenciales por clienteids
-            var credencial = getCredenciales(ClienteIds);
-            int credencialid = credencial.Id;
+
+                //obtiene las credenciales por clienteids
+                var credencial = getCredenciales(ClienteIds);
+                int credencialid = credencial.Id;
 
 
-            Type dynamicType = Type.GetType(clase);
+                Type dynamicType = Type.GetType(clase);
 
-            //Stopwatch lo usamos para saber cuanto duro eb darme respuesta el metodo
-            Stopwatch s = new Stopwatch();
-            var obj = Activator.CreateInstance(dynamicType, new object[] { _options,  credencial.UserId, credencial.Password });
+                //Stopwatch lo usamos para saber cuanto duro eb darme respuesta el metodo
+                Stopwatch s = new Stopwatch();
+                var obj = Activator.CreateInstance(dynamicType, new object[] { _options, credencial.UserId, credencial.Password });
 
-            //validar las llamadas por credencial
-          //  validateCalls(credencialid, FechaActual);
-            s.Start();
-            // obtenemos el nombre del metodo de la instancia 
-            MethodInfo method = dynamicType.GetMethod(methodo);
-            // guardamos el momento cuando invocamoes el metodo
-            s.Stop();
+                //validar las llamadas por credencial
+                //  validateCalls(credencialid, FechaActual);
+                s.Start();
+                // obtenemos el nombre del metodo de la instancia 
+                MethodInfo method = dynamicType.GetMethod(methodo);
+                // guardamos el momento cuando invocamoes el metodo
+                s.Stop();
 
 
 
-            Task<MixServiceVM> PreResult = (Task<MixServiceVM>)method.Invoke(obj, parametros);
-            var result = await PreResult;
-            _portalService.SetLog(credencialid, methodo, result.StatusCode, result.Response, FechaActual, ClienteIds);
+                Task<MixServiceVM> PreResult = (Task<MixServiceVM>)method.Invoke(obj, parametros);
+                var result = await PreResult;
+                _portalService.SetLog(credencialid, methodo, result.StatusCode, result.Response, FechaActual, ClienteIds);
                 return result;
             }
             catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
-         
+
 
         }
+
+        public async Task<Report_FlexibleRAG> GetFlexibleRAGScoreReportAsync(List<long> drivers, string from, string to, string aggregationPeriod, int ClienteId, long Organizacion)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteId, AssemblyName, "GetFlexibleRAGScoreReportAsync", new object[] { drivers, from, to,  aggregationPeriod, Organizacion });
+            return (result.Exitoso) ? (Report_FlexibleRAG)result.Data : null;
+        }
+
     }
 }

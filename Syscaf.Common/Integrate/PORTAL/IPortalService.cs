@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace Syscaf.Service.PORTAL
+namespace Syscaf.Common.Integrate.PORTAL
 {
     public interface IPortalService
     {

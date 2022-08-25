@@ -17,4 +17,12 @@ namespace Syscaf.Common.Utils
 
         public string CallsMixHour { get; set; }
     }
+
+    public class PegVariablesConn {
+
+        public string UrlToken { get; set; }
+        public string UrlRequest { get; set; }
+        public string PwsPeg { get; set; }
+        public string UserPeg { get; set; }
+    }
 }
