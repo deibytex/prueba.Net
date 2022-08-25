@@ -1,4 +1,5 @@
-﻿using Syscaf.Service.ViewModels;
+﻿using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -12,7 +13,7 @@ namespace Syscaf.Service.Helpers
         
         private MailMessage _mail;
         private SmtpClient _cliente;
-        public  MailNotification(string userCredentials, string passwordCredential, ICommonService CommonService)
+        public  MailNotification(string userCredentials, string passwordCredential, string Host)
         {
             // configuracion del cuerpo del correo
             _mail = new MailMessage
@@ -20,9 +21,7 @@ namespace Syscaf.Service.Helpers
                 SubjectEncoding = Encoding.UTF32,
                 BodyEncoding = Encoding.UTF32,
                 IsBodyHtml = true
-            };
-
-            string Host = CommonService.GetDetalleListaBySigla("SMTP").Valor;
+            };          
 
             _cliente = new SmtpClient
             {

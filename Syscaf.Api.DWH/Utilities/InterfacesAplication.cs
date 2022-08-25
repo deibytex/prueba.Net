@@ -21,15 +21,15 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<ITransmisionService, TransmisionService>();
             services.AddTransient<ISiteService, SiteService>();
             services.AddTransient<IEventTypeService, EventTypeService>();
-            services.AddTransient<IDriverService, DriverService>();          
-            services.AddTransient<ICommonService, CommonService>();
+            services.AddTransient<IDriverService, DriverService>();         
+           
             services.AddTransient<INotificacionService, NotificacionService>();
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IProcesoGeneracionService, ProcesoGeneracionService>();
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
             services.AddTransient<IRagService, RagService>();
             services.AddTransient<IPegasoService, PegasoService>();
-            services.AddTransient<IMovilService, MovilService>();
+          
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }

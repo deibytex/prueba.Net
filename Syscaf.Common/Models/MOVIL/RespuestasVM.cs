@@ -9,10 +9,12 @@ namespace Syscaf.Common.Models.MOVIL
     public class RespuestasVM
     {
         public string? Respuesta { get; set; }
+        public string? ValorRedLine { get; set; }
         public int? PreguntaId { get; set; }
         public string? UsuarioId { get; set; }
         public long? ClienteId { get; set; }
         public DateTime? Fecha { get; set; }
+        public string? Pregunta { get; set; }
     }
 
     public class getRespuestasVM
@@ -33,6 +35,7 @@ namespace Syscaf.Common.Models.MOVIL
         public int PreguntaId { get; set; }
         public int PlantillaId { get; set; }
         public string NombrePlantilla { get; set; }
+        public int TipoPlantilla { get; set; }
         public int TipoPreguntaId { get; set; }
         public string TipoPregunta { get; set; }
         public string Valores { get; set; }
@@ -43,18 +46,19 @@ namespace Syscaf.Common.Models.MOVIL
         public bool EsActivo { get; set; }
         public bool EsRedLine { get; set; }
         public string ValorRedLine { get; set; }
+        public string Agrupador { get; set; }
     }
     public class EncabezadoPreoperacionalVM
     {
         public int? PreoperacionalId { get; set; }
         public DateTime? FechaHora { get; set; }
-        public string? UserId { get; set; }
-        public List<getPreguntasVM>? lstPreguntas { get; set; }
-        public bool? EsSincronizado { get; set; }
-        public long? AssetId { get; set; }
-        public string? Vehiculo { get; set; }
+        public DateTime? Fecha { get; set; }
+        public string? UserId { get; set; }         
+        public long? AssetId { get; set; }      
         public string ClienteId { get; set; }
         public int? EstadoPreoperacional { get; set; } // 1 - Valido - 2. Invalido
+        public string? Vehiculo { get; set; }
+        public string? email { get; set; }
     }
     public  class Preoperacional
     {

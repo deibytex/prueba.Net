@@ -42,7 +42,7 @@ namespace Syscaf.Service.Portal
         private readonly IMixIntegrateService _Mix;
         private readonly ILogService _logService;
         private readonly IMapper _mapper;
-        private readonly ICommonService _commonService;
+       
         private readonly ISyscafConn _connDWH;
         private readonly IProcesoGeneracionService _procesoGeneracionService;
         private readonly INotificacionService _notificacionService;
@@ -52,7 +52,7 @@ namespace Syscaf.Service.Portal
 
         public PortalMService(ISyscafConn _connDWH, IAssetsService _asset,
             IClientService _clientService, IMixIntegrateService _Mix,
-            IMapper _mapper, ICommonService _commonService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService,
+            IMapper _mapper, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService,
             ILogService _logService,
             SyscafCoreConn _connCore,
              IMixIntegrateService _MixService,
@@ -65,7 +65,7 @@ namespace Syscaf.Service.Portal
             this._clientService = _clientService;
             this._Mix = _Mix;
             this._mapper = _mapper;
-            this._commonService = _commonService;
+          
             this._procesoGeneracionService = _procesoGeneracionService;
             this._notificacionService = _notificacionService;
             this._connCore = _connCore;
@@ -719,8 +719,31 @@ namespace Syscaf.Service.Portal
             }
 
         }
+        public async Task<List<dynamic>> getDynamicValueProcedureDWH(string Clase, string NombreConsulta, DynamicParameters lstparams)
+        {
+            try
+            {
+                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
-       
+                if (consulta != null && consulta.Length > 0)
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta, lstparams));
+
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
+        public async Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
+        {
+            return await _connDWH.Execute("Portal.RellenoInfomesViajesEventos", new { PeriodoFecha = FechaInicial, clienteIdS, FechaInicial, FechaFinal });
+        }
 
     }
     public interface IPortalMService
@@ -736,5 +759,7 @@ namespace Syscaf.Service.Portal
 
         Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
         Task<ResultObject> Get_PositionsByClientPositionsActive();
+        Task<List<dynamic>> getDynamicValueProcedureDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
+        Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal);
     }
 }

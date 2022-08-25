@@ -635,5 +635,103 @@ namespace Syscaf.PBIConn.Services
             }
         }
         #endregion
+   
+
+    #region newpbi
+
+
+
+    //Cargar Datos a PowerBi
+    public static async Task<ResultObject> SetDataDataSet(Guid workspaceId, string datasetid, List<object> data, string tableName)
+    {
+        using (var pbiClient = await GetPowerBiClient())
+        {
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                //Se cambia la data recibida a Rows
+                var postRows = new PostRowsRequest
+                {
+                    Rows = data,
+                };
+
+                //Se serializa la información 
+                pbiClient.SerializationSettings.ContractResolver = new DefaultContractResolver();
+
+                //Metodo para enviar la información a power BI
+                await pbiClient.Datasets.PostRowsInGroupAsync(workspaceId, datasetid, tableName, postRows);
+                //Thread.Sleep(30000);
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            result.Exitoso = true;
+
+            return result;
+        }
     }
+
+    //traer tablas
+    public static async Task<ResultObject> getTables(Guid workspaceId, string datasetid)
+    {
+        using (var pbiClient = await GetPowerBiClient())
+        {
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                var a = pbiClient.Datasets.GetDataset(workspaceId, datasetid);
+                var b = pbiClient.Datasets.GetDatasets(workspaceId);
+                var c = pbiClient.Datasets.GetDatasetToDataflowsLinks(workspaceId);
+                var d = pbiClient.Datasets.GetDatasources(workspaceId, datasetid);
+                //var e = pbiClient.Datasets.GetDirectQueryRefreshSchedule(workspaceId, datasetid);
+                //var f = pbiClient.Datasets.GetGatewayDatasources(workspaceId, datasetid);
+                var g = pbiClient.Datasets.GetParameters(workspaceId, datasetid);
+                var h = pbiClient.Datasets.GetRefreshHistory(workspaceId, datasetid);
+                var i = pbiClient.Datasets.GetRefreshSchedule(workspaceId, datasetid);
+                var j = pbiClient.Datasets.GetTables(datasetid).Value;
+                var l = pbiClient.Datasets.GetTables(workspaceId, datasetid);
+                var k = pbiClient.Datasets.GetTables(datasetid).Odatacontext;
+                //Borrar Datos de tablas en el dataset, por nombre de tabla
+                result.Data = pbiClient.Datasets.GetTables(datasetid);
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            result.Exitoso = true;
+
+            return result;
+        }
+    }
+
+    //Pruebas nuevo esquema
+    public static async Task<ResultObject> SetNewColumn(PowerBIClient pbiClient,  Guid workspaceId, string datasetid, string tableName, Table tableEdit)
+    {
+       
+            ResultObject result = new ResultObject() { Exitoso = false };
+
+            try
+            {      
+
+                await pbiClient.Datasets.PutTableInGroupAsync(workspaceId, datasetid, tableName, tableEdit);
+                result.success();
+
+            }
+            catch (Exception ex)
+            {
+
+                result.error(ex.ToString());
+            }
+          
+            return result;
+        
+    }
+
+ 
+    #endregion
+} 
 }

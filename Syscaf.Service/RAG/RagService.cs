@@ -44,8 +44,9 @@ namespace Syscaf.Service.RAG
 
         public async Task<int> RellenoTripsEventScoring(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
         {
-            return  await _conProd.Execute("RAG.RellenoTripsEventScoring", new { clienteIdS, PeriodoFecha = FechaInicial.Date, FechaInicial, FechaFinal });            
+            return  await _conProd.Execute("RAG.RellenoTripsEventScoring", new { PeriodoFecha = FechaInicial, clienteIdS,  FechaInicial, FechaFinal }, 1200);            
         }
+     
     }
     
 

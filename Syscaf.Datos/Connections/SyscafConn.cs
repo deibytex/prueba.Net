@@ -31,6 +31,11 @@ namespace Syscaf.Data
             using IDbConnection db = new SqlConnection(_connectionstring);
             return await db.ExecuteAsync(sp, parms, commandType: commandType);
         }
+        public async Task<int> Execute(string sp, object parms, int Timeout, CommandType commandType = CommandType.StoredProcedure )
+        {
+            using IDbConnection db = new SqlConnection(_connectionstring);
+            return await db.ExecuteAsync(sp, parms, commandType: commandType, commandTimeout: Timeout);
+        }
 
         public T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.Text)
         {
