@@ -73,7 +73,9 @@ namespace Syscaf.Api.DWH.Controllers
                        s.GiroBrusco_EventOccurrences,
                        s.ExcesoVelocidad_30_EventDuration,
                        s.ExcesoVelocidad_30_EventMaxValue,
-                       s.ExcesoVelocidad_30_EventOccurrences
+                       s.ExcesoVelocidad_30_EventOccurrences,
+                       s.mes,
+                       s.anio
                    }
                     );
                 var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "Safety");
@@ -135,6 +137,8 @@ namespace Syscaf.Api.DWH.Controllers
                             Latitud = s.Latitud.ToString(),
                             Longitud = s.Longitud.ToString(),
                             s.StartOdo,
+                            s.mes,
+                            s.anio
                         };
                     }).ToList<object>();
                     // enviamos los datos a PowerBI
@@ -332,47 +336,45 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
         [HttpGet("portal/setNewColumnDataset")]
-        public async Task<ResultObject> setNewColumnDataset(string? DatasetId)
+        public async Task<ResultObject> setNewColumnDataset(string? DatasetId, string? tableName)
         {
             DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
 
-                var InformeViajes = new Table()
+
+                var Eficiencia = new Table()
                 {
-                    Name = "InformeViajes",
+                    Name = "Eficiencia",
                     Columns = new List<Column>()
-                                {
-                                    new Column("TripId", "String"),
-                                    new Column("CIUDAD", "String"),
-                                    new Column("GERENTE", "String"),
-                                    new Column("MOVIL", "String"),
-                                    new Column("CONDUCTOR", "String"),
-                                    new Column("CEDULA", "String"),
-                                    new Column("FECHA", "Datetime", "dd/mm/yy"),
-                                    new Column("FECHAINICIO", "Datetime", "dd/MM/yy HH:mm:ss"),
-                                    new Column("FECHAIFIN", "Datetime", "dd/MM/yy HH:mm:ss"),
-                                    new Column("DURACION", "Int64"),
-                                    new Column("DURACIONHORA", "Double","0.####"),
-                                    new Column("DISTANCIA", "Double"),
-                                    new Column("VELOCIDAD", "Double"),
-                                    new Column("RALENTI", "Int64"),
-                                    new Column("COMBUSTIBLE", "Double"),
-                                    new Column("TIPOLOGIA", "String"),
-                                    new Column("TIPOASSET", "String"),
-                                    new Column("TIPODIA", "String"),
-                                    new Column("SEMANA", "String"),
-                                    new Column("SEMANAMES", "String"),
-                                    new Column("MES", "String")
-              
-               
-               
-              
-            }
+                               {
+                                   new Column("Movil", "String"),
+                                   new Column("Operador", "String"),
+                                   new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                   new Column("Inicio", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                   new Column("Fin", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                   new Column("Carga", "Double"),
+                                   new Column("Descarga", "Double"),
+                                   new Column("Distancia", "Double"),
+                                   new Column("Duracion", "Datetime","h:mm:ss"),
+                                   new Column("DuracionHora", "Double","0.#"),
+                                   new Column("TotalConsumo", "Double"),
+                                   new Column("MaxSOC", "Int64"),
+                                   new Column("MinSOC", "Int64"),
+                                   new Column("DSOC", "Int64"),
+                                   new Column("RutaCodigo", "String"),
+                                   new Column("RutaNombre", "String"),
+                                   new Column("StartOdometer", "Double"),
+                                   new Column("EndOdometer", "Double"),
+                                   new Column("anio", "Int64"),
+                                   new Column("mes", "Int64")
+                               }
                 };
 
-                var pbiResultv = await EmbedService.SetNewColumn(pbiClient, ConfigValidatorService.WorkspaceId,DatasetId, "InformeViajes", InformeViajes);
+
+
+                var pbiResultv = await EmbedService.SetNewColumn(pbiClient, ConfigValidatorService.WorkspaceId,DatasetId, tableName, Eficiencia);
 
 
 
