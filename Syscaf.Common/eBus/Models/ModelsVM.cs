@@ -28,6 +28,8 @@ namespace Syscaf.Common.eBus.Models
         public double? Energia { get; set; }
         public double? ETA { get; set; }
         public double? Odometer { get; set; }
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
         public double VelocidadPromedio { get; set; }
     }
     public class EventosActivosViajeVM

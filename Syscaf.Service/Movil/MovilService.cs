@@ -81,7 +81,8 @@ namespace Syscaf.Service.Portal
                         w =>  w.Respuesta != null &&  w.Respuesta.Trim().Equals(w.ValorRedLine?.Trim(), StringComparison.CurrentCultureIgnoreCase)
                         ).Select(s => plantilla.DynamicText.Replace("{pregunta}", s.Pregunta).Replace("{respuesta}", s.Respuesta))
                         .Aggregate((i, j) => i + j);
-                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).Replace("{placa}", p.Encabezado.Vehiculo);
+                    //INGRESAR EL CONDUCTOR ASOCIADO AL USUARIO 
+                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).Replace("{placa}", p.Encabezado.Vehiculo).Replace("conductor", p.Encabezado.UserId);
 
                     var noti =    await _notificacionService.MOVCrearNotificacionPreoperacional(Enums.TipoNotificacion.Sistem, asunto, cuerpo, 4);
 

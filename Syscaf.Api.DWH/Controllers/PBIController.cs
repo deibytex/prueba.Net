@@ -114,35 +114,37 @@ namespace Syscaf.Api.DWH.Controllers
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
                 var datosSafetyEventos = (await _MixService.getEventosSafety(914, "Safety"));
-                var datosSafetyEventosObject = datosSafetyEventos.Select(s =>
+                if (datosSafetyEventos.Count > 0)
                 {
-                    return new
+                    var datosSafetyEventosObject = datosSafetyEventos.Select(s =>
                     {
-                        s.Movil,
-                        s.Operador,
-                        Fecha = s.Fecha.Date,
-                        s.Inicio,
-                        s.Fin,
-                        s.Descripcion,
-                        Duracion = s.Duracion.ToString(@"h\:mm\:ss"),
-                        DuracionHora = (double)s.DuracionHora,
-                        Valor = (double)(s.Valor ?? decimal.Zero),
-                        FechaFin = s.FechaFin?.Date,
-                        HoraInicial = s.HoraInicial?.ToString(@"h\:mm\:ss"),
-                        HoraFinal = s.HoraFinal?.ToString(@"h\:mm\:ss"),
-                        Latitud = s.Latitud.ToString(),
-                        Longitud = s.Longitud.ToString(),
-                        s.StartOdo,
-                    };
-                }).ToList<object>();
-                // enviamos los datos a PowerBI
-                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, datosSafetyEventosObject, "SafetyEventos");
+                        return new
+                        {
+                            s.Movil,
+                            s.Operador,
+                            Fecha = s.Fecha.Date,
+                            s.Inicio,
+                            s.Fin,
+                            s.Descripcion,
+                            Duracion = s.Duracion.ToString(@"h\:mm\:ss"),
+                            DuracionHora = (double)s.DuracionHora,
+                            Valor = (double)(s.Valor ?? decimal.Zero),
+                            FechaFin = s.FechaFin?.Date,
+                            HoraInicial = s.HoraInicial?.ToString(@"h\:mm\:ss"),
+                            HoraFinal = s.HoraFinal?.ToString(@"h\:mm\:ss"),
+                            Latitud = s.Latitud.ToString(),
+                            Longitud = s.Longitud.ToString(),
+                            s.StartOdo,
+                        };
+                    }).ToList<object>();
+                    // enviamos los datos a PowerBI
+                    var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, datosSafetyEventosObject, "SafetyEventos");
 
-                if (!pbiResult.Exitoso)
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar datos Safety Eventos 914", Enums.ListaDistribucion.LSSISTEMA);
-                else // enviamos los ids para que se marquen como procesado
-                    await _MixService.setEsProcesadoTablaSafety(914, "Safety", datosSafetyEventos.Select(s => s.SafetyId.ToString()).Aggregate((i, j) => i + "," + j));
-
+                    if (!pbiResult.Exitoso)
+                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar datos Safety Eventos 914", Enums.ListaDistribucion.LSSISTEMA);
+                    else // enviamos los ids para que se marquen como procesado
+                        await _MixService.setEsProcesadoTablaSafety(914, "Safety", datosSafetyEventos.Select(s => s.SafetyId.ToString()).Aggregate((i, j) => i + "," + j));
+                }
             }
 
             return new ResultObject() { Exitoso = true };
@@ -157,7 +159,7 @@ namespace Syscaf.Api.DWH.Controllers
         /// /// <param name="Fecha"></param>
         /// <returns></returns>
         [HttpGet("RellenoSafety")]
-        public async Task<ActionResult<int>> RellenoSafety()
+        public async Task<ActionResult<string>> RellenoSafety()
         {
 
             try
@@ -167,12 +169,12 @@ namespace Syscaf.Api.DWH.Controllers
             DateTime FechaServidor = DateTime.Now;
             DateTime FechaInicial = FechaServidor.AddDays(-1).Date;
             var datosSafetyEventos = (await _MixService.RellenoTripsEventScoring(914, FechaInicial, FechaServidor.Date));
-                return datosSafetyEventos;
+                return $"FI ={FechaInicial.ToString()} FF={FechaServidor.Date.ToString()}";
             }
             catch (Exception ex)
             {
 
-                throw;
+                return ex.ToString();
             }
 
          
@@ -203,14 +205,10 @@ namespace Syscaf.Api.DWH.Controllers
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
                 var parametros = new Dapper.DynamicParameters();
-                parametros.Add("Fecha", Fecha);
-
-                
+                parametros.Add("Fecha", Fecha);                
 
                 var informe = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
                 var infomePBI = informe.Select(s => {
-
-
                     DateTime FECHAINICIO = s.FECHAINICIO;
                     DateTime FECHAFIN = s.FECHAFIN;
                     DateTime FECHA = s.FECHA;

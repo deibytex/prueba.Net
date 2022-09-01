@@ -532,7 +532,7 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
                 if (consulta != null && consulta.Length > 0)
                     //Se ejecuta el procedimiento almacenado.
@@ -552,7 +552,7 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
                 if (consulta != null && consulta.Length > 0)
                     //Se ejecuta el procedimiento almacenado.

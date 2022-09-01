@@ -22,6 +22,16 @@ namespace Syscaf.PBIConn.Services
             var tokenCredentials = new TokenCredentials(await AadService.GetAccessToken(), "Bearer");
             return new PowerBIClient(new Uri(urlPowerBiServiceApiRoot), tokenCredentials);
         }
+        public static PowerBIClient GetPowerBiClient(string Token)
+        {
+            var tokenCredentials = new TokenCredentials(Token, "Bearer");
+            return new PowerBIClient(new Uri(urlPowerBiServiceApiRoot), tokenCredentials);
+        }
+
+        public static async Task<string> GetAccessTokenBiClient()
+        {        
+            return await AadService.GetAccessToken();
+        }
 
         /// <summary>
         /// Get embed params for a report

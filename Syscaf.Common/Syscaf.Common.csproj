@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="eBus\**" />
     <Compile Remove="Integrate\LogNotificaciones\**" />
-    <EmbeddedResource Remove="eBus\**" />
     <EmbeddedResource Remove="Integrate\LogNotificaciones\**" />
-    <None Remove="eBus\**" />
     <None Remove="Integrate\LogNotificaciones\**" />
   </ItemGroup>
 

@@ -121,7 +121,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
         {
             try
             {                //Se ejecuta el procedimiento almacenado.
-                await _conCore.GetAll(NotificacionQueryHelper._UpdateEstadoMovi, new { Id }, commandType: CommandType.Text);
+                await _conCore.GetAllAsync(NotificacionQueryHelper._UpdateEstadoMovi, new { Id }, commandType: CommandType.Text);
 
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
         {
             try
             {                //Se ejecuta el procedimiento almacenado.
-                return await _conCore.GetAll(NotificacionQueryHelper._getNotificacionesSinEnviarMovil, null, commandType: CommandType.Text);
+                return await _conCore.GetAllAsync(NotificacionQueryHelper._getNotificacionesSinEnviarMovil, null, commandType: CommandType.Text);
 
             }
             catch (Exception ex)
@@ -154,7 +154,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
                 //Se ejecuta el procedimiento almacenado.
-                plantilla = await _con.Get<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoBySigla, new
+                plantilla = await _con.GetAsync<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoBySigla, new
                 {
                     sigla,
                     ClienteId
@@ -176,7 +176,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
                 //Se ejecuta el procedimiento almacenado.
-                plantilla = await _con.GetAll<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoById, new
+                plantilla = await _con.GetAllAsync<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoById, new
                 {
                     Listadistribucionid
                 }, commandType: CommandType.Text);
@@ -200,7 +200,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
                 //Se ejecuta el procedimiento almacenado.
-                plantilla = await _conCore.Get<PlantillaDTO>(NotificacionQueryHelper._GetPlantillaBySigla, new
+                plantilla = await _conCore.GetAsync<PlantillaDTO>(NotificacionQueryHelper._GetPlantillaBySigla, new
                 {
                     Sigla
                 }, commandType: CommandType.Text);
@@ -247,7 +247,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             ResultObject result = new ResultObject();
             try
             {
-                var resultt = await Task.FromResult(_con.Execute(NotificacionQueryHelper._UpdateEstado, new
+                var resultt = await Task.FromResult(_con.ExecuteAsync(NotificacionQueryHelper._UpdateEstado, new
                 {
                     Id = ids
                 }));
@@ -274,7 +274,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
 
-                var resultt = await _con.Execute(NotificacionQueryHelper._Insert, new
+                var resultt = await _con.ExecuteAsync(NotificacionQueryHelper._Insert, new
                 {
                     TipoNotificacionId = (int)tipo,
                     Descripcion = descripcion,
@@ -301,7 +301,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
 
-                var resultt = await _conCore.Execute(NotificacionQueryHelper._InsertPreoperacional, new
+                var resultt = await _conCore.ExecuteAsync(NotificacionQueryHelper._InsertPreoperacional, new
                 {
                     Asunto = asunto,
                     Descripcion = descripcion,

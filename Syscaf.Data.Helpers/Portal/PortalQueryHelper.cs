@@ -68,12 +68,11 @@ namespace Syscaf.Data.Helpers.Portal
         public static string getConsultasByClaseyNombre = @"  SELECT Consulta      
                                                               FROM PORTAL.ConsultasPortalPorTipo
                                                               where Clase = @Clase and NombreConsulta = @NombreConsulta";
-
-       
-
-
-
-
-
+        public static string getTokenPorTipo = @"  select Token,ExpirationDate  from PORTAL.Tokens
+                                                        where ( is null or  Tipo = @Tipo)";
+        public static string setTokenPorTipo = @" update portal.token set Token = @Token, ExpirationDate = @ExpirationDate
+                                                    where Tipo = @Tipo";
+        public static string newTokenPorTipo = @"  insert into portal.token (Tipo,Token, ExpirationDate)
+                                                    values(@Tipo,@Token,@ExpirationDate )";
     }
 }

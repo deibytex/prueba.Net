@@ -20,12 +20,12 @@ namespace Syscaf.Service.Auth
         public async Task<List<dynamic>> GetUsuarios(string? UserId, int? PerfilId)
         {
 
-            return await _conn.GetAll("ADM.GetAspnetUsers", new { UserId  , PerfilId });
+            return await _conn.GetAllAsync("ADM.GetAspnetUsers", new { UserId  , PerfilId });
         }
         public async Task<List<MenuDesagregadoDTO>> GetMenuUsuario(string UserId)
         {
 
-            return await _conn.GetAll<MenuDesagregadoDTO>("ADM.GetMenuUsuario", new { UserId });
+            return await _conn.GetAllAsync<MenuDesagregadoDTO>("ADM.GetMenuUsuario", new { UserId });
         }
     }
 

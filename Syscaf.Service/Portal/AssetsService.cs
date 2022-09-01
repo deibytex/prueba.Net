@@ -207,7 +207,7 @@ namespace Syscaf.Service.Portal
             {
                 //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
-                return await Task.FromResult(_conn.GetAll<AssetShortDTO>(AssetsQueryHelper._getByEstado,
+                return await Task.FromResult(_conn.GetAllAsync<AssetShortDTO>(AssetsQueryHelper._getByEstado,
                    new { ClienteId,  userstate }, commandType: CommandType.Text)).Result;
 
             }
@@ -222,7 +222,7 @@ namespace Syscaf.Service.Portal
             {
                 //// debe validr que la tabla a la que va a isnertar el mensaje exista            
 
-                return await Task.FromResult(_conn.GetAll<AssetShortDTO>(AssetsQueryHelper._getByEstadoAndClienteIds,
+                return await Task.FromResult(_conn.GetAllAsync<AssetShortDTO>(AssetsQueryHelper._getByEstadoAndClienteIds,
                    new { ClienteIds, userstate }, commandType: CommandType.Text)).Result;
 
             }

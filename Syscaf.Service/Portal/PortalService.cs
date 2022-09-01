@@ -226,7 +226,7 @@ namespace Syscaf.Service.Portal
                                         {
                                             s.isebus = getEventos.
                                                Where(w => (w.Parametrizacion ?? "").Contains("75") && w.EventTypeId == s.EventTypeId).Count() > 0;
-
+                                         
                                             return s;
                                         }).ToList();
 
@@ -328,8 +328,7 @@ namespace Syscaf.Service.Portal
             ResultObject resultado = new ResultObject();
             try
             {
-                using (SyscafBD ctx = new SyscafBD())
-                {
+               
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Clienteids", Clienteids, DbType.Int32);
                     parametros.Add("Period", Periodo, DbType.String);
@@ -339,7 +338,7 @@ namespace Syscaf.Service.Portal
                     await Task.FromResult(_connDWH.Execute(PortalQueryHelper._guardaTablasPortal(tabla), parametros, commandType: CommandType.StoredProcedure));
 
                     resultado.success(null);
-                }
+                
             }
             catch (Exception ex)
             {
@@ -459,7 +458,7 @@ namespace Syscaf.Service.Portal
                             });
 
                         string Lista = JsonConvert.SerializeObject(posiciones);
-                        var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosiciones, new { Lista }, CommandType.StoredProcedure);
+                        var restult = await _connCore.GetAsync<int>(PortalQueryHelper._insertaPosiciones, new { Lista }, CommandType.StoredProcedure);
 
                         result.success();
 
@@ -515,7 +514,7 @@ namespace Syscaf.Service.Portal
                             });
 
                         string Lista = JsonConvert.SerializeObject(posiciones);
-                        var restult = await _connCore.Get<int>(PortalQueryHelper._insertaPosicionesCliente, new { Lista }, CommandType.StoredProcedure);
+                        var restult = await _connCore.GetAsync<int>(PortalQueryHelper._insertaPosicionesCliente, new { Lista }, CommandType.StoredProcedure);
 
                         result.success();
 
@@ -703,7 +702,7 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
                 if (consulta != null && consulta.Length > 0)
                     //Se ejecuta el procedimiento almacenado.
@@ -723,7 +722,7 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.Get<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
                 if (consulta != null && consulta.Length > 0)
                     //Se ejecuta el procedimiento almacenado.
@@ -742,7 +741,19 @@ namespace Syscaf.Service.Portal
 
         public async Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
         {
-            return await _connDWH.Execute("Portal.RellenoInfomesViajesEventos", new { PeriodoFecha = FechaInicial, clienteIdS, FechaInicial, FechaFinal });
+            return await _connDWH.ExecuteAsync("Portal.RellenoInfomesViajesEventos", new { PeriodoFecha = FechaInicial, clienteIdS, FechaInicial, FechaFinal });
+        }
+
+        public async Task<int> Portal_GetTokenPowerBI()
+        {
+            return await _connCore.GetAsync<dynamic>(PortalQueryHelper.getTokenPorTipo, new  { Tipo = "PBI" } );
+        }
+        public async Task<int> Portal_SetTokenPowerBI(string Token, DateTime ExpirationDate, bool isExists)
+        {
+            string _query;
+
+            _query = (isExists) ? PortalQueryHelper.setTokenPorTipo : PortalQueryHelper.newTokenPorTipo;
+            return await _connCore.ExecuteAsync(_query, new { Tipo = "PBI", Token , ExpirationDate });
         }
 
     }
@@ -761,5 +772,7 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> Get_PositionsByClientPositionsActive();
         Task<List<dynamic>> getDynamicValueProcedureDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
         Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal);
+        Task<int> Portal_GetTokenPowerBI();
+        Task<int> Portal_SetTokenPowerBI(string Token, DateTime ExpirationDate, bool isExists);
     }
 }
