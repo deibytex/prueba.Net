@@ -28,8 +28,8 @@ namespace Syscaf.Service.Portal.Models.RAG
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public decimal? StartOdo { get; set; }
-        public int mes { get; set; }
-        public int anio { get; set; }
+        public int? mes { get; set; }
+        public int? anio { get; set; }
     }
     public class SafetyVM 
     {
@@ -60,8 +60,8 @@ namespace Syscaf.Service.Portal.Models.RAG
         public double ExcesoVelocidad_30_EventDuration { get; set; }
         public double ExcesoVelocidad_30_EventMaxValue { get; set; }
         public double ExcesoVelocidad_30_EventOccurrences { get; set; }
-        public int mes { get; set; }
-        public int anio { get; set; }
+        public int? mes { get; set; }
+        public int? anio { get; set; }
     }
    
 }
