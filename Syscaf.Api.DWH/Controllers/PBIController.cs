@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.PowerBI.Api;
 using Microsoft.PowerBI.Api.Models;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Integrate.PORTAL;
+using Syscaf.Data.Helpers.eBus.Models;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
@@ -392,6 +394,395 @@ namespace Syscaf.Api.DWH.Controllers
             DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
 
             var pbiResultv = await EmbedService.DeleteDataDataSet(ConfigValidatorService.WorkspaceId, DatasetId, tableName);
+
+            return new ResultObject() { Exitoso = true };
+
+        }
+
+        [HttpGet("portal/SetDataSet")]
+        public async Task<ResultObject> SetDataSet(string nombreDataSet)
+        {
+
+            using (var pbiClient = await EmbedService.GetPowerBiClient())
+            {
+
+
+                var Eventos_854 = new Table()
+                {
+                    Name = "Eventos_854",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("Hora", "Datetime","h:mm:ss"),
+                                    new Column("FechaHora", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64"),
+                                    new Column("Clip0", "String"),
+                                    new Column("Clip1", "String"),
+                                    new Column("Clip2", "String"),
+                                    new Column("Clip3", "String"),
+                                    new Column("Clip4", "String"),
+                                    new Column("Latitud", "String"),
+                                    new Column("Longitud", "String"),
+                                    new Column("SpeedKilometresPerHour", "Int64"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+                var Eventos_856 = new Table()
+                {
+                    Name = "Eventos_856",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("Hora", "Datetime","h:mm:ss"),
+                                    new Column("FechaHora", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64"),
+                                    new Column("Clip0", "String"),
+                                    new Column("Clip1", "String"),
+                                    new Column("Clip2", "String"),
+                                    new Column("Clip3", "String"),
+                                    new Column("Clip4", "String"),
+                                    new Column("Latitud", "String"),
+                                    new Column("Longitud", "String"),
+                                    new Column("SpeedKilometresPerHour", "Int64"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+                var Eventos_862 = new Table()
+                {
+                    Name = "Eventos_862",
+                    Columns = new List<Column>()
+                                {
+                                     new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("Hora", "Datetime","h:mm:ss"),
+                                    new Column("FechaHora", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64"),
+                                    new Column("Clip0", "String"),
+                                    new Column("Clip1", "String"),
+                                    new Column("Clip2", "String"),
+                                    new Column("Clip3", "String"),
+                                    new Column("Clip4", "String"),
+                                    new Column("Latitud", "String"),
+                                    new Column("Longitud", "String"),
+                                    new Column("SpeedKilometresPerHour", "Int64"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+                var Eventos_864 = new Table()
+                {
+                    Name = "Eventos_864",
+                    Columns = new List<Column>()
+                                {
+                                     new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("Hora", "Datetime","h:mm:ss"),
+                                    new Column("FechaHora", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64"),
+                                    new Column("Clip0", "String"),
+                                    new Column("Clip1", "String"),
+                                    new Column("Clip2", "String"),
+                                    new Column("Clip3", "String"),
+                                    new Column("Clip4", "String"),
+                                    new Column("Latitud", "String"),
+                                    new Column("Longitud", "String"),
+                                    new Column("SpeedKilometresPerHour", "Int64"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+                var Eventos_901 = new Table()
+                {
+                    Name = "Eventos_901",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("Hora", "Datetime","h:mm:ss"),
+                                    new Column("FechaHora", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64"),
+                                    new Column("Clip0", "String"),
+                                    new Column("Clip1", "String"),
+                                    new Column("Clip2", "String"),
+                                    new Column("Clip3", "String"),
+                                    new Column("Clip4", "String"),
+                                    new Column("Latitud", "String"),
+                                    new Column("Longitud", "String"),
+                                    new Column("SpeedKilometresPerHour", "Int64"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+
+                var ListaEventos = new Table()
+                {
+                    Name = "ListaEventos",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("EventId", "String"),
+                                    new Column("Evento", "String")
+                                }
+                };
+
+                var Distancia_854 = new Table()
+                {
+                    Name = "Distancia_854",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String"),
+                                    new Column("Distancia", "Double")
+                                }
+                };
+
+                var Distancia_856 = new Table()
+                {
+                    Name = "Distancia_856",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String"),
+                                    new Column("Distancia", "Double")
+                                }
+                };
+
+                var Distancia_862 = new Table()
+                {
+                    Name = "Distancia_862",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String"),
+                                    new Column("Distancia", "Double")
+                                }
+                };
+
+                var Distancia_864 = new Table()
+                {
+                    Name = "Distancia_864",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String"),
+                                    new Column("Distancia", "Double")
+                                }
+                };
+
+                var Distancia_901 = new Table()
+                {
+                    Name = "Distancia_901",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String"),
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy"),
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String"),
+                                    new Column("Distancia", "Double")
+                                }
+                };
+
+                var Franja = new Table()
+                {
+                    Name = "Franja",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FranjaId", "Int64"),
+                                    new Column("Franja", "String")
+                                }
+                };
+
+                var Drivers = new Table()
+                {
+                    Name = "Drivers",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("ClienteId", "String"),
+                                    new Column("ClienteIdS", "Int64"),
+                                    new Column("DriverId", "String"),
+                                    new Column("Conductor", "String")
+                                }
+                };
+
+                var Assets = new Table()
+                {
+                    Name = "Assets",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("ClienteId", "String"),
+                                    new Column("ClienteIdS", "Int64"),
+                                    new Column("AssetId", "String"),
+                                    new Column("Placa", "String"),
+                                    new Column("Descripcion", "String")
+                                }
+                };
+
+                var Date = new Table()
+                {
+                    Name = "Date",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy")
+                                }
+                };
+
+                var Hora = new Table()
+                {
+                    Name = "Hora",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("HoraId", "Int64"),
+                                    new Column("HoraEntero", "Int64")
+                                }
+                };
+
+                var tableDummy_1 = new Table()
+                {
+                    Name = "tableDummy_1",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy")
+                                }
+                };
+
+                var tableDummy_2 = new Table()
+                {
+                    Name = "tableDummy_2",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+                var tableDummy_3 = new Table()
+                {
+                    Name = "tableDummy_3",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+                var tableDummy_4 = new Table()
+                {
+                    Name = "tableDummy_4",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+
+
+                var dataset = await pbiClient.Datasets.PostDatasetAsync(ConfigValidatorService.WorkspaceId, new CreateDatasetRequest()
+                {
+                    Name = nombreDataSet,
+                    DefaultMode = "Push",
+                    Tables = new List<Table>() { Eventos_854, Eventos_856, Eventos_862, Eventos_864, Eventos_901, ListaEventos
+                                                , Distancia_854, Distancia_856, Distancia_862, Distancia_864, Distancia_901
+                                                , Franja, Drivers, Assets, Date, Hora, tableDummy_1, tableDummy_2, tableDummy_3
+                                                , tableDummy_4 }
+                });
+
+
+
+            }
 
             return new ResultObject() { Exitoso = true };
 
