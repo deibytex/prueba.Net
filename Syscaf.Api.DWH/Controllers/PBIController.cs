@@ -386,8 +386,18 @@ namespace Syscaf.Api.DWH.Controllers
 
         }
 
+        [HttpGet("portal/deleteDataDataset")]
+        public async Task<ResultObject> deleteDataDataset(string? DatasetId, string tableName)
+        {
+            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
 
-     
+            var pbiResultv = await EmbedService.DeleteDataDataSet(ConfigValidatorService.WorkspaceId, DatasetId, tableName);
+
+            return new ResultObject() { Exitoso = true };
+
+        }
+
+
 
 
     }
