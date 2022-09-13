@@ -109,6 +109,15 @@ namespace Syscaf.ApiCore
                 }
                 );
 
+            services.AddCors(options =>
+             {
+                 var frontendURL = Configuration.GetValue<string>("frontend_url");
+                 options.AddDefaultPolicy(builder => { 
+                  builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
+                 });
+
+            });
+
             //services.AddAuthorization(opciones =>
             //{
             //    opciones.AddPolicy("EsAdmin", policy => policy.RequireClaim("role", "admin"));
