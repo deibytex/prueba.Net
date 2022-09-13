@@ -33,5 +33,12 @@ namespace Syscaf.Data.Helpers.eBus
             Freno_Bandas  = 1,
             Freno_Pastillas= 2
         }
+        public enum TipoParametro
+        {
+            Tiempos_Actualizacion = 67,
+            Soc_MAx = 71,
+            Pistola_Conectada = 72,
+            Pistola_Desconectada = 73
+        }
     }
 }

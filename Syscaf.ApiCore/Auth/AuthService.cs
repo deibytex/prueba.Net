@@ -23,18 +23,22 @@ namespace Syscaf.ApiCore.Auth
         }
         public async Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales)
         {
-            var claims = new List<Claim>()
-            {
-                new Claim("username", credenciales.UserName)
-            };
+          
 
             var usuario = await _userManager.FindByNameAsync(credenciales.UserName);
             var claimsDB = await _userManager.GetClaimsAsync(usuario);
+            var claims = new List<Claim>()
+            {
+                new Claim("username", credenciales.UserName),
+                new Claim("Id", usuario.Id),
+                new Claim("Nombres", usuario.Nombres),
+                new Claim("email", usuario.Email)
 
+            };
             claims.AddRange(claimsDB);
             if (usuario.usuarioIdS.HasValue)
                 claims.Add(new Claim("usuarioIds", usuario.usuarioIdS.ToString()));
-            claims.Add(new Claim("Id", usuario.Id));
+         
 
             var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["llavejwt"]));
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);

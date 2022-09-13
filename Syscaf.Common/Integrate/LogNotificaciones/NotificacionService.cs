@@ -15,6 +15,7 @@ using Syscaf.Data.Helpers.Portal;
 
 using Syscaf.Data.Models.NS;
 using System.Data;
+using Syscaf.Data.Models.Portal;
 
 namespace Syscaf.Common.Integrate.LogNotificaciones
 {
@@ -22,133 +23,197 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
     {
         readonly ILogService LogService;
         readonly ISyscafConn _con;
+        readonly SyscafCoreConn _conCore;
 
         // nos trae la infomación de los assets junto a sus clientesreadonly I_LogService __LogService;
-        public NotificacionService(ILogService LogService, ICommonService CommonService, ISyscafConn _con)
+        public NotificacionService(ILogService LogService, ISyscafConn _con, SyscafCoreConn _conCore)
         {
             this.LogService = LogService;
             this._con = _con;
-            // this.CommonService = CommonService;
+            this._conCore = _conCore;
         }
 
-        //public  ResultObject EnviarCorreosSistemaNotificacion()
-        //{
-        //    ResultObject r = new ResultObject();
-        //    Task task = Task.Run(() => {
-        //    try
-        //    {
-        //        // se coloca un foreach ay que los servicios de automatizacion de azure no permiten ejecucion minuto a minuto 
-        //        // por el plan de azure
+        public async Task<ResultObject> EnviarCorreosMovilNotificacion(List<DetalleListaDTO> smtp)
+        {
+            ResultObject r = new ResultObject();
+
+            try
+            {
+                // se coloca un foreach ay que los servicios de automatizacion de azure no permiten ejecucion minuto a minuto 
+                // por el plan de azure
+
+                // trae el listado de notificaciones
+                var notif = (await GetNotificacionesCorreoMovil()).Select(
+                    s => new { s.ListaDistribucionId, s.Asunto, s.Descripcion, s.NotificacionId }
+                    ).ToList();
+
+                if (notif.Count > 0)
+                {
+                    // trae la plantilla para notificar
+                    PlantillaDTO plantilla = await GetPlantillaBySigla(Enums.PlantillaCorreo.MOV_PREOP.ToString());
+
+                    // configuracion desde el correo a trabajar
+                    string usuarioSmtp = smtp.Find(f => f.Sigla.Equals("USER"))?.Valor;
+                    string contraseniaSmtp = smtp.Find(f => f.Sigla.Equals("PSWD"))?.Valor;
+                    string host = smtp.Find(f => f.Sigla.Equals("SMTP"))?.Valor;
+                    MailNotification _mail = new MailNotification(usuarioSmtp, contraseniaSmtp, host);
+                    // agrupo las notificaciones por lista de distribucion
+                    foreach (var notificaciones in notif)
+                    {
+                        // traemos los correos por lista de distribucion
+                        List<ListaDistribucionDTO> correos = await GetListadoDistribucionById(notificaciones.ListaDistribucionId);
+                        // se adicionan las personas a notificar 
+                        _mail.AddRemitente(correos.Select(
+                                s => new ListaCorreoVM()
+                                {
+                                    Correo = s.Correo,
+                                    TipoEnvio = s.TipoEnvio
+                                }
+                                ).ToList());
+
+                        var result = _mail.SendEmail(usuarioSmtp, notificaciones.Asunto, notificaciones.Descripcion, "", LogService);
+
+                        if (result.Exitoso)
+                            SetEsNotificadoCorreos(notificaciones.NotificacionId);
+
+                    }
+                }
+                r.success("Enviado Exitosamente");
+            }
+            catch (Exception exp)
+            {
+                r.error(exp.Message);
+            }
+
+            return r;
+        }
+
+        public ResultObject EnviarNotificacion(List<DetalleListaDTO> smtp, string correo, string Asunto, string Cuerpo)
+        {
+            ResultObject r = new ResultObject();
+
+            try
+            {
+                // se coloca un foreach ay que los servicios de automatizacion de azure no permiten ejecucion minuto a minuto 
+                // por el plan de azure
 
 
-        //                                // trae el listado de notificaciones
-        //            List<NotificacionesCorreo> notif = GetNotificacionesCorreo();
+                // configuracion desde el correo a trabajar
+                string usuarioSmtp = smtp.Find(f => f.Sigla.Equals("USER"))?.Valor;
+                string contraseniaSmtp = smtp.Find(f => f.Sigla.Equals("PSWD"))?.Valor;
+                string host = smtp.Find(f => f.Sigla.Equals("SMTP"))?.Valor;
+                MailNotification _mail = new MailNotification(usuarioSmtp, contraseniaSmtp, host);
+                // agrupo las notificaciones por lista de distribucion
 
-        //            if (notif.Count > 0)
-        //            {
-        //                // trae la plantilla para notificar
-        //                PlantillaCorreo plantilla = GetPlantillaBySigla(Enums.PlantillaCorreo.P_SISTEMA.ToString());
+                _mail.AddRemitente(correo, Enums.TipoEnvio.TO);
+                var result = _mail.SendEmail(usuarioSmtp, Asunto, Cuerpo, "", LogService);
 
+                r.success("Enviado Exitosamente");
+            }
+            catch (Exception exp)
+            {
+                r.error(exp.Message);
+            }
 
-        //                // configuracion desde el correo a trabajar
-        //                string usuarioSmtp = CommonService.GetDetalleListaBySigla("USER").Valor;
-        //                string contraseniaSmtp = CommonService.GetDetalleListaBySigla("PSWD").Valor;
+            return r;
+        }
+        private async Task SetEsNotificadoCorreos(int Id)
+        {
+            try
+            {                //Se ejecuta el procedimiento almacenado.
+                await _conCore.GetAllAsync(NotificacionQueryHelper._UpdateEstadoMovi, new { Id }, commandType: CommandType.Text);
 
-        //                // agrupo las notificaciones por lista de distribucion
-        //                foreach (var notificaciones in notif.GroupBy(g => g.ListaDistribucion))
-        //                {
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetNotificacionesCorreo", ex.Message);
+            }
+        }
 
-        //                    MailNotification _mail = new MailNotification(usuarioSmtp, contraseniaSmtp, CommonService);
+        public async Task<List<dynamic>> GetNotificacionesCorreoMovil()
+        {
+            try
+            {                //Se ejecuta el procedimiento almacenado.
+                return await _conCore.GetAllAsync(NotificacionQueryHelper._getNotificacionesSinEnviarMovil, null, commandType: CommandType.Text);
 
-        //                    // se adicionan las personas a notificar 
-        //                    _mail.AddRemitente(notificaciones.Key.DetalleListaCorreo.Where(w => w.EsActivo).Select(
-        //                        s => new ListaCorreoVM()
-        //                        {
-        //                            Correo = s.Correo,
-        //                            TipoEnvio = s.TipoEnvio.Sigla
-        //                        }
-        //                        ).ToList());
-
-
-        //                    string body = plantilla.Cuerpo;
-
-        //                    // agregamos la informacion si hay varios items se mostrara 
-        //                    body = body.Replace("{rows}", notificaciones.Select(s =>
-        //                    plantilla.DynamicText.
-        //                    Replace("{fecha}", s.FechaSistema.ToString(Helper.FormatoFechaHora)).
-        //                    Replace("{descripcion}", s.Descripcion).
-        //                    Replace("{origen}", s.TipoNotificacion.Nombre)
-        //                    ).Aggregate((i, j) => i + j));
-        //                    // fin de body
-
-        //                    var result = _mail.SendEmail(usuarioSmtp, plantilla.Asunto.Replace("{0}", Helper.GetFechaServidor().ToString(Helper.FormatoFechaHora)), body, "", LogService);
-
-        //                    if (result.Exitoso)
-        //                        SetEsNotificadoCorreos(notificaciones.Select(s => s.NotificacionCorreoId).ToList());
-
-        //                }
-        //            }
-        //             r.success("Enviado Exitosamente"); 
-        //        }
-        //        catch (Exception exp)
-        //        {
-        //            r.error(exp.Message);
-        //        }
-        //    });
-        //    task.Wait();
-        //    return r;
-        //}
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetNotificacionesCorreo", ex.Message);
+            }
 
 
-        //public  ListaDistribucion GetListadoDistribucionBySigla(string sigla)
+            return null;
+        }
 
-        //{
-        //    ListaDistribucion lista = null;
-        //    try
-        //    {
+        //_GetListaDistribucionCorreoBySigla
+        public async Task<ListaDistribucionDTO> GetListadoDistribucionBySigla(string sigla, long ClienteId)
 
-        //        using (SyscafBD ctx = new SyscafBD())
-        //        {
-        //            lista = ctx.ListaDistribucionCorreo
-        //                .Include(i => i.DetalleListaCorreo)
-        //                .Where(w => w.Sigla.Equals(sigla, Constants.comparer)).FirstOrDefault();
+        {
+            ListaDistribucionDTO plantilla = null;
+            try
+            {
+                //Se ejecuta el procedimiento almacenado.
+                plantilla = await _con.GetAsync<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoBySigla, new
+                {
+                    sigla,
+                    ClienteId
+                }, commandType: CommandType.Text);
 
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetListadoDistribucionBySigla", ex.Message);
+            }
 
-        //        LogService.SetLog(ex.ToString(), "", "NotificacionService - GetListadoDistribucionBySigla ");
-        //    }
 
-        //    return lista;
-        //}
+            return plantilla;
+        }
+        public async Task<List<ListaDistribucionDTO>> GetListadoDistribucionById(int Listadistribucionid)
+
+        {
+            List<ListaDistribucionDTO> plantilla = null;
+            try
+            {
+                //Se ejecuta el procedimiento almacenado.
+                plantilla = await _con.GetAllAsync<ListaDistribucionDTO>(NotificacionQueryHelper._GetListaDistribucionCorreoById, new
+                {
+                    Listadistribucionid
+                }, commandType: CommandType.Text);
+
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetListadoDistribucionBySigla", ex.Message);
+            }
+
+
+            return plantilla;
+        }
 
         //// trae la plantilla segun sigla dada
 
-        //public  PlantillaCorreo GetPlantillaBySigla(string sigla)
+        public async Task<PlantillaDTO> GetPlantillaBySigla(string Sigla)
 
-        //{
-        //    PlantillaCorreo plantilla = null;
-        //    try
-        //    {
-        //        using (SyscafBD ctx = new SyscafBD())
-        //        {
-        //            plantilla = ctx.PlantillaCorreo.Where(w => w.Sigla.Equals(sigla, Constants.comparer)).FirstOrDefault();
-        //        }
+        {
+            PlantillaDTO plantilla = null;
+            try
+            {
+                //Se ejecuta el procedimiento almacenado.
+                plantilla = await _conCore.GetAsync<PlantillaDTO>(NotificacionQueryHelper._GetPlantillaBySigla, new
+                {
+                    Sigla
+                }, commandType: CommandType.Text);
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        LogService.SetLog(ex.ToString(), "", "NotificacionService - GetPlantillaBySigla ");
-        //    }
-
-
-        //    return plantilla ?? new PlantillaCorreo();
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetPlantillaBySigla", ex.Message);
+            }
 
 
-        //}
+            return plantilla;
+        }
 
 
 
@@ -159,17 +224,17 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             List<NotificacionesCorreoDTO> notificaciones = null;
 
             try
-                {
+            {
                 //Se ejecuta el procedimiento almacenado.
                 notificaciones = await Task.FromResult(_con.GetAll<NotificacionesCorreoDTO>(NotificacionQueryHelper._getNotificacionesSinEnviar, null, commandType: CommandType.Text));
-                  
-                }
-                catch (Exception ex)
-                {
-                    LogService.SetLogError(0, "NotificacionService - GetPlantillaBySigla", ex.Message);
-                }   
-         
-         
+
+            }
+            catch (Exception ex)
+            {
+                LogService.SetLogError(0, "NotificacionService - GetPlantillaBySigla", ex.Message);
+            }
+
+
             return notificaciones;
 
         }
@@ -182,9 +247,9 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             ResultObject result = new ResultObject();
             try
             {
-                var resultt = await Task.FromResult(_con.Execute(NotificacionQueryHelper._UpdateEstado, new
+                var resultt = await Task.FromResult(_con.ExecuteAsync(NotificacionQueryHelper._UpdateEstado, new
                 {
-                   Id = ids
+                    Id = ids
                 }));
 
                 result.success();
@@ -192,7 +257,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             catch (Exception ex)
             {
                 result.error("Error al actualizar las notificaciones, por favor revise el log.");
-               
+
                 LogService.SetLogError(0, "NotificacionService - SetEsNotificadoCorreos", ex.ToString());
             }
 
@@ -209,7 +274,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             try
             {
 
-                var resultt = await _con.Execute(NotificacionQueryHelper._Insert, new
+                var resultt = await _con.ExecuteAsync(NotificacionQueryHelper._Insert, new
                 {
                     TipoNotificacionId = (int)tipo,
                     Descripcion = descripcion,
@@ -224,6 +289,33 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
             {
                 result.error("Error al crear las notificaciones, por favor revise el log.");
                 LogService.SetLogError(0, "NotificacionService - CrearLogNotificacion", ex.ToString());
+            }
+
+            return result;
+        }
+
+        public async Task<ResultObject> MOVCrearNotificacionPreoperacional(Enums.TipoNotificacion tipo, string asunto, string descripcion,
+            int lista)
+        {
+            ResultObject result = new();
+            try
+            {
+
+                var resultt = await _conCore.ExecuteAsync(NotificacionQueryHelper._InsertPreoperacional, new
+                {
+                    Asunto = asunto,
+                    Descripcion = descripcion,
+                    ListaDistribucionId = lista,
+                    EsNotificado = false,
+                    FechaSistema = Constants.GetFechaServidor()
+                }, CommandType.Text);
+
+                result.success();
+            }
+            catch (Exception ex)
+            {
+                result.error("Error al crear las notificaciones, por favor revise el log.");
+                LogService.SetLogError(0, "MOVCrearNotificacionPreoperacional - CrearLogNotificacion", ex.ToString());
             }
 
             return result;

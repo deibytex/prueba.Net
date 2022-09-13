@@ -25,27 +25,28 @@ namespace Syscaf.Service.RAG
 
         public async Task<List<SafetyVM>> getInformacionSafetyByClient(int ClienteIds, DateTime? Fecha)
         {
-            return await _conProd.GetAll<SafetyVM>("RAG.GetDataPowerBiByCliente", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
+            return await _conProd.GetAllAsync<SafetyVM>("RAG.GetDataPowerBiByCliente", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
         }
         public async Task<int> setEsProcesadoTablaRAG(int clienteIdS, string Reporte, string ReporteIds)
         {
-            return await _conProd.Execute("RAG.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
+            return await _conProd.ExecuteAsync("RAG.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte)
         {
-            return await _conProd.GetAll<SafetyEventosVM>("EBUS.GetTablesPBI", new { clienteIdS, Reporte }, commandType: CommandType.StoredProcedure);
+            return await _conProd.GetAllAsync<SafetyEventosVM>("EBUS.GetTablesPBI", new { clienteIdS, Reporte }, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<SafetyEventosVM>> setEsProcesadoTablaSafety(int clienteIdS, string Reporte, string ReporteIds)
         {
-            return await _conProd.GetAll<SafetyEventosVM>("EBUS.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
+            return await _conProd.GetAllAsync<SafetyEventosVM>("EBUS.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> RellenoTripsEventScoring(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
         {
-            return  await _conProd.Execute("RAG.RellenoTripsEventScoring", new { clienteIdS, PeriodoFecha = FechaInicial.Date, FechaInicial, FechaFinal });            
+            return  await _conProd.ExecuteAsync("RAG.RellenoTripsEventScoring", new { PeriodoFecha = FechaInicial, clienteIdS,  FechaInicial, FechaFinal }, 240);            
         }
+     
     }
     
 

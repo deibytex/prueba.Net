@@ -58,7 +58,7 @@ namespace Syscaf.PBIConn.Services
 
                 authenticationResult = await clientApp.AcquireTokenForClient(ConfigValidatorService.m_scope).ExecuteAsync();
             }
-
+           
             return authenticationResult.AccessToken;
         }
     }

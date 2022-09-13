@@ -28,7 +28,7 @@ namespace Syscaf.Service.Automaper
                 dto => dto.MapFrom(MapearAssetDTO)
                 );
 
-            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap()               ;
+            CreateMap<ApplicationUser, UsuarioDTO>().ReverseMap();
 
             CreateMap<GroupSummary, SiteResult>().ForMember(
                x => x.Resultado,
@@ -46,7 +46,7 @@ namespace Syscaf.Service.Automaper
 
             CreateMap<ClienteSaveDTO, ClienteDTO>();
 
-            CreateMap<Trip,TripsNew>()
+            CreateMap<Trip, TripsNew>()
                  .ForMember(f => f.StartPositionId, op => op.MapFrom(mp => mp.StartPositionId.ToString()))
                  .ForMember(f => f.EndPositionId, op => op.MapFrom(mp => mp.EndPositionId.ToString()))
                  .ForMember(f => f.TripEnd, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripEnd)))
@@ -57,15 +57,25 @@ namespace Syscaf.Service.Automaper
                 .ForMember(f => f.Latitude, op => op.MapFrom(MapearLatitudLongitudFields))
                 .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
                 .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime, false)))
-                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime))) ;
+                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime)))
+                .ForMember(f => f.MediaUrls, op => op.MapFrom(MyDictionaryToJson));
 
             CreateMap<TripRibasMetrics, MetricsNew>()
                 .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
                 .ForMember(f => f.NIdleTime, op => op.MapFrom(mp => mp.IdleTime))
                 .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
 
+        }
 
-        
+        private string MyDictionaryToJson(Event eventFrom, EventsNew result)
+        {
+            if (eventFrom.MediaUrls != null )
+            {
+                var entries = eventFrom.MediaUrls.
+                    Select(d => string.Format("\"{0}\": [{1}]", d.Key, string.Join(",", d.Value)));
+                return "{" + string.Join(",", entries) + "}";
+            }
+            return null;
 
         }
         private double? MapearLatitudLongitudFields(Event driver, EventsNew result)

@@ -51,7 +51,7 @@ namespace Syscaf.Service.Peg
         {
             try
             {
-                return await _conprod.Get<string>(_getToken, new { ExpirationDate = Constants.GetFechaServidor() }, CommandType.Text);
+                return await _conprod.GetAsync<string>(_getToken, new { ExpirationDate = Constants.GetFechaServidor() }, CommandType.Text);
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace Syscaf.Service.Peg
         {
             try
             {
-                return await _conprod.GetAll<CodigoEvento>(_getCodigoEventos, new { ClienteIds }, CommandType.Text);
+                return await _conprod.GetAllAsync<CodigoEvento>(_getCodigoEventos, new { ClienteIds }, CommandType.Text);
 
             }
             catch (Exception ex)
