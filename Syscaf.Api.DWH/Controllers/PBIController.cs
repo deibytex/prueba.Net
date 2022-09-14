@@ -206,7 +206,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/CargarReporteViajesSemanal")]
         public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime? Fecha)
         {
-            DatasetId = DatasetId ?? "7ed0d689-a69a-4d01-83fe-bf55e7a1793f";
+            DatasetId = DatasetId ?? "99b5cce2-854b-456a-ab42-0933273abaf1";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
@@ -226,7 +226,7 @@ namespace Syscaf.Api.DWH.Controllers
                         FECHA = s.FECHA.Date,
                         s.FECHAHORAINICIAL,
                         s.FECHAHORAFINAL,
-                        DURACION = (double?)s.DURACIONHORA,
+                        s.DURACION,
                         DURACIONHORA = (double?)s.DURACIONHORA,
                         DISTANCIA = (double?)s.DISTANCIA,
                         VELOCIDAD = (double?)s.VELOCIDAD ,
@@ -354,7 +354,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("CEDULA", "String"),
                                     new Column("FECHA", "Datetime", "dd/mm/yy"),
                                     new Column("FECHAHORAINICIAL", "Datetime", "dd/MM/yy HH:mm:ss"),
-                                    new Column("FECHAIFIN", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("FECHAHORAFINAL", "Datetime", "dd/MM/yy HH:mm:ss"),
                                     new Column("DURACION", "Int64"),
                                     new Column("DURACIONHORA", "Double","0.####"),
                                     new Column("DISTANCIA", "Double"),
@@ -363,7 +363,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("COMBUSTIBLE", "Double"),
                                     new Column("TIPOLOGIA", "String"),
                                     new Column("TIPOASSET", "String"),
-                                    new Column("TIPODIA", "Double"),
+                                    new Column("TIPODIA", "String"),
                                     new Column("MES", "Int64"),
                                     new Column("SEMANAMES", "String")
                         }
