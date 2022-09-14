@@ -206,15 +206,15 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/CargarReporteViajesSemanal")]
         public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime? Fecha)
         {
-            DatasetId = DatasetId ?? "99b5cce2-854b-456a-ab42-0933273abaf1";
+            DatasetId = DatasetId ?? "2a1753ee-7ec5-4bd1-bab7-25988c0d027d";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Fecha", Fecha);                
 
-                var informe = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
-                var infomePBI = informe.Select(s => {                 
+                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
+                var infomeViajesPBI = informeViajes.Select(s => {                 
                     return new
                     {
                         TripId = s.TripId.ToString(),
@@ -241,15 +241,15 @@ namespace Syscaf.Api.DWH.Controllers
                    }
                     ).ToList();
 
-                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeViajes");
 
 
                 if (!pbiResult.Exitoso)
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
 
 
-                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
-                var infomeViajesPBI = informeViajes.Select(s =>
+                var informeEventos = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
+                var infomeEventosPBI = informeEventos.Select(s =>
                 {                   
                     return new
                     {
@@ -282,7 +282,7 @@ namespace Syscaf.Api.DWH.Controllers
                   }
                     ).ToList();
 
-                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
+                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI.ToList<object>(), "InformeEventos");
 
 
                 if (!pbiResultv.Exitoso)
