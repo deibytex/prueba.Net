@@ -208,10 +208,13 @@ namespace Syscaf.Api.DWH.Controllers
         {
             DatasetId = DatasetId ?? "2a1753ee-7ec5-4bd1-bab7-25988c0d027d";
 
+            
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Fecha", Fecha);                
+
+                //consulta, parametriza y carga Informe de viajes
 
                 var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
                 var infomeViajesPBI = informeViajes.Select(s => {                 
