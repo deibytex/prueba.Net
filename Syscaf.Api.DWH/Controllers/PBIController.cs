@@ -206,7 +206,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/CargarReporteViajesSemanal")]
         public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime? Fecha)
         {
-            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
+            DatasetId = DatasetId ?? "7ed0d689-a69a-4d01-83fe-bf55e7a1793f";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
@@ -241,12 +241,12 @@ namespace Syscaf.Api.DWH.Controllers
                    }
                     ).ToList();
 
-                //var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
 
 
-                //if (!pbiResult.Exitoso)
-                //    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
-          
+                if (!pbiResult.Exitoso)
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
+
 
                 var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
                 var infomeViajesPBI = informeViajes.Select(s =>
@@ -282,11 +282,11 @@ namespace Syscaf.Api.DWH.Controllers
                   }
                     ).ToList();
 
-                //var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
+                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
 
 
-                //if (!pbiResultv.Exitoso)
-                //    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
+                if (!pbiResultv.Exitoso)
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
 
 
 
