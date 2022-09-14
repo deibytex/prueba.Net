@@ -214,49 +214,29 @@ namespace Syscaf.Api.DWH.Controllers
                 parametros.Add("Fecha", Fecha);                
 
                 var informe = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
-                var infomePBI = informe.Select(s => {
-                    DateTime FECHAHORAINICIAL = s.FECHAHORAINICIAL;
-                    DateTime FECHAHORAFINAL = s.FECHAHORAFINAL;
-                    DateTime FECHA = s.FECHA;
-                    long TripId = s.TripId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? MOVIL = s.MOVIL;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES;
-                    int? MES = s.Mes;
-                    int? DURACION = s.DURACION;
-                    int? RALENTI = s.RALENTI;
-                    double? DURACIONHORA = (double?) s.DURACIONHORA;
-                    double? DISTANCIA = (double?)s.DISTANCIA;
-                    double? VELOCIDAD = (double?)s.VELOCIDAD;
-                    double? COMBUSTIBLE = (double?)s.COMBUSTIBLE;
-                    string? TIPODIA = s.TIPODIA;                    
+                var infomePBI = informe.Select(s => {                 
                     return new
                     {
-                        TripId = TripId.ToString() ,
-                        CIUDAD ,
-                        GERENTE ,
-                        MOVIL  ,
-                        CONDUCTOR  ,
-                        CEDULA ,
-                        FECHA,
-                        FECHAHORAINICIAL,
-                        FECHAHORAFINAL,
-                        DURACION ,
-                        DURACIONHORA,
-                        DISTANCIA,
-                        VELOCIDAD ,
-                        RALENTI ,
-                        COMBUSTIBLE ,
-                        TIPOLOGIA ,
-                        TIPOASSET,
-                        TIPODIA ,
-                        SEMANAMES,
-                        MES 
+                        TripId = s.TripId.ToString(),
+                        s.CIUDAD,
+                        s.GERENTE,
+                        s.MOVIL,
+                        s.CONDUCTOR,
+                        s.CEDULA,
+                        FECHA = s.FECHA.Date,
+                        s.FECHAHORAINICIAL,
+                        s.FECHAHORAFINAL,
+                        DURACION = (double?)s.DURACIONHORA,
+                        DURACIONHORA = (double?)s.DURACIONHORA,
+                        DISTANCIA = (double?)s.DISTANCIA,
+                        VELOCIDAD = (double?)s.VELOCIDAD ,
+                        s.RALENTI,
+                        COMBUSTIBLE = (double?)s.COMBUSTIBLE ,
+                        s.TIPOLOGIA,
+                        s.TIPOASSET,
+                        s.TIPODIA,
+                        s.SEMANAMES,
+                        s.MES 
                     };
                    }
                     ).ToList();
@@ -270,53 +250,34 @@ namespace Syscaf.Api.DWH.Controllers
 
                 var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
                 var infomeViajesPBI = informeViajes.Select(s =>
-                {
-                    DateTime? FECHAINICIAL = s.FECHAINICIAL;
-                    DateTime? FECHAFINAL = s.FECHAFINAL;
-                    DateTime? FECHAHORAINICIAL = s.FECHAHORAINICIAL;
-                    DateTime? FECHAHORAFINAL = s.FECHAHORAFINAL;
-                    long EventId = s.EventId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? PLACA = s.PLACA;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES;
-                    int? MES = s.MES;
-                    TimeSpan? DURACION = s.DURACION;
-                    TimeSpan? HORAINICIAL = s.HORAINICIAL;
-                    TimeSpan? HORAFINAL = s.HORAFINAL;                   
-                    double? DURACIONHORA = (double?)s.DURACIONHORA;                  
-                    string? TIPODIA = s.TIPODIA;
+                {                   
                     return new
                     {
                         EventId = s.EventId.ToString(),
-                        CIUDAD,
-                        GERENTE,
-                        DESCRIPCION = (string?)s.DESCRIPCION,
-                        PLACA,
-                        TIPOLOGIA,
-                        TIPOASSET,
-                        CONDUCTOR,
-                        CEDULA,
-                        EVENTO = (string?)s.EVENTO,
-                        FECHAINICIAL,
-                        FECHAFINAL,
-                        HORAINICIAL = HORAINICIAL?.ToString(@"h\:mm\:ss"),
-                        HORAFINAL = HORAFINAL?.ToString(@"h\:mm\:ss"),
-                        FECHAHORAINICIAL,
-                        FECHAHORAFINAL,
+                        s.CIUDAD,
+                        s.GERENTE,
+                        s.DESCRIPCION,
+                        s.PLACA,
+                        s.TIPOLOGIA,
+                        s.TIPOASSET,
+                        s.CONDUCTOR,
+                        s.CEDULA,
+                        s.EVENTO,
+                        FECHAINICIAL = s.FECHAINICIAL.Date,
+                        FECHAFINAL = s.FECHAFINAL.Date,
+                        HORAINICIAL = s.HORAINICIAL?.ToString(@"h\:mm\:ss"),
+                        HORAFINAL = s.HORAFINAL?.ToString(@"h\:mm\:ss"),
+                        s.FECHAHORAINICIAL,
+                        s.FECHAHORAFINAL,
                         VALOR = (double?)s.VALOR,
-                        DURACION = DURACION?.ToString(@"h\:mm\:ss"),
-                        DURACIONHORA,
-                        DURACIONSEGUNDOS = (int)s.DURACIONSEGUNDOS,
+                        DURACION = s.DURACION?.ToString(@"h\:mm\:ss"),
+                        DURACIONHORA = (double?)s.DURACIONHORA,
+                        s.DURACIONSEGUNDOS,
                         LATITUD = s.LATITUD.ToString(),
                         LONGITUD = s.LONGITUD.ToString(),
-                        TIPODIA,
-                        SEMANAMES,
-                        MES 
+                        s.TIPODIA,
+                        s.SEMANAMES,
+                        s.MES 
                     };
                   }
                     ).ToList();
