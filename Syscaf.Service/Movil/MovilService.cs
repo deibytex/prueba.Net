@@ -25,13 +25,16 @@ namespace Syscaf.Service.Portal
         private readonly ILogService _log;
         private readonly IListaDetalleService _listas;
         private readonly INotificacionService _notificacionService;
-        public MovilService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, IListaDetalleService _listas, INotificacionService _notificacionService)
+        private readonly SyscafBDCore _ctx;
+        public MovilService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, IListaDetalleService _listas, INotificacionService _notificacionService, SyscafBDCore _ctx)
         {
             _conn = conn;
+            
             this._log = _log;
             this._mapper = _mapper;
             this._listas = _listas;
             this._notificacionService = _notificacionService;
+            this._ctx = _ctx;
         }
 
 
@@ -82,7 +85,11 @@ namespace Syscaf.Service.Portal
                         ).Select(s => plantilla.DynamicText.Replace("{pregunta}", s.Pregunta).Replace("{respuesta}", s.Respuesta))
                         .Aggregate((i, j) => i + j);
                     //INGRESAR EL CONDUCTOR ASOCIADO AL USUARIO 
-                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).Replace("{placa}", p.Encabezado.Vehiculo).Replace("conductor", p.Encabezado.UserId);
+
+                    // buscamos el nombre o la informacion basica del cusuarii
+
+                    string nombre = _ctx.Users.Find(p.Encabezado.UserId)?.Nombres;
+                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).Replace("{placa}", p.Encabezado.Vehiculo).Replace("{conductor}", nombre);
 
                     var noti =    await _notificacionService.MOVCrearNotificacionPreoperacional(Enums.TipoNotificacion.Sistem, asunto, cuerpo, 4);
 

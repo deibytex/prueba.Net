@@ -29,7 +29,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
             services.AddTransient<IRagService, RagService>();
             services.AddTransient<IPegasoService, PegasoService>();
-          
+            services.AddTransient<IMovilService, MovilService>();
+
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }

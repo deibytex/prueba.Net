@@ -109,6 +109,7 @@ namespace Syscaf.Service.Helpers
                 if (archivo.Length > 2) _mail.Attachments.Add(new Attachment(archivo));
                 //Correo electronico desde la que enviamos el mensaje
                 _mail.From = new MailAddress(emailFrom);
+                
 
                 _cliente.Send(_mail);
             }

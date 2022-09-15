@@ -70,7 +70,7 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
                                     TipoEnvio = s.TipoEnvio
                                 }
                                 ).ToList());
-
+                        usuarioSmtp = "novedad.preop@syscaf.com.co";
                         var result = _mail.SendEmail(usuarioSmtp, notificaciones.Asunto, notificaciones.Descripcion, "", LogService);
 
                         if (result.Exitoso)

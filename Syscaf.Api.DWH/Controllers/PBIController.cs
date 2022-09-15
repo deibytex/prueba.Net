@@ -39,11 +39,18 @@ namespace Syscaf.Api.DWH.Controllers
 
             DatasetId = DatasetId ?? "365a6d57-fb13-45fa-b3cc-57705a5f8faa";
             Fecha = Fecha ?? Constants.GetFechaServidor().AddDays(-1);
-
+            ResultObject result = new ();
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
 
+                try
+                {
+
+                
                 var informeEficiencia = (await _MixService.getInformacionSafetyByClient(914, Fecha));
+
+              
+
                 var infomePBI = informeEficiencia.Select(s =>
                    new
                    {
@@ -93,10 +100,18 @@ namespace Syscaf.Api.DWH.Controllers
                 }
 
 
+                    return pbiResult;
 
+
+                }
+                catch (Exception ex)
+                {
+
+                    result.error(ex.ToString());
+                }
             }
 
-            return new ResultObject() { Exitoso = true };
+            return result;
 
         }
 
