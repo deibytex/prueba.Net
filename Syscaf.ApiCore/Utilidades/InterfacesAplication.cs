@@ -1,6 +1,7 @@
 ﻿using Syscaf.ApiCore.Auth;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Service.Auth;
+using Syscaf.Service.Drive;
 using Syscaf.Service.eBus.Gcp;
 using Syscaf.Service.Peg;
 using Syscaf.Service.Portal;
@@ -20,12 +21,7 @@ namespace Syscaf.ApiCore.Utilidades
             services.AddTransient<INotificacionService, NotificacionService>();
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
             services.AddTransient<IMovilService, MovilService>();
-
-            
-
-
-
-
+            services.AddTransient<IArchivosService, ArchivosService>();
         }
     }
 }

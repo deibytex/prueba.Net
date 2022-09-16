@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
-    <PackageReference Include="Google.Apis" Version="1.56.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.56.0" />
+    <PackageReference Include="Google.Apis" Version="1.57.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
@@ -29,6 +29,12 @@
     <ProjectReference Include="..\Syscaf.Datos\Syscaf.Data.csproj" />
     <ProjectReference Include="..\Syscaf.PBIConn\Syscaf.PBIConn.csproj" />
     <ProjectReference Include="..\Syscaf.Service\Syscaf.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="credentials.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
