@@ -254,7 +254,7 @@ namespace Syscaf.Api.DWH.Controllers
 
                     //Parametro a usar en la marca de eventos
                     var parametrosMarcar = new Dapper.DynamicParameters();
-                    parametros.Add("InformeViajesId", InformeViajesId);
+                    parametrosMarcar.Add("InformeViajesId", InformeViajesId);
 
                     //Meotodo para marcar los id's cargados a pbi
                     await _portalService.getDynamicValueDWH("MovQueryHelper", "setReporteViajes", parametrosMarcar);
