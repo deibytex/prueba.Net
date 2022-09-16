@@ -203,6 +203,7 @@ namespace Syscaf.Api.DWH.Controllers
             return datosSafetyEventos;
 
         }
+
         [HttpGet("portal/CargarReporteViajesSemanal")]
         public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime? Fecha)
         {
@@ -216,7 +217,7 @@ namespace Syscaf.Api.DWH.Controllers
 
                 //consulta, parametriza y carga Informe de viajes
 
-                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
+                var informeViajes = (await _portalService.getDynamicValueDWH("PBIQueryHelper", "getReporteViajes", parametros));
                 var infomeViajesPBI = informeViajes.Select(s => {                 
                     return new
                     {
@@ -257,17 +258,15 @@ namespace Syscaf.Api.DWH.Controllers
                     parametrosMarcar.Add("InformeViajesId", InformeViajesId);
 
                     //Meotodo para marcar los id's cargados a pbi
-                    await _portalService.getDynamicValueDWH("MovQueryHelper", "setReporteViajes", parametrosMarcar);
+                    await _portalService.getDynamicValueDWH("PBIQueryHelper", "setReporteViajes", parametrosMarcar);
                 }
-                    
-
-                if (!pbiResult.Exitoso)
+                else
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
                 
 
 
 
-                var informeEventos = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
+                var informeEventos = (await _portalService.getDynamicValueDWH("PBIQueryHelper", "getReporteEvento", parametros));
                 var infomeEventosPBI = informeEventos.Select(s =>
                 {                   
                     return new
@@ -304,7 +303,19 @@ namespace Syscaf.Api.DWH.Controllers
                 var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI.ToList<object>(), "InformeEventos");
 
 
-                if (!pbiResultv.Exitoso)
+                if (pbiResult.Exitoso)
+                {
+                    //Armamos el string con los id's a marcar
+                    var InformeEventosId = string.Join(",", informeEventos.Select(s => s.InformeEventosId).ToList());
+
+                    //Parametro a usar en la marca de eventos
+                    var parametrosMarcar = new Dapper.DynamicParameters();
+                    parametrosMarcar.Add("InformeEventosId", InformeEventosId);
+
+                    //Meotodo para marcar los id's cargados a pbi
+                    await _portalService.getDynamicValueDWH("PBIQueryHelper", "setReporteEventos", parametrosMarcar);
+                }
+                else
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
 
 
