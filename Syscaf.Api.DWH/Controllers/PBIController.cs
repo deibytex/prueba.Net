@@ -243,12 +243,28 @@ namespace Syscaf.Api.DWH.Controllers
                     };
                    }
                     ).ToList();
+                
 
                 var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeViajes");
 
+                if (pbiResult.Exitoso)
+                {
+                    //Armamos el string con los id's a marcar
+                    var InformeViajesId = string.Join(",", informeViajes.Select(s => s.InformeViajesId).ToList());
+
+                    //Parametro a usar en la marca de eventos
+                    var parametrosMarcar = new Dapper.DynamicParameters();
+                    parametros.Add("InformeViajesId", InformeViajesId);
+
+                    //Meotodo para marcar los id's cargados a pbi
+                    await _portalService.getDynamicValueDWH("MovQueryHelper", "setReporteViajes", parametrosMarcar);
+                }
+                    
 
                 if (!pbiResult.Exitoso)
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
+                
+
 
 
                 var informeEventos = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
