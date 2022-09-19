@@ -18,7 +18,6 @@ namespace Syscaf.Common.Models.ARCHIVOS
         public string Tipo { get; set; }
         public int? Orden { get; set; }
         public string Src { get; set; }
-        public int? ArchivoPadreId { get; set; }
         public int? Peso { get; set; }
         public DateTime FechaSistema { get; set; }
    
@@ -32,7 +31,6 @@ namespace Syscaf.Common.Models.ARCHIVOS
         public string Tipo { get; set; }
         public int? Orden { get; set; }
         public string Src { get; set; }
-        public int? ArchivoPadreId { get; set; }
         public int? Peso { get; set; }
         public string[] ArraySrc { get { return Src.Split("/"); } }
         public DateTime FechaSistema { get; set; }

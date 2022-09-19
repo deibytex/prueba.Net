@@ -15,15 +15,6 @@ namespace Syscaf.ApiCore.Controllers
             this._Drive = _Drive;
         }
         /// <summary>
-        /// Se autentica en google drive
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("GetAutenticacion")]
-        public async Task<string> GetAutenticacion()
-        {
-            return await _Drive.AccesoDrive();
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="NombreArchivo"></param>
@@ -44,9 +35,9 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="UsuarioId"></param>
         /// <returns></returns>
         [HttpPost("GetArchivosDatabase")]
-        public async Task<ResultObject> GetArchivosDatabase(string? UsuarioId)
+        public async Task<ResultObject> GetArchivosDatabase(string? UsuarioNombre)
         {
-            return await _Drive.GetArchivosDatabase(UsuarioId);
+            return await _Drive.GetArchivosDatabase(UsuarioNombre);
         }
     }
 }
