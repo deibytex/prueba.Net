@@ -32,7 +32,7 @@ namespace Syscaf.ApiCore.Controllers
         /// <summary>
         /// Archivos listado
         /// </summary>
-        /// <param name="UsuarioId"></param>
+        /// <param name="UsuarioNombre"></param>
         /// <returns></returns>
         [HttpPost("GetArchivosDatabase")]
         public async Task<ResultObject> GetArchivosDatabase(string? UsuarioNombre)
