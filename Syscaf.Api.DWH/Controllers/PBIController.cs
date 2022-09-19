@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.PowerBI.Api;
 using Microsoft.PowerBI.Api.Models;
+using MiX.Integrate.Shared.Entities.Drivers;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Integrate.PORTAL;
@@ -216,130 +218,119 @@ namespace Syscaf.Api.DWH.Controllers
             return datosSafetyEventos;
 
         }
-        [HttpGet("portal/CargarReporteViajesSemanal")]
-        public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime Fecha)
-        {
-            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
 
+        [HttpGet("portal/CargarReporteViajesSemanal")]
+        public async Task<ResultObject> CargarReporteViajesSemanal(string? DatasetId, DateTime? Fecha)
+        {
+            DatasetId = DatasetId ?? "2a1753ee-7ec5-4bd1-bab7-25988c0d027d";
+
+            
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Fecha", Fecha);                
 
-                var informe = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
-                var infomePBI = informe.Select(s => {
-                    DateTime FECHAINICIO = s.FECHAINICIO;
-                    DateTime FECHAFIN = s.FECHAFIN;
-                    DateTime FECHA = s.FECHA;
-                    long TripId = s.TripId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? MOVIL = s.MOVIL;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES.ToString();
-                    string? SEMANA = s.SEMANA.ToString();
-                    string? MES = s.Mes.ToString();
-                    int? DURACION = s.DURACION;
-                    int? RALENTI = s.RALENTI;
-                    double? DURACIONHORA = (double?) s.DURACIONHORA;
-                    double? DISTANCIA = (double?)s.DISTANCIA;
-                    double? VELOCIDAD = (double?)s.VELOCIDAD;
-                    double? COMBUSTIBLE = (double?)s.COMBUSTIBLE;
-                    string? TIPODIA = s.TIPODIA;                    
+                //consulta, parametriza y carga Informe de viajes
+
+                var informeViajes = (await _portalService.getDynamicValueDWH("PBIQueryHelper", "getReporteViajes", parametros));
+                var infomeViajesPBI = informeViajes.Select(s => {                 
                     return new
                     {
-                        TripId = TripId.ToString() ,
-                        CIUDAD ,
-                        GERENTE ,
-                        MOVIL  ,
-                        CONDUCTOR  ,
-                        CEDULA ,
-                        FECHA,
-                        FECHAINICIO,
-                        FECHAIFIN =FECHAFIN,
-                        DURACION ,
-                        DURACIONHORA,
-                        DISTANCIA,
-                        VELOCIDAD ,
-                        RALENTI ,
-                        COMBUSTIBLE ,
-                        TIPOLOGIA ,
-                        TIPOASSET,
-                        TIPODIA ,
-                        SEMANAMES ,
-                        SEMANA ,
-                        MES 
+                        TripId = s.TripId.ToString(),
+                        s.CIUDAD,
+                        s.GERENTE,
+                        s.MOVIL,
+                        s.CONDUCTOR,
+                        s.CEDULA,
+                        FECHA = s.FECHA.Date,
+                        s.FECHAHORAINICIAL,
+                        s.FECHAHORAFINAL,
+                        s.DURACION,
+                        DURACIONHORA = (double?)s.DURACIONHORA,
+                        DISTANCIA = (double?)s.DISTANCIA,
+                        VELOCIDAD = (double?)s.VELOCIDAD ,
+                        s.RALENTI,
+                        COMBUSTIBLE = (double?)s.COMBUSTIBLE ,
+                        s.TIPOLOGIA,
+                        s.TIPOASSET,
+                        s.TIPODIA,
+                        s.SEMANAMES,
+                        s.MES 
                     };
                    }
                     ).ToList();
-                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
+                
 
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeViajes");
 
-                if (!pbiResult.Exitoso)
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
-          
-
-                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
-                var infomeViajesPBI = informeViajes.Select(s =>
+                if (pbiResult.Exitoso)
                 {
-                    DateTime? FECHAINICIAL = s.FECHAINICIAL;
-                    DateTime? FECHAFINAL = s.FECHAFINAL;
-                    DateTime? FECHAHORAINICIAL = s.FECHAHORAINICIAL;
-                    DateTime? FECHAHORAFINAL = s.FECHAHORAFINAL;
-                    long EventId = s.EventId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? PLACA = s.PLACA;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES.ToString();
-                    string? SEMANA = s.SEMANA.ToString();
-                    string? MES = s.MES.ToString();
-                    TimeSpan? DURACION = s.DURACION;
-                    TimeSpan? HORAINICIAL = s.HORAINICIAL;
-                    TimeSpan? HORAFINAL = s.HORAFINAL;                   
-                    double? DURACIONHORA = (double?)s.DURACIONHORA;                  
-                    string? TIPODIA = s.TIPODIA;
+                    //Armamos el string con los id's a marcar
+                    var InformeViajesId = string.Join(",", informeViajes.Select(s => s.InformeViajesId).ToList());
+
+                    //Parametro a usar en la marca de eventos
+                    var parametrosMarcar = new Dapper.DynamicParameters();
+                    parametrosMarcar.Add("InformeViajesId", InformeViajesId);
+
+                    //Meotodo para marcar los id's cargados a pbi
+                    await _portalService.getDynamicValueDWH("PBIQueryHelper", "setReporteViajes", parametrosMarcar);
+                }
+                else
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
+                
+
+
+
+                var informeEventos = (await _portalService.getDynamicValueDWH("PBIQueryHelper", "getReporteEvento", parametros));
+                var infomeEventosPBI = informeEventos.Select(s =>
+                {                   
                     return new
                     {
                         EventId = s.EventId.ToString(),
-                        CIUDAD,
-                        GERENTE,
-                        DESCRIPCION = (string?)s.DESCRIPCION,
-                        PLACA ,
-                        TIPOLOGIA ,
-                        TIPOASSETS =TIPOASSET,
-                        CONDUCTOR,
-                        CEDULA ,
-                        EVENTO = (string?)s.EVENTO,
-                        FECHAINICIAL,
-                        FECHAFINAL,
-                        HORAINICIAL =HORAINICIAL?.ToString(@"h\:mm\:ss"),
-                        HORAFINAL = HORAFINAL?.ToString(@"h\:mm\:ss"),
-                        FECHAHORAINICIAL,
-                        FECHAHORAFINAL,
+                        s.CIUDAD,
+                        s.GERENTE,
+                        s.DESCRIPCION,
+                        s.PLACA,
+                        s.TIPOLOGIA,
+                        s.TIPOASSET,
+                        s.CONDUCTOR,
+                        s.CEDULA,
+                        s.EVENTO,
+                        FECHAINICIAL = s.FECHAINICIAL.Date,
+                        FECHAFINAL = s.FECHAFINAL.Date,
+                        HORAINICIAL = s.HORAINICIAL?.ToString(@"h\:mm\:ss"),
+                        HORAFINAL = s.HORAFINAL?.ToString(@"h\:mm\:ss"),
+                        s.FECHAHORAINICIAL,
+                        s.FECHAHORAFINAL,
                         VALOR = (double?)s.VALOR,
-                        DURACION = DURACION?.ToString(@"h\:mm\:ss"),
-                        DURACIONHORA,
-                        DURACIONSEGUNDOS = (int)s.DURACIONSEGUNDOS,
+                        DURACION = s.DURACION?.ToString(@"h\:mm\:ss"),
+                        DURACIONHORA = (double?)s.DURACIONHORA,
+                        s.DURACIONSEGUNDOS,
                         LATITUD = s.LATITUD.ToString(),
                         LONGITUD = s.LONGITUD.ToString(),
-                        TIPODIA ,
-                        SEMANAMES ,
-                        SEMANA,
-                        MES 
+                        s.TIPODIA,
+                        s.SEMANAMES,
+                        s.MES 
                     };
                   }
                     ).ToList();
-                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
+
+                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI.ToList<object>(), "InformeEventos");
 
 
-                if (!pbiResultv.Exitoso)
+                if (pbiResult.Exitoso)
+                {
+                    //Armamos el string con los id's a marcar
+                    var InformeEventosId = string.Join(",", informeEventos.Select(s => s.InformeEventosId).ToList());
+
+                    //Parametro a usar en la marca de eventos
+                    var parametrosMarcar = new Dapper.DynamicParameters();
+                    parametrosMarcar.Add("InformeEventosId", InformeEventosId);
+
+                    //Meotodo para marcar los id's cargados a pbi
+                    await _portalService.getDynamicValueDWH("PBIQueryHelper", "setReporteEventos", parametrosMarcar);
+                }
+                else
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
 
 
@@ -350,6 +341,148 @@ namespace Syscaf.Api.DWH.Controllers
 
         }
 
+        #region CRUD Datasets
+
+        //Creacion DataSets
+        [HttpGet("portal/SetDataSet")]
+        public async Task<ResultObject> SetDataSet(string nombreDataSet)
+        {
+
+            using (var pbiClient = await EmbedService.GetPowerBiClient())
+            {
+
+                //tablas a integrar al dataset
+
+                var InformeEventos = new Table()
+                {
+                    Name = "InformeEventos",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("EventId", "String"),
+                                    new Column("CIUDAD", "String"),
+                                    new Column("GERENTE", "String"),
+                                    new Column("DESCRIPCION", "String"),
+                                    new Column("PLACA", "String"),
+                                    new Column("TIPOLOGIA", "String"),
+                                    new Column("TIPOASSET", "String"),
+                                    new Column("CONDUCTOR", "String"),
+                                    new Column("CEDULA", "String"),
+                                    new Column("EVENTO", "String"),
+                                    new Column("FECHAINICIAL", "Datetime", "dd/MM/yy"),
+                                    new Column("FECHAFINAL", "Datetime", "dd/MM/yy"),
+                                    new Column("HORAINICIAL", "Datetime","h:mm:ss"),
+                                    new Column("HORAFINAL", "Datetime","h:mm:ss"),
+                                    new Column("FECHAHORAINICIAL", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("FECHAHORAFINAL", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("VALOR", "Double"),
+                                    new Column("DURACION", "Datetime","h:mm:ss"),
+                                    new Column("DURACIONHORA", "Double","0.####"),
+                                    new Column("DURACIONSEGUNDOS", "Int64"),
+                                    new Column("LATITUD", "String"),
+                                    new Column("LONGITUD", "String"),
+                                    new Column("TIPODIA", "String"),
+                                    new Column("MES", "Int64"),
+                                    new Column("SEMANAMES", "String")
+                                }
+                };
+
+                var InformeViajes = new Table()
+                {
+                    Name = "InformeViajes",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("TripId", "String"),
+                                    new Column("CIUDAD", "String"),
+                                    new Column("GERENTE", "String"),
+                                    new Column("MOVIL", "String"),
+                                    new Column("CONDUCTOR", "String"),
+                                    new Column("CEDULA", "String"),
+                                    new Column("FECHA", "Datetime", "dd/mm/yy"),
+                                    new Column("FECHAHORAINICIAL", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("FECHAHORAFINAL", "Datetime", "dd/MM/yy HH:mm:ss"),
+                                    new Column("DURACION", "Int64"),
+                                    new Column("DURACIONHORA", "Double","0.####"),
+                                    new Column("DISTANCIA", "Double"),
+                                    new Column("VELOCIDAD", "Double"),
+                                    new Column("RALENTI", "Int64"),
+                                    new Column("COMBUSTIBLE", "Double"),
+                                    new Column("TIPOLOGIA", "String"),
+                                    new Column("TIPOASSET", "String"),
+                                    new Column("TIPODIA", "String"),
+                                    new Column("MES", "Int64"),
+                                    new Column("SEMANAMES", "String")
+                        }
+                };
+
+                //Tablas Dummy para posibles nuevos usos
+                var tableDummy_1 = new Table()
+                {
+                    Name = "tableDummy_1",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "Datetime", "dd/mm/yy")
+                                }
+                };
+
+                var tableDummy_2 = new Table()
+                {
+                    Name = "tableDummy_2",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+                var tableDummy_3 = new Table()
+                {
+                    Name = "tableDummy_3",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+                var tableDummy_4 = new Table()
+                {
+                    Name = "tableDummy_4",
+                    Columns = new List<Column>()
+                                {
+                                    new Column("FechaId", "Int64"),
+                                    new Column("Fecha", "String")
+                                }
+                };
+
+
+                // Creación de datasets 
+                var dataset = await pbiClient.Datasets.PostDatasetAsync(ConfigValidatorService.WorkspaceId, new CreateDatasetRequest()
+                {
+                    Name = nombreDataSet,
+                    DefaultMode = "Push",
+                    //integrar dentro de los corchetes {} las tablas a incluir.
+                    Tables = new List<Table>() { InformeViajes, InformeEventos, tableDummy_1, tableDummy_2, tableDummy_3, tableDummy_4 }
+                });
+            }
+
+            return new ResultObject() { Exitoso = true };
+
+        }
+
+        // Eliminar datos de las tablas dentro de los datasets
+        [HttpGet("portal/deleteDataDataset")]
+        public async Task<ResultObject> deleteDataDataset(string? DatasetId, string tableName)
+        {
+            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
+
+            var pbiResultv = await EmbedService.DeleteDataDataSet(ConfigValidatorService.WorkspaceId, DatasetId, tableName);
+
+            return new ResultObject() { Exitoso = true };
+
+        }
+
+        //Modificar columnas tablas PBI de los datasets, tipo de dato eliminar o crear.
         [HttpGet("portal/setNewColumnDataset")]
         public async Task<ResultObject> setNewColumnDataset(string? DatasetId, string? tableName)
         {
@@ -400,7 +533,7 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
 
-     
+        #endregion
 
 
     }
