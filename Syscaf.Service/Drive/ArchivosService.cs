@@ -109,12 +109,36 @@ namespace Syscaf.Service.Drive
                 //CreateTreeRecursive(group.ToList(), newNode, index + 1);
             }
             return Carpetas;
-        }        
+        }
+        public async Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId)
+        {
+            var r = new ResultObject();
+            var parametros = new Dapper.DynamicParameters();
+            parametros.Add("Descripcion", Descripcion);
+            parametros.Add("MovimientoId", MovimientoId);
+            parametros.Add("ArchivoId", ArchivoId);
+            parametros.Add("UsuarioId", UsuarioId);
+            parametros.Add("AreaId", AreaId);
+            try
+            {
+                //Se ejecuta el procedimiento almacenado.
+                var result = await Task.FromResult(_conn.Insert<String>(ArchivosQueryHelper._InsertLog, parametros, commandType: CommandType.StoredProcedure));
+                r.Mensaje = result;
+                r.Exitoso = (result == "Operación Éxitosa") ? true : false;
+                r.success();
+            }
+            catch (Exception ex)
+            {
+                r.error(ex.Message);
+            }
+            return r;
+        }
     }
 
     public interface IArchivosService
     {
         Task<ResultObject> SetInsertarArchivo(string NombreArchivo, string Descripcion, string DescripcionLog, int Peso, string Tipo, int? Orden, string Src, int MovimientoId, int? AreaId, string UsuarioId);
         Task<ResultObject> GetArchivosDatabase(string UsuarioNombre);
+        Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId);
     }
 }

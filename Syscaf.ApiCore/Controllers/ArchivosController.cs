@@ -39,5 +39,19 @@ namespace Syscaf.ApiCore.Controllers
         {
             return await _Drive.GetArchivosDatabase(UsuarioNombre);
         }
+        /// <summary>
+        /// Se realiza el guardado de logs general para neptuno
+        /// </summary>
+        /// <param name="Descripcion"></param>
+        /// <param name="MovimientoId"></param>
+        /// <param name="ArchivoId"></param>
+        /// <param name="UsuarioId"></param>
+        /// <param name="AreaId"></param>
+        /// <returns></returns>
+        [HttpPost("SetLog")]
+        public async Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId)
+        {
+            return await _Drive.SetLog(Descripcion, MovimientoId, ArchivoId, UsuarioId, AreaId);
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace Syscaf.Data.Helpers.Archivos
     public static class ArchivosQueryHelper
     {
         public static string _Insert = "NEP.SP_InsertarArchivo";
+        public static string _InsertLog = "NEP.CrearLog";
     }
 }
