@@ -86,7 +86,7 @@ namespace Syscaf.Service.Drive
             }
             return r;
         }
-        private static List<ArchivosVM> ListadoCarpeta(List<ArchivosSeparados> Datos, List<ArchivosVM> Carpetas, int index)
+        public  List<ArchivosVM> ListadoCarpeta(List<ArchivosSeparados> Datos, List<ArchivosVM> Carpetas, int index)
         {
             var groupData = Datos.Where(x => x.ArraySrc.Length > index).GroupBy(x => x.ArraySrc[index]).ToList();
             if (Carpetas == null)
@@ -96,13 +96,13 @@ namespace Syscaf.Service.Drive
             {
                 ArchivosVM archivo = new ArchivosVM();
                 archivo.Nombre = group.Key;
-                archivo.Src = group.Where(w => w.Nombre == group.Key).Select(s => s.Src).FirstOrDefault();
-                archivo.Orden = group.Where(w => w.Nombre == group.Key).Select(s => s.Orden).FirstOrDefault();
-                archivo.FechaSistema = group.Where(w => w.Nombre == group.Key).Select(s => s.FechaSistema).FirstOrDefault();
-                archivo.Descripcion = group.Where(w => w.Nombre == group.Key).Select(s => s.Descripcion).FirstOrDefault();
-                archivo.Tipo = group.Where(w => w.Nombre == group.Key).Select(s => s.Tipo).FirstOrDefault();
-                archivo.Peso = group.Where(w => w.Nombre == group.Key).Select(s => s.Peso).FirstOrDefault();
-                archivo.ArchivoId = group.Where(w => w.Nombre == group.Key).Select(s => s.ArchivoId).FirstOrDefault();
+                archivo.Src = String.Join('/', group.First().ArraySrc.Take(index + 1));
+                archivo.Orden = group.FirstOrDefault().Orden;
+                archivo.FechaSistema = group.Select(s => s.FechaSistema).FirstOrDefault();
+                archivo.Descripcion = group.Select(s => s.Descripcion).FirstOrDefault();
+                archivo.Tipo = group.Select(s => s.Tipo).FirstOrDefault();
+                archivo.Peso = group.Select(s => s.Peso).FirstOrDefault();
+                archivo.ArchivoId = group.Select(s => s.ArchivoId).FirstOrDefault();
                 archivo.Hijos = ListadoCarpeta(group.ToList(), null, index + 1);
                 Carpetas.Add(archivo);
                 
@@ -140,5 +140,7 @@ namespace Syscaf.Service.Drive
         Task<ResultObject> SetInsertarArchivo(string NombreArchivo, string Descripcion, string DescripcionLog, int Peso, string Tipo, int? Orden, string Src, int MovimientoId, int? AreaId, string UsuarioId);
         Task<ResultObject> GetArchivosDatabase(string UsuarioNombre);
         Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId);
+
+        List<ArchivosVM> ListadoCarpeta(List<ArchivosSeparados> Datos, List<ArchivosVM> Carpetas, int index);
     }
 }
