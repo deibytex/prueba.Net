@@ -217,6 +217,7 @@ namespace Syscaf.Service.Portal
                                 {
 
                                     var ResultEvents = await GetIdsNoIngresadosByClienteAsync(f.Eventos.Select(s => s.EventId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.eventos, item.clienteIdS);
+
                                     var eventosFilter = f.Eventos.Where(w => ResultEvents.Any(a => a == w.EventId)).ToList();
 
                                     if (eventosFilter.Count > 0)
@@ -265,13 +266,14 @@ namespace Syscaf.Service.Portal
             try
             {
                 // traemos el listado de clientes
-                var ListadoClientes = await _clientService.GetAsync(1, ClienteIds);
+                var ListadoClientes = await _clientService.GetAsync(1, clienteIds: ClienteIds);
 
                 foreach (var item in ListadoClientes.Where(w => w.ActiveEvent == true)) 
                 {
                     // si tienen configurado al menos un evento que extraer
                     var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
                     _Clientenombre = item.clienteNombre;
+
                     if (getEventos != null && getEventos.Count > 0)
                     {
                         //////////////////////////////////////////////////////////////////////////////////////
@@ -279,24 +281,50 @@ namespace Syscaf.Service.Portal
 
                         // nos traemos los últimos eventos creados por cada vehículo
 
+                        var Data = new ResultObject();
 
-                        var eventos =  await _Mix.GetEventosActivosCreadosPorOrganizacion( item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS);
+                        var eventsactive =  await _Mix.GetEventosActivosCreadosPorOrganizacion( item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS);
+
+                        
+
                         // filtramos por los eventos que necesitamos consultar
-                        //if (eventos != null && eventos.Count > 0)
-                        //{
-                           
-                        //    eventos.
-                        //        GroupBy(g => new { Constants.GetFechaServidor(g.EventDateTime, false)?.Month, Constants.GetFechaServidor(g.EventDateTime, false)?.Year })
-                        //        .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
-                        //        {
+                        if (eventsactive != null && eventsactive.Count > 0)
+                        {
 
-                                    
-                        //            var listado = 
-                                       
+                            eventsactive.
+                                GroupBy(g => new { Constants.GetFechaServidor(g.EventDateTime, false)?.Month, Constants.GetFechaServidor(g.EventDateTime, false)?.Year })
+                                .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList()
+                                .ForEach(async f =>
+                                {
 
-                                    
-                        //        });
-                        //}
+                                    //Serializamod la data
+                                    Data.Data = JsonConvert.SerializeObject(eventsactive);
+
+
+
+                                    var parametros = new Dapper.DynamicParameters();
+                                    parametros.Add("JSON_STR", Data.Data);
+                                    parametros.Add("periodo", f.Period);
+                                    parametros.Add("clienteIdS", item.clienteIdS);
+
+                                    try
+                                    {
+                                        //Se ejecuta el procedimiento almacenado.
+                                        var resultado = await Task.FromResult(_connDWH.Get<string>(PortalQueryHelper.ActiveEvent, parametros, commandType: CommandType.StoredProcedure));
+
+                                        result.Mensaje = resultado?.ToString();
+                                        result.Exitoso = true;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        ex.Message.ToString();
+                                    }
+
+                                })
+                                ;
+
+                            
+                        }
                     }
 
                     result.success($"Cliente { item.clienteNombre } cargado satisfactoriametne  { Constants.GetFechaServidor()}");
@@ -472,10 +500,7 @@ namespace Syscaf.Service.Portal
                     await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
                     result.error(ex.Message);
                 }
-
-
             }
-
 
             return result;
         }
@@ -530,10 +555,7 @@ namespace Syscaf.Service.Portal
                 finally {
                     _logService.SetLogError(0, "Posiciones - obtenerPosiciones con Positions Active", "Operacion final en posiciones");
                 }
-
-
             }
-
 
             return result;
         }
@@ -761,6 +783,9 @@ namespace Syscaf.Service.Portal
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
+
+        Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds);
+
         Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
         Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
         Task<List<long>> GetDriverxCliente(int ClienteId);

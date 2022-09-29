@@ -40,6 +40,9 @@ namespace Syscaf.Data.Helpers.Portal
         public static string OrganizacionMix = "RAG.GetClienteMix";
         public static string EncScoringDetalleScoringFlexDriver = "RAG.SetEncScoring&DetalleScoringFlexDriver";
 
+        //Cargar eventos Activos
+        public static string ActiveEvent = "PORTAL.SetActiveEvent";
+
         public static string getAssetsProgramacion = @"SELECT ProcesoGeneracionDatosId
                                                       ,a.AssetId
 	                                                  ,pa.clienteid
