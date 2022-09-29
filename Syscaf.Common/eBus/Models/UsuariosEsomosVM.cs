@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Syscaf.Common.Models
+namespace Syscaf.Common.eBus.Models
 {
     public class UsuariosEsomosVM
     {

@@ -37,7 +37,7 @@ namespace Syscaf.Service.Portal
 
             try
             {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-                return await __conn.GetAll<ProcesoGeneracionDatos>(ProcesoGeneracionQueryHelper._Get, new
+                return await __conn.GetAllAsync<ProcesoGeneracionDatos>(ProcesoGeneracionQueryHelper._Get, new
                 {
                     ServicioId,
                     rows,
@@ -59,7 +59,7 @@ namespace Syscaf.Service.Portal
 
             try
             {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-                 await __conn.Execute(ProcesoGeneracionQueryHelper._UpdateEstado, new
+                 await __conn.ExecuteAsync(ProcesoGeneracionQueryHelper._UpdateEstado, new
                 {
                     ProcesoGeneracionDatosId,
                     estado
@@ -77,7 +77,7 @@ namespace Syscaf.Service.Portal
 
             try
             {                           //// debe validr que la tabla a la que va a isnertar el mensaje exista            
-                await __conn.Execute(ProcesoGeneracionQueryHelper._InsertDetalleGeneracion, new
+                await __conn.ExecuteAsync(ProcesoGeneracionQueryHelper._InsertDetalleGeneracion, new
                 {
                     ProcesoGeneracionDatosId,
                     Descripcion,

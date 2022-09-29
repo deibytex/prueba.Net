@@ -26,10 +26,15 @@ namespace Syscaf.Data
             return db.Execute(sp, parms, commandType: commandType);
         }
 
-        public async Task<int> Execute(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        public async Task<int> ExecuteAsync(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
             return await db.ExecuteAsync(sp, parms, commandType: commandType);
+        }
+        public async Task<int> ExecuteAsync(string sp, object parms, int Timeout, CommandType commandType = CommandType.StoredProcedure )
+        {
+            using IDbConnection db = new SqlConnection(_connectionstring);
+            return await db.ExecuteAsync(sp, parms, commandType: commandType, commandTimeout: Timeout);
         }
 
         public T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.Text)
@@ -38,7 +43,7 @@ namespace Syscaf.Data
             return db.Query<T>(sp, parms, commandType: commandType).FirstOrDefault();
         }
 
-        public async Task<T> Get<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        public async Task<T> GetAsync<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync<T>(sp, parms, commandType: commandType)).FirstOrDefault();
@@ -50,18 +55,23 @@ namespace Syscaf.Data
             using IDbConnection db = new SqlConnection(_connectionstring);
             return db.Query<T>(sp, parms, commandType: commandType).ToList();
         }
+        public List<T> GetAll<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        {
+            using IDbConnection db = new SqlConnection(_connectionstring);
+            return db.Query<T>(sp, parms, commandType: commandType).ToList();
+        }
 
-        public async Task<List<T>> GetAll<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        public async Task<List<T>> GetAllAsync<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
             return  (await db.QueryAsync<T>(sp, parms, commandType: commandType)).ToList();
         }
-        public async Task<List<dynamic>> GetAll(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        public async Task<List<dynamic>> GetAllAsync(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync(sp, parms, commandType: commandType)).ToList();
         }
-        public async Task<List<dynamic>> GetAll(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
+        public async Task<List<dynamic>> GetAllAsync(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);
             return (await db.QueryAsync(sp, parms, commandType: commandType)).ToList();

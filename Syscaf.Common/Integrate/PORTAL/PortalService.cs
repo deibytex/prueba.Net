@@ -402,7 +402,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                 try
                 {
                     // trae la información de eventos 
-                    resultado = await _conn.GetAll<ClienteMetricas>($"PORTAL.ValidateAllMetrics @Period", new { Period = Periodo });
+                    resultado = await _conn.GetAllAsync<ClienteMetricas>($"PORTAL.ValidateAllMetrics @Period", new { Period = Periodo });
 
                 }
                 catch (Exception ex)
@@ -434,7 +434,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     };
 
                     // trae la información de eventos 
-                    _conn.Execute("PORTAL.InsertLogOpciones  @UsuarioId,@OpcionId, @Nombre,@Date", parametros);
+                    _conn.ExecuteAsync("PORTAL.InsertLogOpciones  @UsuarioId,@OpcionId, @Nombre,@Date", parametros);
                     result.success();
 
 
@@ -466,7 +466,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                         Lote
                     };
                     // trae la información de eventos 
-                    _conn.Execute("SIG.GeneraSenialesPorDia  @Fi,@Ff, @Lote", parametros);
+                    _conn.ExecuteAsync("SIG.GeneraSenialesPorDia  @Fi,@Ff, @Lote", parametros);
                     result.success();
 
                 }

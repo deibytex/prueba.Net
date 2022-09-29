@@ -25,7 +25,7 @@ namespace Syscaf.Service.Portal.Models
         public decimal? EndOdometerKilometres { get; set; }
         public int? AltitudMeters { get; set; }
         public int? ClienteIds { get; set; }
-        public bool isebus { get; set; }
+        public bool isebus { get; set; }     
         public DateTime FechaSistema
         {
             get
@@ -33,6 +33,7 @@ namespace Syscaf.Service.Portal.Models
                 return Constants.GetFechaServidor();
             }
         }
+        public string MediaUrls { get; set; }
 
     }
 }

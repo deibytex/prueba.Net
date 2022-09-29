@@ -66,6 +66,10 @@ namespace Syscaf.Common.Helpers
         {
             return Fecha.HasValue ? TimeZoneInfo.ConvertTime(Fecha.Value, timezone).ToString("dd/MM/yyyy HH:mm") : "";
         }
+        public static string GetFechaServidorFecha(DateTime? Fecha)
+        {
+            return Fecha.HasValue ? TimeZoneInfo.ConvertTime(Fecha.Value.Date, timezone).ToString("dd/MM/yyyy") : "";
+        }
         public static DateTime? GetFechaServidor(DateTime? Fecha, bool isString = true)
         {
             return (Fecha.HasValue) ? TimeZoneInfo.ConvertTime(Fecha.Value, timezone) : timeNull;

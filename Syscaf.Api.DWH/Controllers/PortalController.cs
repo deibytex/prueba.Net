@@ -116,7 +116,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("ObtenerEventosActivos")]
         public async Task<ActionResult<ResultObject>> GetEventosActivos(int? ClienteIds)
         {
-            return await _portalService.Get_EventosPorClientes(ClienteIds, null, null);
+            return await _portalService.Get_EventosActivosPorClientes(ClienteIds);
         }
 
         [HttpGet("GetPosiciones")]
@@ -216,7 +216,7 @@ namespace Syscaf.Api.DWH.Controllers
         {
 
 
-            var dynamic = new Dapper.DynamicParameters();
+            var dynamic = new Dapper.DynamicParameters() { };
             foreach (var kvp in parametros)
             {
                 dynamic.Add(  kvp.Key, kvp.Value);
@@ -226,7 +226,22 @@ namespace Syscaf.Api.DWH.Controllers
             return await _portalService.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
         }
 
-      
+        [HttpPost("GetConsultasDinamicasProced")]
+        public async Task<List<dynamic>> GetConsultasDinamicasProcedure([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        {
+
+
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+
+
+            return await _portalService.getDynamicValueProcedureDWH(Clase, NombreConsulta, dynamic);
+        }
+
+
 
     }
 }

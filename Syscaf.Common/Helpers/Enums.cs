@@ -15,7 +15,9 @@
             TX_PROPIOS,
             TX_OPTIRENT,
             E_NEWUSER,
-            E_MODPASS
+            E_MODPASS,
+            MOV_PREOP,
+MOV_PREOPC
         }
         public enum ListaDistribucion
         {
@@ -28,7 +30,7 @@
         }
         public enum TipoNotificacion
         {
-            Sistem = 3,
+            Sistem = 3
 
         }
         public enum EstadoProcesoGeneracionDatos

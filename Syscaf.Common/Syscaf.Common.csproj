@@ -7,22 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="eBus\**" />
     <Compile Remove="Integrate\LogNotificaciones\**" />
-    <EmbeddedResource Remove="eBus\**" />
     <EmbeddedResource Remove="Integrate\LogNotificaciones\**" />
-    <None Remove="eBus\**" />
     <None Remove="Integrate\LogNotificaciones\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Dapper\DapperExtension.cs" />
-    <Compile Remove="Helpers\MailNotification.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Integrate\LogNotificaciones\CommonService.cs" />
-    <Compile Include="Integrate\LogNotificaciones\ICommonService.cs" />
     <Compile Include="Integrate\LogNotificaciones\ILogService.cs" />
     <Compile Include="Integrate\LogNotificaciones\INotificacionService.cs" />
     <Compile Include="Integrate\LogNotificaciones\LogService.cs" />

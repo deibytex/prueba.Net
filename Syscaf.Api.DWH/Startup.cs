@@ -68,8 +68,11 @@ namespace Syscaf.Api.DWH
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-           
-            
+
+            services.AddDbContext<SyscafBDCore>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("SyscafBDCore")));
+
 
             //Register dapper in scope    
             services.AddScoped<ISyscafConn>(options => new SyscafConn(Configuration.GetConnectionString("SyscafBDDWH")));
