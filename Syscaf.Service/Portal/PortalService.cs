@@ -763,7 +763,7 @@ namespace Syscaf.Service.Portal
 
         public async Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
         {
-            return await _connDWH.ExecuteAsync("Portal.RellenoInfomesViajesEventos", new { PeriodoFecha = FechaInicial, clienteIdS, FechaInicial, FechaFinal });
+            return await _connDWH.ExecuteAsync("Portal.RellenoInfomesViajesEventos", new { PeriodoFecha = FechaInicial, clienteIdS, FechaInicial, FechaFinal },120 );
         }
 
         public async Task<int> Portal_GetTokenPowerBI()
