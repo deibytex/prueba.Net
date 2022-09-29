@@ -88,13 +88,13 @@ namespace Syscaf.ApiCore.Controllers
             return blobClient.Uri.AbsolutePath;
         }
         [HttpGet("DownloadFileFromBlob")]
-        public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo)
+        public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo, string container)
         {
 
             var connectionString = "DefaultEndpointsProtocol=https;AccountName=neptunodataaccount;AccountKey=ONCwJMNPn4N9a960rBu8ontFlcQTbiGtK2inKFQo80BUAgO7n75n97B07rNhCeU6Wc8Coi5kozj4+AStIFkGkw==;EndpointSuffix=core.windows.net";
 
             var serviceClient = new BlobServiceClient(connectionString);
-            var containerClient = serviceClient.GetBlobContainerClient("serviciotecnico");
+            var containerClient = serviceClient.GetBlobContainerClient(container);
             var blobClient = containerClient.GetBlobClient(nombrearchivo);
             MemoryStream stream = new MemoryStream();
             await blobClient.DownloadToAsync(stream);
@@ -103,16 +103,24 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpGet("getDirectorio")]
-        public  List<dynamic> getDirectorio(string container)
+        public  List<dynamic> getDirectorio(string container, string? filter)
         {
 
             var connectionString = "DefaultEndpointsProtocol=https;AccountName=neptunodataaccount;AccountKey=ONCwJMNPn4N9a960rBu8ontFlcQTbiGtK2inKFQo80BUAgO7n75n97B07rNhCeU6Wc8Coi5kozj4+AStIFkGkw==;EndpointSuffix=core.windows.net";
 
             var serviceClient = new BlobServiceClient(connectionString);
-            var containerClient = serviceClient.GetBlobContainerClient("serviciotecnico");
-            var blobs =  containerClient.GetBlobs().ToList();
-
-            return _Drive.ListadoCarpeta(blobs.Select(s => new ArchivosSeparados() { Orden = blobs.IndexOf(s), Src = s.Name, Nombre = s.Name.Split("/").Last(), Peso = (int?)s.Properties.ContentLength }).ToList(), null, 0).ToList<dynamic>();
+            var containerClient = serviceClient.GetBlobContainerClient(container);
+            var blobs =  containerClient.GetBlobs().Where(w => (filter == null ||  w.Name.Contains(filter ?? "",StringComparison.CurrentCultureIgnoreCase)) ).ToList();
+            int i = 0;
+           
+            return _Drive.ListadoCarpeta(blobs.Select(s => new ArchivosSeparados() 
+            { 
+                ArchivoId = 0,
+                Orden = blobs.IndexOf(s), 
+                Src = s.Name,
+                Nombre = s.Name.Split("/").Last(),
+                Peso = (int?)s.Properties.ContentLength 
+            }).ToList(), null, 0).ToList<dynamic>();
          
         }
     }

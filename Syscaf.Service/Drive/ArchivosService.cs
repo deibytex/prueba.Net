@@ -91,7 +91,7 @@ namespace Syscaf.Service.Drive
             var groupData = Datos.Where(x => x.ArraySrc.Length > index).GroupBy(x => x.ArraySrc[index]).ToList();
             if (Carpetas == null)
                 Carpetas = new List<ArchivosVM>();
-
+            Random random = new Random();
             foreach (var group in groupData)
             {
                 ArchivosVM archivo = new ArchivosVM();
@@ -100,9 +100,9 @@ namespace Syscaf.Service.Drive
                 archivo.Orden = group.FirstOrDefault().Orden;
                 archivo.FechaSistema = group.Select(s => s.FechaSistema).FirstOrDefault();
                 archivo.Descripcion = group.Select(s => s.Descripcion).FirstOrDefault();
-                archivo.Tipo = group.Select(s => s.Tipo).FirstOrDefault();
+                archivo.Tipo = (group.Key.Contains(".") ? "archivo" : "carpeta");
                 archivo.Peso = group.Select(s => s.Peso).FirstOrDefault();
-                archivo.ArchivoId = group.Select(s => s.ArchivoId).FirstOrDefault();
+                archivo.ArchivoId = random.Next(45545) * 58621;
                 archivo.Hijos = ListadoCarpeta(group.ToList(), null, index + 1);
                 Carpetas.Add(archivo);
                 
