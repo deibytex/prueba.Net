@@ -331,6 +331,22 @@ namespace Syscaf.Common.Services
 
         }
 
+        public async Task<MixServiceVM> GetEventosActivosHistoricalCreadosPorAssets(List<long> assets, List<long> entityTypes, DateTime From, DateTime To)
+        {
+            try
+            {
+                var tripsClient = new ActiveEventsClient(ApiBaseUrl, ClientSettings);
+                // trae la informacion de viajes  desde el momento que fue creado
+                var createsinceresult = await tripsClient.GetRangeForAssetsAsync(assets, From, To, entityTypes);
+                return ReturnSuccess(createsinceresult);
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+
+        }
+
 
         public async Task<MixServiceVM> GetEventosActivosHistoricalCreadosPorOrganizacion(long organizacionId, List<long> entityTypes,  byte cantidad = 100)
         {
@@ -563,6 +579,7 @@ namespace Syscaf.Common.Services
         Task<MixServiceVM> GetUltimosViajesCreadosByOrganization(long organizationId, string token, int cantidad = 1000);
         Task<MixServiceVM> GetUltimosEventosCreadosPorOrganizacion(long organizacionId, List<long> entityTypes, string token, byte cantidad = 100);
         Task<MixServiceVM> GetEventosActivosCreadosPorOrganizacion(long organizacionId, List<long> entityTypes, string token, byte cantidad = 100);
+        Task<MixServiceVM> GetEventosActivosHistoricalCreadosPorAssets(List<long> assets, List<long> entityTypes, DateTime From, DateTime To);
         Task<MixServiceVM> GetEventosActivosCreadosPorVehiculo(List<long> vehiculos, string token, byte cantidad = 100);
         Task<MixServiceVM> GetEventosCliente(List<long> ll, DateTime fechaInicial, DateTime fechaFinal, List<long> eventosImportantes);
         Task<MixServiceVM> GetConfiguracionAsync(long groupid);

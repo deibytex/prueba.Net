@@ -259,7 +259,7 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
-        public async Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds)
+        public async Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal)
         {
             ResultObject result = new();
             string _Clientenombre = "";
@@ -268,10 +268,13 @@ namespace Syscaf.Service.Portal
                 // traemos el listado de clientes
                 var ListadoClientes = await _clientService.GetAsync(1, clienteIds: ClienteIds);
 
-                foreach (var item in ListadoClientes.Where(w => w.ActiveEvent == true)) 
+                foreach (var item in ListadoClientes.Where(w => w.ActiveEvent == true))
                 {
                     // si tienen configurado al menos un evento que extraer
-                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
+                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS, 8);
+
+                    var assets = await _asset.GetByClienteIdsAsync(ClienteIds, "Available");
+
                     _Clientenombre = item.clienteNombre;
 
                     if (getEventos != null && getEventos.Count > 0)
@@ -283,9 +286,14 @@ namespace Syscaf.Service.Portal
 
                         var Data = new ResultObject();
 
-                        var eventsactive =  await _Mix.GetEventosActivosCreadosPorOrganizacion( item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS);
 
-                        
+
+                        var eventsactive = (FechaFinal == null && FechaFinal == null) ?
+                            await _Mix.GetEventosActivosCreadosPorOrganizacion(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS) :
+                             await _Mix.GetEventosActivosHistoricalCreadosPorAssets(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), assets.Select(s => s.AssetId).ToList(), FechaInicial.Value, FechaFinal.Value)
+                            ;
+
+
 
                         // filtramos por los eventos que necesitamos consultar
                         if (eventsactive != null && eventsactive.Count > 0)
@@ -323,20 +331,20 @@ namespace Syscaf.Service.Portal
                                 })
                                 ;
 
-                            
+
                         }
                     }
 
-                    result.success($"Cliente { item.clienteNombre } cargado satisfactoriametne  { Constants.GetFechaServidor()}");
+                    result.success($"Cliente {item.clienteNombre} cargado satisfactoriametne  {Constants.GetFechaServidor()}");
                 }
 
 
             }
             catch (Exception ex)
             {
-                string mensaje = $" {Constants.GetFechaServidor()} = { ex.Message}";
+                string mensaje = $" {Constants.GetFechaServidor()} = {ex.Message}";
                 result.error(ex.Message.ToString());
-                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {_Clientenombre} Error  = { mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
+                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Cliente  =  {_Clientenombre} Error  = {mensaje}  ;", Enums.ListaDistribucion.LSSISTEMA);
                 _logService.SetLogError(0, "Portal - Eventos", mensaje);
 
             }
@@ -344,7 +352,7 @@ namespace Syscaf.Service.Portal
 
             return result;
         }
-        // ingreso de informacion del reporte sotramac
+        // ingreso de informacion del reporte sotramac// ingreso de informacion del reporte sotramac
         #region REPORTE SOTRAMAC
         #endregion
 
@@ -784,7 +792,7 @@ namespace Syscaf.Service.Portal
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
         Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
 
-        Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds);
+        Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
 
         Task<ResultObject> Get_PositionsByClient(int? Clienteids, int ProcesoGeneracionDatosId);
         Task<ResultObject> GetDetallesListas(int? ListaId, string Sigla);
