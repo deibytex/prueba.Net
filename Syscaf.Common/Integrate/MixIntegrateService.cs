@@ -230,7 +230,7 @@ namespace SyscafWebApi.Service
         }
         public async Task<List<ActiveEvent>> GetEventosActivosHistoricalCreadosPorAssets(long groupId, List<long> assets, List<long> entityTypes, DateTime From, DateTime To)
         {
-            MixServiceVM result = await invokeMethodAsync(-1, AssemblyName, "GetEventosActivosHistoricalCreadosPorAssets", new object[] { groupId, assets, entityTypes, From, To });
+            MixServiceVM result = await invokeMethodAsync(-1, AssemblyName, "GetEventosActivosHistoricalCreadosPorAssets", new object[] { assets, entityTypes, From, To });
             return (List<ActiveEvent>)result.Data;
         }
 

@@ -290,7 +290,7 @@ namespace Syscaf.Service.Portal
 
                         var eventsactive = (FechaFinal == null && FechaFinal == null) ?
                             await _Mix.GetEventosActivosCreadosPorOrganizacion(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), item.clienteIdS) :
-                             await _Mix.GetEventosActivosHistoricalCreadosPorAssets(item.clienteId, getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), assets.Select(s => s.AssetId).ToList(), FechaInicial.Value, FechaFinal.Value)
+                             await _Mix.GetEventosActivosHistoricalCreadosPorAssets(item.clienteId, assets.Select(s => s.AssetId).ToList(), getEventos.Select(s => s.EventTypeId.Value).Distinct().ToList(), FechaInicial.Value, FechaFinal.Value)
                             ;
 
 
