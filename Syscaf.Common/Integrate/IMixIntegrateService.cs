@@ -27,6 +27,7 @@ namespace SyscafWebApi.Service
         Task<IList<Trip>> getViajes(List<long> ll, DateTime FechaInicio, DateTime FechaFinal, int ClienteIds, bool includesubtrips = true);
         Task<List<Event>> GetUltimosEventosCreadosPorOrganizacion(long organizacion, List<long> eventosImportantes, int ClienteIds);
         Task<List<ActiveEvent>> GetEventosActivosCreadosPorOrganizacion(long organizacion, List<long> eventosImportantes, int ClienteIds);
+        Task<List<ActiveEvent>> GetEventosActivosHistoricalCreadosPorAssets(long groupId, List<long> assets, List<long> entityTypes, DateTime From, DateTime To);
         Task<IList<Event>> GetEventosPorAssets(List<long> ll, List<long> eventosImportantes, DateTime? cachedSince, int ClienteIds);
         Task<GroupSummary> getSitios(long clienteId, int ClienteIds);
         Task<List<Position>> getPositionsByGroups(List<long> groupsIds, int ClienteIds);

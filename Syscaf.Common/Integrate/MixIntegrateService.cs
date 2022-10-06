@@ -228,6 +228,11 @@ namespace SyscafWebApi.Service
             _portalService.GetTokenClientes(ClienteIds, method, datos.GetSinceToken);
             return datos.Items;
         }
+        public async Task<List<ActiveEvent>> GetEventosActivosHistoricalCreadosPorAssets(long groupId, List<long> assets, List<long> entityTypes, DateTime From, DateTime To)
+        {
+            MixServiceVM result = await invokeMethodAsync(-1, AssemblyName, "GetEventosActivosHistoricalCreadosPorAssets", new object[] { assets, entityTypes, From, To });
+            return (List<ActiveEvent>)result.Data;
+        }
 
         public async Task<List<Position>> getLastPositionsByGroups(List<long> organizacion, int ClienteIds)
         {

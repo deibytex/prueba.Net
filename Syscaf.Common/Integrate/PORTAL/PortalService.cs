@@ -75,7 +75,7 @@ namespace Syscaf.Common.Integrate.PORTAL
             {
                 try
                 {
-                    string sqlCommand = "PORTAL.GetSinceTokenMethodByCliente";                  
+                    string sqlCommand = "PORTAL.GetSinceTokenMethodByCliente";
 
                     var parametros = new Dapper.DynamicParameters();
                     parametros.Add("Clienteid", ClienteIds, DbType.Int32);
@@ -83,11 +83,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                     parametros.Add("fechasistema", Constants.GetFechaServidor(), DbType.DateTime);
                     parametros.Add("SinceToken", SinceToken, DbType.String);
                     valor = _conn.GetAll<string>(sqlCommand, parametros).FirstOrDefault();
-                    DateTime time = DateTime.ParseExact(valor,
-                                 "yyyyMMddHHmmssfff",
-                                  CultureInfo.InvariantCulture);
-                    if (valor == null || valor.Length == 0 || time <= Constants.GetFechaServidor().AddDays(-7))
-                        valor = DateTime.Now.Date.ToString(Constants.FormatoSinceToken);
+
                 }
                 catch (Exception ex)
                 {
@@ -95,6 +91,15 @@ namespace Syscaf.Common.Integrate.PORTAL
 
                 }
             });
+
+
+
+            DateTime time = DateTime.ParseExact(valor ?? "20200101000000000",
+                                "yyyyMMddHHmmssfff",
+                                 CultureInfo.InvariantCulture);
+
+            if (valor == null || valor.Length == 0 || time <= Constants.GetFechaServidor().AddDays(-7))
+                valor = DateTime.Now.AddDays(-1).Date.ToString(Constants.FormatoSinceToken);
 
             task.Wait();
 

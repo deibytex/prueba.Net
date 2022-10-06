@@ -114,9 +114,9 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
         [HttpGet("ObtenerEventosActivos")]
-        public async Task<ActionResult<ResultObject>> GetEventosActivos(int? ClienteIds)
+        public async Task<ActionResult<ResultObject>> GetEventosActivos(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal)
         {
-            return await _portalService.Get_EventosActivosPorClientes(ClienteIds);
+            return await _portalService.Get_EventosActivosPorClientes(ClienteIds, FechaInicial, FechaFinal);
         }
 
         [HttpGet("GetPosiciones")]
