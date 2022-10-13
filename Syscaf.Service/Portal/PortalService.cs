@@ -271,7 +271,7 @@ namespace Syscaf.Service.Portal
                 foreach (var item in ListadoClientes.Where(w => w.ActiveEvent == true))
                 {
                     // si tienen configurado al menos un evento que extraer
-                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS, 8);
+                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS, new string[] { "8", "9" });
 
                     var assets = await _asset.GetByClienteIdsAsync(ClienteIds, "Available");
 
@@ -434,14 +434,14 @@ namespace Syscaf.Service.Portal
 
             return preferencias;
         }
-        public List<PreferenciasDescargarWS> GetPreferenciasDescargarEventos(int clienteIdS, int TipoPreferencia)
+        public List<PreferenciasDescargarWS> GetPreferenciasDescargarEventos(int clienteIdS, string[] TipoPreferencia)
         {
             List<PreferenciasDescargarWS> preferencias = new List<PreferenciasDescargarWS>();
             Task task = Task.Run(() =>
             {
                 try
                 {
-                    string sqlCommand = $" Where (TPDW.TipoPreferencia = {TipoPreferencia}) AND TPDW.ClientesId LIKE '%{clienteIdS}%'";
+                    string sqlCommand = $" Where TPDW.TipoPreferencia in ( { String.Join(",", TipoPreferencia) }  ) AND TPDW.ClientesId LIKE '%{clienteIdS}%'";
                     preferencias = _connDWH.GetAll<PreferenciasDescargarWS>(PortalQueryHelper._SelectPreferenciasDescargas + sqlCommand, null, CommandType.Text).ToList();
 
                 }
