@@ -290,7 +290,9 @@ namespace Syscaf.Service.Portal
                         // filtramos por los eventos que necesitamos consultar
                         if (eventsactive != null && eventsactive.Count > 0)
                         {
-
+                            eventsactive = eventsactive.Select(s => { 
+                                s.EventDateTime = Constants.GetFechaServidor(s.EventDateTime); 
+                                s.ReceivedDateTime = Constants.GetFechaServidor(s.ReceivedDateTime ?? DateTime.Now); return s; }).ToList();
                             eventsactive.
                                 GroupBy(g => new { Constants.GetFechaServidor(g.EventDateTime, false)?.Month, Constants.GetFechaServidor(g.EventDateTime, false)?.Year })
                                 .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList()
@@ -300,7 +302,7 @@ namespace Syscaf.Service.Portal
                                     //Serializamod la data
 
                                     // modificamos la fecha para que sea la colombiana que necesitamos 
-                                    f.Eventos.Select(s => { s.EventDateTime = Constants.GetFechaServidor(s.EventDateTime); return s; });
+                                   
                                     Data.Data = JsonConvert.SerializeObject(f.Eventos);
 
 

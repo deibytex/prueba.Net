@@ -228,7 +228,8 @@ namespace Syscaf.Api.DWH.Controllers
 
 
                 var informe = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteViajes", parametros));
-                var infomePBI = informe.Select(s => {
+                var infomePBI = informe.Select(s =>
+                {
 
 
                     DateTime FECHAINICIO = s.FECHAINICIO;
@@ -358,124 +359,133 @@ namespace Syscaf.Api.DWH.Controllers
 
         //Consulta los datos de eventos y distancia y los inserta a PBI
         [HttpGet("portal/cargaDataSetFatiga")]
-        public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId, int ClienteIdS)
+        public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId)
         {
             DatasetId = DatasetId ?? "0de8fadb-481e-4ac1-8e9a-f83b9551ab79";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
-                var parametros = new Dapper.DynamicParameters();
-                parametros.Add("@Reporte", "Eventos");
-                parametros.Add("@clienteIdS", ClienteIdS);
-
-                //Cosulta y transforma Datos
-                var eventos = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
-
-                if ( eventos.Count() > 0)
+                var clientes = await _portalService.getDynamicValueDWH("FATGQueryHelper", "GetClientesFatiga", null);
+                if (clientes != null)
                 {
-                    var infomeEventosPBI = eventos.Select(s => {
-
-                        return new
-                        {
-                            DriverId = s.DriverId.ToString(),
-                            s.Conductor,
-                            AssetId = s.AssetId.ToString(),
-                            s.Placa,
-                            s.Descripcion,
-                            EventId = s.EventId.ToString(),
-                            s.Evento,
-                            s.FechaId,
-                            s.Fecha,
-                            Hora = s.Hora.ToString(@"h\:mm\:ss"),
-                            s.FechaHora,
-                            s.HoraId,
-                            s.HoraEntero,
-                            s.Clip0,
-                            s.Clip1,
-                            s.Clip2,
-                            s.Clip3,
-                            s.Clip4,
-                            Latitud = s.Latitud.ToString(),
-                            Longitud = s.Longitud.ToString(),
-                            s.SpeedKilometresPerHour,
-                            s.FranjaId,
-                            s.Franja
-                        };
-                    }
-                    ).ToList<object>();
-
-                    //Inserta rows a pbi
-                    var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI, $"Eventos_{ClienteIdS}");
-
-
-                    // Valida se pbi retonra exitoso 
-                    if (pbiResult.Exitoso)
+                    foreach (var cliente in clientes)
                     {
-                        string EventosIds = eventos.Select(s => s.EventosId.ToString()).Aggregate((i, j) => i + "," + j);
+                        var parametros = new Dapper.DynamicParameters();
+                        parametros.Add("@Reporte", "Eventos");
+                        parametros.Add("@clienteIdS", cliente.ClienteIdS);
 
-                        var parametrosMarcar = new Dapper.DynamicParameters();
-                        parametrosMarcar.Add("@Reporte", "Eventos");
-                        parametrosMarcar.Add("@clienteIdS", ClienteIdS);
-                        parametrosMarcar.Add("@ReporteIds", EventosIds);
+                        //Cosulta y transforma Datos
+                        var eventos = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
 
-                        //Marca cómo procesado lo que cargo
-                        await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcar);
-                    }
-                    else
-                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Eventos_{ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
-                }
-                
-
-                var parametrosDistancia = new Dapper.DynamicParameters();
-                parametrosDistancia.Add("@Reporte", "Distancia");
-                parametrosDistancia.Add("@clienteIdS", ClienteIdS);
-
-                //Cosulta y transforma Datos
-                var distancia = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametrosDistancia));
-
-                if (distancia.Count() > 0)
-                {
-                    var infomeDistanciaPBI = distancia.Select(s => {
-
-                        return new
+                        if (eventos.Count() > 0)
                         {
-                            TripId = s.TripId.ToString(),
-                            DriverId = s.DriverId.ToString(),
-                            s.Conductor,
-                            AssetId = s.AssetId.ToString(),
-                            s.Placa,
-                            s.Descripcion,
-                            s.FechaId,
-                            s.Fecha,
-                            s.HoraId,
-                            s.HoraEntero,
-                            s.FranjaId,
-                            s.Franja,
-                            s.Distancia
-                        };
+                            var infomeEventosPBI = eventos.Select(s =>
+                            {
+
+                                return new
+                                {
+                                    DriverId = s.DriverId.ToString(),
+                                    s.Conductor,
+                                    AssetId = s.AssetId.ToString(),
+                                    s.Placa,
+                                    s.Descripcion,
+                                    EventId = s.EventId.ToString(),
+                                    s.Evento,
+                                    s.FechaId,
+                                    s.Fecha,
+                                    Hora = s.Hora.ToString(@"h\:mm\:ss"),
+                                    s.FechaHora,
+                                    s.HoraId,
+                                    s.HoraEntero,
+                                    s.Clip0,
+                                    s.Clip1,
+                                    s.Clip2,
+                                    s.Clip3,
+                                    s.Clip4,
+                                    Latitud = s.Latitud.ToString(),
+                                    Longitud = s.Longitud.ToString(),
+                                    s.SpeedKilometresPerHour,
+                                    s.FranjaId,
+                                    s.Franja
+                                };
+                            }
+                            ).ToList<object>();
+
+                            //Inserta rows a pbi
+                            var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI, $"Eventos_{cliente.ClienteIdS}");
+
+
+                            // Valida se pbi retonra exitoso 
+                            if (pbiResult.Exitoso)
+                            {
+                                string EventosIds = eventos.Select(s => s.EventosId.ToString()).Aggregate((i, j) => i + "," + j);
+
+                                var parametrosMarcar = new Dapper.DynamicParameters();
+                                parametrosMarcar.Add("@Reporte", "Eventos");
+                                parametrosMarcar.Add("@clienteIdS", cliente.ClienteIdS);
+                                parametrosMarcar.Add("@ReporteIds", EventosIds);
+
+                                //Marca cómo procesado lo que cargo
+                                await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcar);
+                            }
+                            else
+                                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Eventos_{cliente.ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
+                        }
+
+
+                        var parametrosDistancia = new Dapper.DynamicParameters();
+                        parametrosDistancia.Add("@Reporte", "Distancia");
+                        parametrosDistancia.Add("@clienteIdS", cliente.ClienteIdS);
+
+                        //Cosulta y transforma Datos
+                        var distancia = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametrosDistancia));
+
+                        if (distancia.Count() > 0)
+                        {
+                            var infomeDistanciaPBI = distancia.Select(s =>
+                            {
+
+                                return new
+                                {
+                                    TripId = s.TripId.ToString(),
+                                    DriverId = s.DriverId.ToString(),
+                                    s.Conductor,
+                                    AssetId = s.AssetId.ToString(),
+                                    s.Placa,
+                                    s.Descripcion,
+                                    s.FechaId,
+                                    s.Fecha,
+                                    s.HoraId,
+                                    s.HoraEntero,
+                                    s.FranjaId,
+                                    s.Franja,
+                                    s.Distancia
+                                };
+                            }
+                            ).ToList<object>();
+
+                            //Inserta rows a pbi
+                            var pbiResultd = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeDistanciaPBI, $"Distancia_{cliente.ClienteIdS}");
+
+                            // Valida se pbi retonra exitoso 
+                            if (pbiResultd.Exitoso)
+                            {
+                                string DistanciasIds = distancia.Select(s => s.DistanciaId.ToString()).Aggregate((i, j) => i + "," + j);
+
+                                var parametrosMarcard = new Dapper.DynamicParameters();
+                                parametrosMarcard.Add("@Reporte", "Distancia");
+                                parametrosMarcard.Add("@clienteIdS", cliente.ClienteIdS);
+                                parametrosMarcard.Add("@ReporteIds", DistanciasIds);
+
+                                //Marca cómo procesado lo que cargo
+                                await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcard);
+                            }
+                            else
+                                await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Distancia_{cliente.ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
+                        }
                     }
-                    ).ToList<object>();
-
-                    //Inserta rows a pbi
-                    var pbiResultd = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeDistanciaPBI, $"Distancia_{ClienteIdS}");
-
-                    // Valida se pbi retonra exitoso 
-                    if (pbiResultd.Exitoso)
-                    {
-                        string DistanciasIds = distancia.Select(s => s.DistanciaId.ToString()).Aggregate((i, j) => i + "," + j);
-
-                        var parametrosMarcard = new Dapper.DynamicParameters();
-                        parametrosMarcard.Add("@Reporte", "Distancia");
-                        parametrosMarcard.Add("@clienteIdS", ClienteIdS);
-                        parametrosMarcard.Add("@ReporteIds", DistanciasIds);
-
-                        //Marca cómo procesado lo que cargo
-                        await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcard);
-                    }
-                    else
-                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Distancia_{ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
                 }
-                
+
             }
 
             return new ResultObject() { Exitoso = true };
@@ -484,30 +494,40 @@ namespace Syscaf.Api.DWH.Controllers
 
         //Procesa los datos en la Base
         [HttpGet("RellenoTablesFatiga")]
-        public async Task<ActionResult<int>> RellenoTablesFatiga(int clienteIdS, DateTime? periodo)
+        public async Task<ActionResult<int>> RellenoTablesFatiga( DateTime? periodo)
         {
+
 
             try
             {
-                DateTime FechaServidor = new DateTime();
-                DateTime FechaInicial = new DateTime();
-
-                //Valida si le pasan periodo o si se hara automatico
-                if (periodo is null)
+                var clientes = await _portalService.getDynamicValueDWH("FATGQueryHelper", "GetClientesFatiga", null);
+                if (clientes != null)
                 {
-                     FechaServidor = DateTime.Now;
-                     FechaInicial = FechaServidor.AddDays(-1).Date;
-                }
-                else
-                {
-                    FechaServidor = DateTime.Now;
-                    FechaInicial = (DateTime) periodo?.Date;
-                }
+                    foreach (var cliente in clientes)
+                    {
 
-                //Procesa los datos
-                var datosFatiga = (await _fatigueService.RellenoEventosDistancia(clienteIdS, FechaInicial, FechaServidor.Date));
 
-                return datosFatiga;
+                        DateTime FechaServidor = new DateTime();
+                        DateTime FechaInicial = new DateTime();
+
+                        //Valida si le pasan periodo o si se hara automatico
+                        if (periodo is null)
+                        {
+                            FechaServidor = DateTime.Now;
+                            FechaInicial = FechaServidor.AddDays(-1).Date;
+                        }
+                        else
+                        {
+                            FechaServidor = DateTime.Now;
+                            FechaInicial = (DateTime)periodo?.Date;
+                        }
+
+                        //Procesa los datos
+                        var datosFatiga = (await _fatigueService.RellenoEventosDistancia(cliente.ClienteIdS, FechaInicial, FechaServidor.Date));
+                    }
+
+                    //  return datosFatiga;
+                }
             }
             catch (Exception ex)
             {
@@ -515,7 +535,7 @@ namespace Syscaf.Api.DWH.Controllers
                 throw;
             }
 
-
+            return 0;
 
         }
         #endregion
