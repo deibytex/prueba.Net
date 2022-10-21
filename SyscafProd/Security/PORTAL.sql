@@ -1,3 +1,0 @@
-﻿CREATE SCHEMA [PORTAL]
-    AUTHORIZATION [dbo];
-
