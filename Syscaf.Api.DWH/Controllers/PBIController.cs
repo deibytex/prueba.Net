@@ -355,7 +355,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/cargaDataSetFatiga")]
         public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId, int ClienteIdS)
         {
-            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
+            DatasetId = DatasetId ?? "8aba3ddc-fd03-4818-8e49-e9a5ca1a8a9f";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
@@ -363,133 +363,104 @@ namespace Syscaf.Api.DWH.Controllers
                 parametros.Add("@Reporte", "Eventos");
                 parametros.Add("@clienteIdS", ClienteIdS);
 
-                var informe = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
+                var eventos = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
 
-                var infomePBI = informe.Select(s => {
+                var infomeEventosPBI = eventos.Select(s => {
 
-
-                    DateTime FECHAINICIO = s.FECHAINICIO;
-                    DateTime FECHAFIN = s.FECHAFIN;
-                    DateTime FECHA = s.FECHA;
-                    long TripId = s.TripId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? MOVIL = s.MOVIL;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES.ToString();
-                    string? SEMANA = s.SEMANA.ToString();
-                    string? MES = s.Mes.ToString();
-                    int? DURACION = s.DURACION;
-                    int? RALENTI = s.RALENTI;
-                    double? DURACIONHORA = (double?)s.DURACIONHORA;
-                    double? DISTANCIA = (double?)s.DISTANCIA;
-                    double? VELOCIDAD = (double?)s.VELOCIDAD;
-                    double? COMBUSTIBLE = (double?)s.COMBUSTIBLE;
-                    string? TIPODIA = s.TIPODIA;
                     return new
                     {
-                        TripId = TripId.ToString(),
-                        CIUDAD,
-                        GERENTE,
-                        MOVIL,
-                        CONDUCTOR,
-                        CEDULA,
-                        FECHA,
-                        FECHAINICIO,
-                        FECHAIFIN = FECHAFIN,
-                        DURACION,
-                        DURACIONHORA,
-                        DISTANCIA,
-                        VELOCIDAD,
-                        RALENTI,
-                        COMBUSTIBLE,
-                        TIPOLOGIA,
-                        TIPOASSET,
-                        TIPODIA,
-                        SEMANAMES,
-                        SEMANA,
-                        MES
-                    };
-                }
-                    ).ToList();
-                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
-
-
-                if (!pbiResult.Exitoso)
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
-
-
-                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
-                var infomeViajesPBI = informeViajes.Select(s =>
-                {
-                    DateTime? FECHAINICIAL = s.FECHAINICIAL;
-                    DateTime? FECHAFINAL = s.FECHAFINAL;
-                    DateTime? FECHAHORAINICIAL = s.FECHAHORAINICIAL;
-                    DateTime? FECHAHORAFINAL = s.FECHAHORAFINAL;
-                    long EventId = s.EventId;
-                    string? CIUDAD = s.CIUDAD;
-                    string? GERENTE = s.GERENTE;
-                    string? PLACA = s.PLACA;
-                    string? CONDUCTOR = s.CONDUCTOR;
-                    string? CEDULA = s.CEDULA;
-                    string? TIPOLOGIA = s.TIPOLOGIA;
-                    string? TIPOASSET = s.TIPOASSET;
-                    string? SEMANAMES = s.SEMANAMES.ToString();
-                    string? SEMANA = s.SEMANA.ToString();
-                    string? MES = s.MES.ToString();
-                    TimeSpan? DURACION = s.DURACION;
-                    TimeSpan? HORAINICIAL = s.HORAINICIAL;
-                    TimeSpan? HORAFINAL = s.HORAFINAL;
-                    double? DURACIONHORA = (double?)s.DURACIONHORA;
-                    string? TIPODIA = s.TIPODIA;
-                    return new
-                    {
+                        DriverId = s.DriverId.ToString(),
+                        s.Conductor,
+                        AssetId = s.AssetId.ToString(),
+                        s.Placa,
+                        s.Descripcion,
                         EventId = s.EventId.ToString(),
-                        CIUDAD,
-                        GERENTE,
-                        DESCRIPCION = (string?)s.DESCRIPCION,
-                        PLACA,
-                        TIPOLOGIA,
-                        TIPOASSETS = TIPOASSET,
-                        CONDUCTOR,
-                        CEDULA,
-                        EVENTO = (string?)s.EVENTO,
-                        FECHAINICIAL,
-                        FECHAFINAL,
-                        HORAINICIAL = HORAINICIAL?.ToString(@"h\:mm\:ss"),
-                        HORAFINAL = HORAFINAL?.ToString(@"h\:mm\:ss"),
-                        FECHAHORAINICIAL,
-                        FECHAHORAFINAL,
-                        VALOR = (double?)s.VALOR,
-                        DURACION = DURACION?.ToString(@"h\:mm\:ss"),
-                        DURACIONHORA,
-                        DURACIONSEGUNDOS = (int)s.DURACIONSEGUNDOS,
-                        LATITUD = s.LATITUD.ToString(),
-                        LONGITUD = s.LONGITUD.ToString(),
-                        TIPODIA,
-                        SEMANAMES,
-                        SEMANA,
-                        MES
+                        s.Evento,
+                        s.FechaId,
+                        s.Fecha,
+                        Hora = s.Hora.ToString(@"h\:mm\:ss"),
+                        s.FechaHora,
+                        s.HoraId,
+                        s.HoraEntero,
+                        s.Clip0,
+                        s.Clip1,
+                        s.Clip2,
+                        s.Clip3,
+                        s.Clip4,
+                        Latitud = s.Latitud.ToString(),
+                        Longitud = s.Longitud.ToString(),
+                        s.SpeedKilometresPerHour,
+                        s.FranjaId,
+                        s.Franja
                     };
                 }
-                    ).ToList();
-                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
+                    ).ToList<object>();
+
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI, $"Eventos_{ClienteIdS}");
 
 
-                if (!pbiResultv.Exitoso)
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
+                if (pbiResult.Exitoso)
+                {
+                    string EventosIds = eventos.Select(s => s.EventosId.ToString()).Aggregate((i, j) => i + "," + j);
+
+                    var parametrosMarcar = new Dapper.DynamicParameters();
+                    parametrosMarcar.Add("@Reporte", "Eventos");
+                    parametrosMarcar.Add("@clienteIdS", ClienteIdS);
+                    parametrosMarcar.Add("@ReporteIds", EventosIds);
+                    await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcar);
+                }
+                else
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Eventos_{ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
+
+                var parametrosDistancia = new Dapper.DynamicParameters();
+                parametrosDistancia.Add("@Reporte", "Distancia");
+                parametrosDistancia.Add("@clienteIdS", ClienteIdS);
+
+                var distancia = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametrosDistancia));
+
+                var infomeDistanciaPBI = distancia.Select(s => {
+
+                    return new
+                    {
+                        TripId = s.TripId.ToString(),
+                        DriverId = s.DriverId.ToString(),
+                        s.Conductor,
+                        AssetId = s.AssetId.ToString(),
+                        s.Placa,
+                        s.Descripcion,
+                        s.FechaId,
+                        s.Fecha,
+                        s.HoraId,
+                        s.HoraEntero,
+                        s.FranjaId,
+                        s.Franja,
+                        s.Distancia
+                    };
+                }
+                    ).ToList<object>();
+
+                var pbiResultd = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeDistanciaPBI, $"Distancia_{ClienteIdS}");
 
 
+                if (pbiResultd.Exitoso)
+                {
+                    string DistanciasIds = distancia.Select(s => s.DistanciaId.ToString()).Aggregate((i, j) => i + "," + j);
 
+                    var parametrosMarcard = new Dapper.DynamicParameters();
+                    parametrosMarcard.Add("@Reporte", "Distancia");
+                    parametrosMarcard.Add("@clienteIdS", ClienteIdS);
+                    parametrosMarcard.Add("@ReporteIds", DistanciasIds);
+                    await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcard);
+                }
+                else
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar Distancia_{ClienteIdS}", Enums.ListaDistribucion.LSSISTEMA);
             }
 
             return new ResultObject() { Exitoso = true };
 
         }
         #endregion
+
 
         #region ADM PBI
         [HttpGet("portal/setNewColumnDataset")]
@@ -551,6 +522,8 @@ namespace Syscaf.Api.DWH.Controllers
             return new ResultObject() { Exitoso = true };
 
         }
+
+
 
         [HttpGet("portal/SetDataSet")]
         public async Task<ResultObject> SetDataSet(string nombreDataSet)
@@ -736,7 +709,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("FechaId", "Int64"),
                                     new Column("Fecha", "Datetime", "dd/mm/yy"),
                                     new Column("HoraId", "Int64"),
-                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("HoraEntero", "Int64"),
                                     new Column("FranjaId", "Int64"),
                                     new Column("Franja", "String"),
                                     new Column("Distancia", "Double")
@@ -757,7 +730,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("FechaId", "Int64"),
                                     new Column("Fecha", "Datetime", "dd/mm/yy"),
                                     new Column("HoraId", "Int64"),
-                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("HoraEntero", "Int64"),
                                     new Column("FranjaId", "Int64"),
                                     new Column("Franja", "String"),
                                     new Column("Distancia", "Double")
@@ -778,7 +751,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("FechaId", "Int64"),
                                     new Column("Fecha", "Datetime", "dd/mm/yy"),
                                     new Column("HoraId", "Int64"),
-                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("HoraEntero", "Int64"),
                                     new Column("FranjaId", "Int64"),
                                     new Column("Franja", "String"),
                                     new Column("Distancia", "Double")
@@ -799,7 +772,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("FechaId", "Int64"),
                                     new Column("Fecha", "Datetime", "dd/mm/yy"),
                                     new Column("HoraId", "Int64"),
-                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("HoraEntero", "Int64"),
                                     new Column("FranjaId", "Int64"),
                                     new Column("Franja", "String"),
                                     new Column("Distancia", "Double")
@@ -820,7 +793,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("FechaId", "Int64"),
                                     new Column("Fecha", "Datetime", "dd/mm/yy"),
                                     new Column("HoraId", "Int64"),
-                                    new Column("HoraEntero", "Datetime","h:mm:ss"),
+                                    new Column("HoraEntero", "Int64"),
                                     new Column("FranjaId", "Int64"),
                                     new Column("Franja", "String"),
                                     new Column("Distancia", "Double")
@@ -941,6 +914,7 @@ namespace Syscaf.Api.DWH.Controllers
             return new ResultObject() { Exitoso = true };
 
         }
+
 
 
         [HttpGet("SetDataDataSet")]
