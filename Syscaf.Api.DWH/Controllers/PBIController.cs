@@ -1,10 +1,13 @@
-﻿using AutoMapper;
+﻿using System.Data;
+using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.PowerBI.Api;
 using Microsoft.PowerBI.Api.Models;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Integrate.PORTAL;
+using Syscaf.Data;
 using Syscaf.Data.Helpers.eBus.Models;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Helpers;
@@ -21,14 +24,18 @@ namespace Syscaf.Api.DWH.Controllers
         private readonly IRagService _MixService;
         private readonly IPortalMService _portalService;
         private readonly INotificacionService _notificacionService;
+        private readonly ISyscafConn _conProd;
 
-        public PBIController(IRagService _MixService, INotificacionService _notificacionService, IPortalMService _portalService)
+        public PBIController(IRagService _MixService, INotificacionService _notificacionService, IPortalMService _portalService, ISyscafConn _conProd)
         {
+            this._conProd = _conProd;
             this._MixService = _MixService;
             this._notificacionService = _notificacionService;
 
             this._portalService = _portalService;
         }
+
+        #region SAFETY
         /// <summary>
         /// Se consulta el servicio en mix y se guarda en la tabla creada.
         /// </summary>
@@ -101,6 +108,7 @@ namespace Syscaf.Api.DWH.Controllers
             return new ResultObject() { Exitoso = true };
 
         }
+
 
         /// <summary>
         /// Se consulta el servicio en mix y se guarda en la tabla creada.
@@ -190,6 +198,9 @@ namespace Syscaf.Api.DWH.Controllers
         /// </summary>
         /// <param name="Clienteids"></param>
         /// <returns></returns>
+        #endregion
+
+        #region BAT
         [HttpGet("portal/RellenoReporteViajesSemanal")]
         public async Task<ActionResult<int>> RellenoReporteViajesSemanal(int ClienteIds)
         {
@@ -248,7 +259,7 @@ namespace Syscaf.Api.DWH.Controllers
                         CEDULA ,
                         FECHA,
                         FECHAINICIO,
-                        FECHAIFIN =FECHAFIN,
+                        FECHAIFIN = FECHAFIN,
                         DURACION ,
                         DURACIONHORA,
                         DISTANCIA,
@@ -338,7 +349,149 @@ namespace Syscaf.Api.DWH.Controllers
             return new ResultObject() { Exitoso = true };
 
         }
+        #endregion
 
+        #region FATIGA
+        [HttpGet("portal/cargaDataSetFatiga")]
+        public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId, int ClienteIdS)
+        {
+            DatasetId = DatasetId ?? "584140c7-ba24-4ad3-94ea-c7a16e5cab7d";
+
+            using (var pbiClient = await EmbedService.GetPowerBiClient())
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("@Reporte", "Eventos");
+                parametros.Add("@clienteIdS", ClienteIdS);
+
+                var informe = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
+
+                var infomePBI = informe.Select(s => {
+
+
+                    DateTime FECHAINICIO = s.FECHAINICIO;
+                    DateTime FECHAFIN = s.FECHAFIN;
+                    DateTime FECHA = s.FECHA;
+                    long TripId = s.TripId;
+                    string? CIUDAD = s.CIUDAD;
+                    string? GERENTE = s.GERENTE;
+                    string? MOVIL = s.MOVIL;
+                    string? CONDUCTOR = s.CONDUCTOR;
+                    string? CEDULA = s.CEDULA;
+                    string? TIPOLOGIA = s.TIPOLOGIA;
+                    string? TIPOASSET = s.TIPOASSET;
+                    string? SEMANAMES = s.SEMANAMES.ToString();
+                    string? SEMANA = s.SEMANA.ToString();
+                    string? MES = s.Mes.ToString();
+                    int? DURACION = s.DURACION;
+                    int? RALENTI = s.RALENTI;
+                    double? DURACIONHORA = (double?)s.DURACIONHORA;
+                    double? DISTANCIA = (double?)s.DISTANCIA;
+                    double? VELOCIDAD = (double?)s.VELOCIDAD;
+                    double? COMBUSTIBLE = (double?)s.COMBUSTIBLE;
+                    string? TIPODIA = s.TIPODIA;
+                    return new
+                    {
+                        TripId = TripId.ToString(),
+                        CIUDAD,
+                        GERENTE,
+                        MOVIL,
+                        CONDUCTOR,
+                        CEDULA,
+                        FECHA,
+                        FECHAINICIO,
+                        FECHAIFIN = FECHAFIN,
+                        DURACION,
+                        DURACIONHORA,
+                        DISTANCIA,
+                        VELOCIDAD,
+                        RALENTI,
+                        COMBUSTIBLE,
+                        TIPOLOGIA,
+                        TIPOASSET,
+                        TIPODIA,
+                        SEMANAMES,
+                        SEMANA,
+                        MES
+                    };
+                }
+                    ).ToList();
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomePBI.ToList<object>(), "InformeViajes");
+
+
+                if (!pbiResult.Exitoso)
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteViajesSemanal", Enums.ListaDistribucion.LSSISTEMA);
+
+
+                var informeViajes = (await _portalService.getDynamicValueDWH("MovQueryHelper", "getReporteEvento", parametros));
+                var infomeViajesPBI = informeViajes.Select(s =>
+                {
+                    DateTime? FECHAINICIAL = s.FECHAINICIAL;
+                    DateTime? FECHAFINAL = s.FECHAFINAL;
+                    DateTime? FECHAHORAINICIAL = s.FECHAHORAINICIAL;
+                    DateTime? FECHAHORAFINAL = s.FECHAHORAFINAL;
+                    long EventId = s.EventId;
+                    string? CIUDAD = s.CIUDAD;
+                    string? GERENTE = s.GERENTE;
+                    string? PLACA = s.PLACA;
+                    string? CONDUCTOR = s.CONDUCTOR;
+                    string? CEDULA = s.CEDULA;
+                    string? TIPOLOGIA = s.TIPOLOGIA;
+                    string? TIPOASSET = s.TIPOASSET;
+                    string? SEMANAMES = s.SEMANAMES.ToString();
+                    string? SEMANA = s.SEMANA.ToString();
+                    string? MES = s.MES.ToString();
+                    TimeSpan? DURACION = s.DURACION;
+                    TimeSpan? HORAINICIAL = s.HORAINICIAL;
+                    TimeSpan? HORAFINAL = s.HORAFINAL;
+                    double? DURACIONHORA = (double?)s.DURACIONHORA;
+                    string? TIPODIA = s.TIPODIA;
+                    return new
+                    {
+                        EventId = s.EventId.ToString(),
+                        CIUDAD,
+                        GERENTE,
+                        DESCRIPCION = (string?)s.DESCRIPCION,
+                        PLACA,
+                        TIPOLOGIA,
+                        TIPOASSETS = TIPOASSET,
+                        CONDUCTOR,
+                        CEDULA,
+                        EVENTO = (string?)s.EVENTO,
+                        FECHAINICIAL,
+                        FECHAFINAL,
+                        HORAINICIAL = HORAINICIAL?.ToString(@"h\:mm\:ss"),
+                        HORAFINAL = HORAFINAL?.ToString(@"h\:mm\:ss"),
+                        FECHAHORAINICIAL,
+                        FECHAHORAFINAL,
+                        VALOR = (double?)s.VALOR,
+                        DURACION = DURACION?.ToString(@"h\:mm\:ss"),
+                        DURACIONHORA,
+                        DURACIONSEGUNDOS = (int)s.DURACIONSEGUNDOS,
+                        LATITUD = s.LATITUD.ToString(),
+                        LONGITUD = s.LONGITUD.ToString(),
+                        TIPODIA,
+                        SEMANAMES,
+                        SEMANA,
+                        MES
+                    };
+                }
+                    ).ToList();
+                var pbiResultv = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeViajesPBI.ToList<object>(), "InformeEventos");
+
+
+                if (!pbiResultv.Exitoso)
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, "Error al cargar CargarReporteEventosSemanal", Enums.ListaDistribucion.LSSISTEMA);
+
+
+
+            }
+
+            return new ResultObject() { Exitoso = true };
+
+        }
+        #endregion
+
+        #region ADM PBI
         [HttpGet("portal/setNewColumnDataset")]
         public async Task<ResultObject> setNewColumnDataset(string? DatasetId, string? tableName)
         {
@@ -402,11 +555,8 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/SetDataSet")]
         public async Task<ResultObject> SetDataSet(string nombreDataSet)
         {
-
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
-
-
                 var Eventos_854 = new Table()
                 {
                     Name = "Eventos_854",
@@ -437,6 +587,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("Franja", "String")
                                 }
                 };
+
                 var Eventos_856 = new Table()
                 {
                     Name = "Eventos_856",
@@ -467,6 +618,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("Franja", "String")
                                 }
                 };
+
                 var Eventos_862 = new Table()
                 {
                     Name = "Eventos_862",
@@ -497,6 +649,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("Franja", "String")
                                 }
                 };
+
                 var Eventos_864 = new Table()
                 {
                     Name = "Eventos_864",
@@ -527,6 +680,7 @@ namespace Syscaf.Api.DWH.Controllers
                                     new Column("Franja", "String")
                                 }
                 };
+
                 var Eventos_901 = new Table()
                 {
                     Name = "Eventos_901",
@@ -708,9 +862,9 @@ namespace Syscaf.Api.DWH.Controllers
                                 }
                 };
 
-                var Date = new Table()
+                var Fecha = new Table()
                 {
-                    Name = "Date",
+                    Name = "Fecha",
                     Columns = new List<Column>()
                                 {
                                     new Column("FechaId", "Int64"),
@@ -776,7 +930,7 @@ namespace Syscaf.Api.DWH.Controllers
                     DefaultMode = "Push",
                     Tables = new List<Table>() { Eventos_854, Eventos_856, Eventos_862, Eventos_864, Eventos_901, ListaEventos
                                                 , Distancia_854, Distancia_856, Distancia_862, Distancia_864, Distancia_901
-                                                , Franja, Drivers, Assets, Date, Hora, tableDummy_1, tableDummy_2, tableDummy_3
+                                                , Franja, Drivers, Assets, Fecha, Hora, tableDummy_1, tableDummy_2, tableDummy_3
                                                 , tableDummy_4 }
                 });
 
@@ -789,7 +943,42 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
 
+        [HttpGet("SetDataDataSet")]
+        public async Task<ResultObject> SetDataDataSets(string? DatasetId, string nombretabla)
+        {
 
+            DatasetId = DatasetId ?? "365a6d57-fb13-45fa-b3cc-57705a5f8faa";
+
+            var result = true;
+
+            using (var pbiClient = await EmbedService.GetPowerBiClient())
+            {
+                
+
+                var datos = await Task.FromResult(_conProd.GetAll<dynamic>(@"  SELECT HoraId, HoraEntero FROM FATG.Hora", null, CommandType.Text));
+
+                //var data = datos.Select(s =>
+                //{
+                //    return new
+                //    {
+                //        s.ClienteId,
+                //        s.ClienteIdS,
+                //        s.AssetId,
+                //        s.Placa,
+                //        s.Descripcion
+                //    };
+                //}).ToList<object>();
+
+                // enviamos los datos a PowerBI
+                var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, datos.ToList<object>(), nombretabla);
+
+                if (!pbiResult.Exitoso) result = false; 
+            }
+
+            return new ResultObject() { Exitoso = result };
+
+        }
+        #endregion
 
     }
 }
