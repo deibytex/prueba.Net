@@ -298,7 +298,10 @@ namespace Syscaf.Service.Portal
                                 {
 
                                     //Serializamod la data
-                                    Data.Data = JsonConvert.SerializeObject(eventsactive);
+
+                                    // modificamos la fecha para que sea la colombiana que necesitamos 
+                                    f.Eventos.Select(s => { s.EventDateTime = Constants.GetFechaServidor(s.EventDateTime); return s; });
+                                    Data.Data = JsonConvert.SerializeObject(f.Eventos);
 
 
 

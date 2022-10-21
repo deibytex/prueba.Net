@@ -355,7 +355,7 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("portal/cargaDataSetFatiga")]
         public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId, int ClienteIdS)
         {
-            DatasetId = DatasetId ?? "8aba3ddc-fd03-4818-8e49-e9a5ca1a8a9f";
+            DatasetId = DatasetId ?? "0de8fadb-481e-4ac1-8e9a-f83b9551ab79";
 
             using (var pbiClient = await EmbedService.GetPowerBiClient())
             {
