@@ -356,6 +356,7 @@ namespace Syscaf.Api.DWH.Controllers
 
         #region FATIGA
 
+        //Consulta los datos de eventos y distancia y los inserta a PBI
         [HttpGet("portal/cargaDataSetFatiga")]
         public async Task<ResultObject> cargaDataSetFatiga(string? DatasetId, int ClienteIdS)
         {
@@ -367,6 +368,7 @@ namespace Syscaf.Api.DWH.Controllers
                 parametros.Add("@Reporte", "Eventos");
                 parametros.Add("@clienteIdS", ClienteIdS);
 
+                //Cosulta y transforma Datos
                 var eventos = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametros));
 
                 if ( eventos.Count() > 0)
@@ -402,9 +404,11 @@ namespace Syscaf.Api.DWH.Controllers
                     }
                     ).ToList<object>();
 
+                    //Inserta rows a pbi
                     var pbiResult = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeEventosPBI, $"Eventos_{ClienteIdS}");
 
 
+                    // Valida se pbi retonra exitoso 
                     if (pbiResult.Exitoso)
                     {
                         string EventosIds = eventos.Select(s => s.EventosId.ToString()).Aggregate((i, j) => i + "," + j);
@@ -413,6 +417,8 @@ namespace Syscaf.Api.DWH.Controllers
                         parametrosMarcar.Add("@Reporte", "Eventos");
                         parametrosMarcar.Add("@clienteIdS", ClienteIdS);
                         parametrosMarcar.Add("@ReporteIds", EventosIds);
+
+                        //Marca cómo procesado lo que cargo
                         await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcar);
                     }
                     else
@@ -424,6 +430,7 @@ namespace Syscaf.Api.DWH.Controllers
                 parametrosDistancia.Add("@Reporte", "Distancia");
                 parametrosDistancia.Add("@clienteIdS", ClienteIdS);
 
+                //Cosulta y transforma Datos
                 var distancia = (await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "getTablesPBI", parametrosDistancia));
 
                 if (distancia.Count() > 0)
@@ -449,9 +456,10 @@ namespace Syscaf.Api.DWH.Controllers
                     }
                     ).ToList<object>();
 
+                    //Inserta rows a pbi
                     var pbiResultd = await EmbedService.SetDataDataSet(pbiClient, ConfigValidatorService.WorkspaceId, DatasetId, infomeDistanciaPBI, $"Distancia_{ClienteIdS}");
 
-
+                    // Valida se pbi retonra exitoso 
                     if (pbiResultd.Exitoso)
                     {
                         string DistanciasIds = distancia.Select(s => s.DistanciaId.ToString()).Aggregate((i, j) => i + "," + j);
@@ -460,6 +468,8 @@ namespace Syscaf.Api.DWH.Controllers
                         parametrosMarcard.Add("@Reporte", "Distancia");
                         parametrosMarcard.Add("@clienteIdS", ClienteIdS);
                         parametrosMarcard.Add("@ReporteIds", DistanciasIds);
+
+                        //Marca cómo procesado lo que cargo
                         await _portalService.getDynamicValueProcedureDWH("FATGQueryHelper", "setTablesPBI", parametrosMarcard);
                     }
                     else
@@ -472,6 +482,7 @@ namespace Syscaf.Api.DWH.Controllers
 
         }
 
+        //Procesa los datos en la Base
         [HttpGet("RellenoTablesFatiga")]
         public async Task<ActionResult<int>> RellenoTablesFatiga(int clienteIdS, DateTime? periodo)
         {
@@ -481,6 +492,7 @@ namespace Syscaf.Api.DWH.Controllers
                 DateTime FechaServidor = new DateTime();
                 DateTime FechaInicial = new DateTime();
 
+                //Valida si le pasan periodo o si se hara automatico
                 if (periodo is null)
                 {
                      FechaServidor = DateTime.Now;
@@ -491,7 +503,8 @@ namespace Syscaf.Api.DWH.Controllers
                     FechaServidor = DateTime.Now;
                     FechaInicial = (DateTime) periodo?.Date;
                 }
-                
+
+                //Procesa los datos
                 var datosFatiga = (await _fatigueService.RellenoEventosDistancia(clienteIdS, FechaInicial, FechaServidor.Date));
 
                 return datosFatiga;
