@@ -42,8 +42,7 @@ namespace Syscaf.Api.DWH
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
-           
+  
             services.AddAutoMapper(typeof(Startup));
 
             services.AddSingleton(provider =>
@@ -53,6 +52,14 @@ namespace Syscaf.Api.DWH
                 }).CreateMapper());
 
             services.AddControllers();
+            services.AddCors(c => {
+
+                var frontend_url = Configuration.GetValue<string>("frontend_url");
+                c.AddDefaultPolicy(b => {
+                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader();
+
+                });
+            });
             services.AddOptions();           
             // variables de las credenciales de mix
             services.Configure<MixCredenciales>(
@@ -64,7 +71,7 @@ namespace Syscaf.Api.DWH
             services.Configure<PegVariablesConn>(
                Configuration.GetSection("PegVariablesConn"));
 
-            
+           
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
