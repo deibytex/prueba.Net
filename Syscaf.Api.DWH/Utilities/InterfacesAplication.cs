@@ -5,6 +5,7 @@ using Syscaf.Service.Portal;
 using Syscaf.Common.Integrate.PORTAL;
 using Syscaf.Service.RAG;
 using Syscaf.Service.Peg;
+using Syscaf.Service.Fatigue;
 
 namespace Syscaf.Api.DWH.Utilities
 {
@@ -30,6 +31,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IRagService, RagService>();
             services.AddTransient<IPegasoService, PegasoService>();
             services.AddTransient<IMovilService, MovilService>();
+
+            services.AddTransient<IFatigueService, FatigueService>();
 
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }

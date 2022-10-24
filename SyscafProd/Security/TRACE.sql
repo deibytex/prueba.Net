@@ -1,3 +1,0 @@
-﻿CREATE SCHEMA [TRACE]
-    AUTHORIZATION [dbo];
-

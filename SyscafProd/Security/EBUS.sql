@@ -1,3 +1,0 @@
-﻿CREATE SCHEMA [EBUS]
-    AUTHORIZATION [dbo];
-

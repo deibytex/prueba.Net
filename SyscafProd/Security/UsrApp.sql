@@ -1,2 +1,0 @@
-﻿CREATE USER [UsrApp] FOR LOGIN [UsrApp];
-

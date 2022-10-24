@@ -56,6 +56,16 @@ namespace Syscaf.ApiCore
                    config.AddProfile(new AutoMapperProfiles());
                }).CreateMapper());
             services.AddControllers();
+
+            services.AddCors(c => {
+
+                var frontend_url = Configuration.GetValue<string>("frontend_url");
+                c.AddDefaultPolicy(b => {
+                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader();
+
+                });
+            });
+
             services.AddOptions();
             // variables para ITS ebus
             services.Configure<PubsubOptions>(

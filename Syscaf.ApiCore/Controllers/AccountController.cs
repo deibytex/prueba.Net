@@ -65,13 +65,7 @@ namespace Syscaf.ApiCore.Controllers
             usuario.Id = Guid.NewGuid().ToString();
             IdentityResult resultado;
 
-            string username = creacionUsuario(usuario.Nombres);
-            var result = await userManager.FindByNameAsync(username.ToUpper());
-            if (result != null)
-                username = creacionUsuario(usuario.Nombres, true);
-
-
-            usuario.UserName = username;
+            usuario.UserName = usuarioModel.Email;
 
             if (usuarioModel.Password != null)
                 resultado = await userManager.CreateAsync(usuario, usuarioModel.Password);
@@ -87,7 +81,7 @@ namespace Syscaf.ApiCore.Controllers
                 return new ResultObject()
                 {
                     Exitoso = true,
-                    Data = new { token, username, nombres = usuario.Nombres }
+                    Data = new { token, username= usuarioModel.Email, nombres = usuario.Nombres }
                 };
             }
             else
@@ -170,13 +164,7 @@ namespace Syscaf.ApiCore.Controllers
 
             return BadRequest($" Correo: {correo} No existe ");
         }
-        private string creacionContrasena()
-        {
-
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.*%$#@abcdefghijklmnopqursuvwxyz";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+      
         private string creacionUsuario(string nombreCliente, bool includeint = false)
         {
 
