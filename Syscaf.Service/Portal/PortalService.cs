@@ -216,13 +216,8 @@ namespace Syscaf.Service.Portal
                                 .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
                                 {
 
-                                    var ResultEvents = await GetIdsNoIngresadosByClienteAsync(f.Eventos.Select(s => s.EventId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.eventos, item.clienteIdS);
-
-                                    var eventosFilter = f.Eventos.Where(w => ResultEvents.Any(a => a == w.EventId)).ToList();
-
-                                    if (eventosFilter.Count > 0)
-                                    {
-                                        var listEventosInsertar = _mapper.Map<List<EventsNew>>(eventosFilter);
+                                     
+                                        var listEventosInsertar = _mapper.Map<List<EventsNew>>(f.Eventos);
                                         listEventosInsertar = listEventosInsertar.Select(s =>
                                         {
                                             s.isebus = getEventos.
@@ -231,12 +226,12 @@ namespace Syscaf.Service.Portal
                                             return s;
                                         }).ToList();
 
-                                        var resultevento = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(listEventosInsertar), f.Period, "Event", item.clienteIdS);
+                                        var resultevento = await SetDatosPortalByClienteAsync(JsonConvert.SerializeObject(listEventosInsertar), f.Period, "Event", item.clienteIdS);
 
                                         if (!resultevento.Exitoso)
                                             _logService.SetLogError(0, "Portal.GetEventos", resultevento.Mensaje);
 
-                                    }
+                                    
                                 });
                         }
                                             }
@@ -380,6 +375,29 @@ namespace Syscaf.Service.Portal
 
                     resultado.success(null);
                 
+            }
+            catch (Exception ex)
+            {
+                resultado.error(ex.ToString());
+            }
+            return resultado;
+        }
+        public async Task<ResultObject> SetDatosPortalByClienteAsync(string data, string Periodo, string tabla, int Clienteids)
+        {
+            ResultObject resultado = new ResultObject();
+            try
+            {
+
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Clienteids", Clienteids, DbType.Int32);
+                parametros.Add("Period", Periodo, DbType.String);            
+                parametros.Add("Data", data, DbType.String);
+
+                //  traemos la información de los identificadores que no existen en la base de datos                   
+                await _connDWH.ExecuteAsync(PortalQueryHelper._guardaTablasPortalString(tabla), parametros,1200, commandType: CommandType.StoredProcedure);
+
+                resultado.success(null);
+
             }
             catch (Exception ex)
             {
@@ -812,5 +830,6 @@ namespace Syscaf.Service.Portal
         Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal);
         Task<int> Portal_GetTokenPowerBI();
         Task<int> Portal_SetTokenPowerBI(string Token, DateTime ExpirationDate, bool isExists);
+        Task<ResultObject> SetDatosPortalByClienteAsync(string data, string Periodo, string tabla, int Clienteids);
     }
 }

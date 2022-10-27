@@ -34,6 +34,7 @@ namespace Syscaf.Service.Portal.Models
             }
         }
         public string MediaUrls { get; set; }
+        public float? SpeedKilometresPerHour { get; set; }
 
     }
 }

@@ -28,7 +28,8 @@ namespace Syscaf.Data.Helpers.Portal
         public static string _verificaIdExistentes = "PORTAL.VerifyDataStageByPeriodAndClient";
 
         
-        public static Func<string,string> _guardaTablasPortal = (tabla) => $"PORTAL.Insert{tabla}ByPeriodAndClient";
+        public static Func<string,string> _guardaTablasPortalString = (tabla) => $"PORTAL.Insert{tabla}";
+        public static Func<string, string> _guardaTablasPortal = (tabla) => $"PORTAL.Insert{tabla}ByPeriodAndClient";
 
 
         public static string _insertaPosiciones = "TX.InsertPosiciones";

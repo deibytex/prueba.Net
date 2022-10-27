@@ -58,7 +58,11 @@ namespace Syscaf.Service.Automaper
                 .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
                 .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime, false)))
                 .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime)))
-                .ForMember(f => f.MediaUrls, op => op.MapFrom(MyDictionaryToJson));
+                .ForMember(f => f.MediaUrls, op => op.MapFrom(MyDictionaryToJson))
+                .ForMember(f => f.SpeedKilometresPerHour, op => op.MapFrom(mp=> mp.StartPosition.SpeedKilometresPerHour))
+                .ForMember(f => f.AltitudMeters, op => op.MapFrom(mp => mp.StartPosition.AltitudeMetres));
+
+           
 
             CreateMap<TripRibasMetrics, MetricsNew>()
                 .ForMember(f => f.TripStart, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.TripStart)))
