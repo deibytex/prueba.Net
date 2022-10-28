@@ -47,6 +47,7 @@ namespace Syscaf.Common.Models.MOVIL
         public bool EsRedLine { get; set; }
         public string ValorRedLine { get; set; }
         public string Agrupador { get; set; }
+        public bool? EsObligatorio { get; set; }
     }
     public class EncabezadoPreoperacionalVM
     {
