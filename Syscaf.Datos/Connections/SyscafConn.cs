@@ -152,6 +152,42 @@ namespace Syscaf.Data
             return result;
         }
 
+        public async Task<T> Insert<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
+        {
+            T result;
+            using IDbConnection db = new SqlConnection(_connectionstring);
+            try
+            {
+                if (db.State == ConnectionState.Closed)
+                    db.Open();
+
+                using var tran = db.BeginTransaction();
+                try
+                {
+                    result = (await db.QueryAsync<T>(sp, parms, commandType: commandType, transaction: tran)).FirstOrDefault();
+
+
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (db.State == ConnectionState.Open)
+                    db.Close();
+            }
+
+            return result;
+        }
+
         public T Update<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure)
         {
             T result;

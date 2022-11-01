@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Models.ARCHIVOS;
 using Syscaf.Service.Drive;
+using Syscaf.Service.Drive.Models;
 using Syscaf.Service.Helpers;
 
 namespace Syscaf.ApiCore.Controllers
@@ -12,9 +13,15 @@ namespace Syscaf.ApiCore.Controllers
     public class ArchivosController : ControllerBase
     {
         private readonly IArchivosService _Drive;
-        public ArchivosController(IArchivosService _Drive)
+        private readonly IConfiguration _configuration;
+
+        public string BlobConnexion { get; set; }
+        public ArchivosController(IArchivosService _Drive, IConfiguration _configuration)
         {
             this._Drive = _Drive;
+            this._configuration = _configuration;
+
+            BlobConnexion = _configuration.GetSection("Neptuno")["conexion"];
         }
         /// <summary>
         /// 
@@ -27,9 +34,35 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="UsuarioId"></param>
         /// <returns></returns>
         [HttpPost("SetArchivo")]
-        public async Task<ResultObject> SetArchivo(string NombreArchivo, string Descripcion, string DescripcionLog, int Peso, string Tipo, int? Orden, string Src, int MovimientoId, int? AreaId, string UsuarioId)
+        public async Task<ResultObject> SetArchivo([FromBody] NuevoArchivoPeticionDTO datosArchivos, [FromQuery] string contenedor)
         {
-            return await _Drive.SetInsertarArchivo(NombreArchivo, Descripcion, DescripcionLog, Peso, Tipo, Orden, Src, MovimientoId, AreaId, UsuarioId);
+
+            var serviceClient = new BlobServiceClient(BlobConnexion);
+            var containerClient = serviceClient.GetBlobContainerClient(contenedor);
+            var fileName = datosArchivos.NombreArchivo;
+
+            var blobClient = containerClient.GetBlobClient(fileName);
+
+            // comvertimos los datos en imemory stream
+            if (datosArchivos.archivo.Length > 0)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    datosArchivos.archivo.CopyTo(ms);
+                    //   var fileBytes = ms.ToArray();
+                    // string s = Convert.ToBase64String(fileBytes);
+                    //  await blobClient.DeleteAsync();
+                    ms.Position = 0;
+                    if (!blobClient.Exists())
+                        await blobClient.UploadAsync(ms);
+                }
+
+
+            }
+            //   return blobClient.Uri.AbsolutePath;
+
+            datosArchivos.Src = blobClient.Uri.AbsolutePath;
+            return await _Drive.SetInsertarArchivo(datosArchivos);
         }
         /// <summary>
         /// Archivos listado
@@ -125,18 +158,4 @@ namespace Syscaf.ApiCore.Controllers
         }
     }
 
-        public class FileDataDTO
-        {
-            public FileDataDTO()
-            {
-                contenedor = "serviciotecnico";
-            }
-            public string? nombre { get; set; }
-            public string? contenedor { get; set; }
-            public string? src { get; set; }
-            public IFormFile? archivo { get; set; }
-
-
-
-        }
     }
