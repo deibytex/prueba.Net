@@ -41,7 +41,7 @@ namespace Syscaf.Common.Helpers
         public static string FiltroClienteUsuario = "FiltroClienteUsuario";
         public static string timeCache = null ;
         public static StringComparison comparer = StringComparison.CurrentCultureIgnoreCase;
-
+        public static string FormatoyyyyMMdd = "yyyyMMdd";
         public static string FormatoFechaHora = "yyyy/MM/dd HH:mm";
         public static string FormatoFechaHoraSeg = "yyyy/MM/dd HH:mm:ss";
         public static string FormatoPegaso = "yyyy-MM-dd HH:mm:ss";

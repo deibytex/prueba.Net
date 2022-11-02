@@ -532,11 +532,14 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
-                if (consulta != null && consulta.Length > 0)
-                    //Se ejecuta el procedimiento almacenado.
-                    return await Task.FromResult(_connCore.GetAll<dynamic>(consulta, lstparams, commandType: CommandType.Text));
+                if (consulta != null)
+                { 
+                   //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connCore.GetAll<dynamic>(consulta.Consulta, lstparams, commandType:(consulta.Tipo ==2) ? CommandType.Text : CommandType.StoredProcedure));
+                }
+                 
 
                 else
                     throw new Exception("La consulta no se ha encontrado");

@@ -56,6 +56,7 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpPost("Crear")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<dynamic>> Crear([FromBody] UsuarioDTO usuarioModel)
         {
             // verifica que exista el usuario y manda un badrequest
@@ -165,19 +166,7 @@ namespace Syscaf.ApiCore.Controllers
             return BadRequest($" Correo: {correo} No existe ");
         }
       
-        private string creacionUsuario(string nombreCliente, bool includeint = false)
-        {
-
-            string usuario = "";
-            string[] nombre = nombreCliente.Split(' ');
-            string[] apellido = nombreCliente.Split(' ');
-            usuario = nombre[0] + "." + apellido[1];
-
-            if (includeint)
-                usuario += (new Random()).Next(1, 10).ToString();
-
-            return usuario;
-        }
+      
 
         [HttpGet("listadoUsuarios")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -194,7 +183,7 @@ namespace Syscaf.ApiCore.Controllers
                               || e.Email.ToLower().Contains(Search.ToLower()))
                                  select e);
                 }
-                await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
+                await HttpContext.InsertarParametrosPaginacionEnCabeceraAsync(queryable);
                 var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
                 return usuarios;
             }
@@ -307,55 +296,6 @@ namespace Syscaf.ApiCore.Controllers
 
 
 
-        [HttpGet("migrarUsuarios")]
-
-        public async Task<ActionResult<string>> MigracionUsuarios()
-        {
-
-            var result = await Task.FromResult(_ctxDwh.GetAll<Usuario>(QueryHelper._QUsuariosAll, null, commandType: CommandType.Text));
-
-            foreach (var item in result)
-            {
-
-                var usuario = new ApplicationUser { UserName = item.correo, Email = item.correo, Nombres = $"{item.nombre} {item.apellido}", PerfilId = item.perfilIdS };
-                string testString = Decrypt(item.contrasena, item.key, item.IV).TrimEnd("\a".ToCharArray()).TrimEnd("\u000f".ToCharArray()).TrimEnd("\u0006".ToCharArray()).TrimEnd("\b".ToCharArray()).TrimEnd("\u0005".ToCharArray());
-                string password = Regex.Replace(testString, @"[^\t\r\n -~]", "");
-                var usuariomodel = _mapper.Map<UsuarioDTO>(usuario);
-
-                var isfind = await userManager.FindByNameAsync(item.usuario.ToUpper().Trim());
-                if (isfind != null)
-                {
-                    isfind.Nombres = $"{item.nombre} {item.apellido}";
-                    isfind.PerfilId = item.perfilIdS;
-                    isfind.ClienteId = -1;
-                    isfind.UserName = item.usuario;
-                    isfind.usuarioIdS = item.usuarioIdS;
-                    isfind.esMigrado = true;
-                    await userManager.UpdateAsync(isfind);
-
-
-                }
-                else
-                {
-                    var resultado = await userManager.CreateAsync(usuario, password);
-
-
-                    if (resultado.Succeeded)
-                    {
-                        // adicionamos los claims necesarios de la inforamcion basica del cliente
-
-                        await userManager.AddClaimAsync(usuario, new Claim("Password", password));
-                        await userManager.AddClaimAsync(usuario, new Claim("UsuarioID", item.usuarioIdS.ToString()));
-
-                        await _authService.ConstruirToken(usuariomodel);
-                    }
-                }
-
-            }
-
-            return "ok";
-        }
-
         [HttpGet("GetUserId")]
         public async Task<ActionResult<string>> GetUserId([FromQuery] string username)
         {
@@ -370,19 +310,6 @@ namespace Syscaf.ApiCore.Controllers
             return BadRequest("Usuario no encontrado en el sistema");
         }
 
-        private string Decrypt(byte[] encryptedText, byte[] SaltKey, byte[] VIKey)
-        {
-            byte[] cipherTextBytes = encryptedText;
-            var symmetricKey = new RijndaelManaged() { Mode = CipherMode.CBC, Padding = PaddingMode.None };
-            var decryptor = symmetricKey.CreateDecryptor(SaltKey, VIKey);
-            var memoryStream = new MemoryStream(cipherTextBytes);
-            var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
-            byte[] plainTextBytes = new byte[cipherTextBytes.Length];
-
-            int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-            memoryStream.Close();
-            cryptoStream.Close();
-            return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount).TrimEnd("\0".ToCharArray());
-        }
+     
     }
 }

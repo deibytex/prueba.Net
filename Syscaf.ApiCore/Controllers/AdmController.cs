@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Syscaf.ApiCore.DTOs;
+using Syscaf.ApiCore.Utilidades;
 using Syscaf.Common.Models.PORTAL;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
@@ -204,19 +206,27 @@ namespace Syscaf.ApiTx.Controllers
         }
 
         [HttpPost("GetConsultasDinamicas")]
-        public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] PaginacionDTO? paginacionDTO)
         {
             var dynamic = new Dapper.DynamicParameters();
             foreach (var kvp in parametros)
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            var resultado = await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
+            {
+                await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
+                resultado = resultado.AsQueryable().Paginar(paginacionDTO).ToList();
+            }
+            return resultado;
         }
         [HttpPost("GetConsultasDinamicasString")]
         public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] string parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
         {
             var pdes = JsonConvert.DeserializeObject<Dictionary<string, string>>(parametros);
+          
+
             var dynamic = new Dapper.DynamicParameters();
             foreach (var kvp in pdes)
             {

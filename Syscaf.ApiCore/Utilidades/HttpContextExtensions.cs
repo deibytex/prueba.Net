@@ -9,13 +9,24 @@ namespace Syscaf.ApiCore.Utilidades
 {
     public static class HttpContextExtensions
     {
-        public async static Task InsertarParametrosPaginacionEnCabecera<T>(this HttpContext httpContext,
+        public async static Task InsertarParametrosPaginacionEnCabeceraAsync<T>(this HttpContext httpContext,
             IQueryable<T> queryable)
         {
             if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
 
-            double cantidad = await queryable.CountAsync();
+            double cantidad =  await queryable.CountAsync();
+           
+            
             httpContext.Response.Headers.Add("TotalRegistros", cantidad.ToString());
+        }
+        public  static Task InsertarParametrosPaginacionEnCabecera<T>(this HttpContext httpContext,
+            IQueryable<T> queryable)
+        {
+            if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
+
+            double cantidad =  queryable.Count();
+            httpContext.Response.Headers.Add("TotalRegistros", cantidad.ToString());
+            return Task.CompletedTask;
         }
     }
 }

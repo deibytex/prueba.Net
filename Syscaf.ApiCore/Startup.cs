@@ -61,7 +61,7 @@ namespace Syscaf.ApiCore
 
                 var frontend_url = Configuration.GetValue<string>("frontend_url");
                 c.AddDefaultPolicy(b => {
-                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader();
+                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader().WithExposedHeaders(new string[] { "totalregistros" });
 
                 });
             });
@@ -95,12 +95,8 @@ namespace Syscaf.ApiCore
 
             services.AddIdentity<ApplicationUser, IdentityRole>(
                 options =>
-                {
-                   //options.Password.RequireDigit = false;
+                {                
                     options.Password.RequiredLength = 6;
-                 
-                    //options.Password.RequireNonAlphanumeric = false;
-
                 }
         )
                 .AddEntityFrameworkStores<SyscafBDCore>()

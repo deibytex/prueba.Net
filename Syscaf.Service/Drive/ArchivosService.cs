@@ -17,6 +17,7 @@ using System.Web;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Syscaf.Common.Models.ARCHIVOS;
+using Syscaf.Service.Drive.Models;
 
 namespace Syscaf.Service.Drive
 {
@@ -27,26 +28,28 @@ namespace Syscaf.Service.Drive
         {
             _conn = conn;
         }
-        public async Task<ResultObject> SetInsertarArchivo(string NombreArchivo,string Descripcion,string DescripcionLog,int Peso, string Tipo,int? Orden,string Src, int MovimientoId, int? AreaId, string UsuarioId)
+        public async Task<ResultObject> SetInsertarArchivo(NuevoArchivoDTO datosArchivos)
         {
             var r = new ResultObject();
+
+            var propiedades = datosArchivos.GetType().GetProperties().Where(w => w.Name != "archivo");
+
+            Type t = typeof(NuevoArchivoDTO);
+           
+           IDictionary<string, object > d = new Dictionary<string, object>();
+
+            foreach (var p in propiedades) {
+
+                d.Add(p.Name, p.GetValue(datosArchivos));
+            }
+
             try
             {
-                var parametros = new Dapper.DynamicParameters();
-                parametros.Add("NombreArchivo", NombreArchivo);
-                parametros.Add("Descripcion", Descripcion);
-                parametros.Add("DescripcionLog", DescripcionLog);
-                parametros.Add("Peso", Peso);
-                parametros.Add("Tipo", Tipo);
-                parametros.Add("Orden", Orden);
-                parametros.Add("Src", Src);
-                parametros.Add("MovimientoId", MovimientoId);
-                parametros.Add("AreaId", AreaId);
-                parametros.Add("UsuarioId", UsuarioId);
+              
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<String>(ArchivosQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await _conn.Insert<string>(ArchivosQueryHelper._Insert, d, commandType: CommandType.StoredProcedure);
                     r.Mensaje = result;
                     r.Exitoso = (result == "Operación Éxitosa") ? true : false;
                     r.success();
@@ -137,10 +140,9 @@ namespace Syscaf.Service.Drive
 
     public interface IArchivosService
     {
-        Task<ResultObject> SetInsertarArchivo(string NombreArchivo, string Descripcion, string DescripcionLog, int Peso, string Tipo, int? Orden, string Src, int MovimientoId, int? AreaId, string UsuarioId);
+        Task<ResultObject> SetInsertarArchivo(NuevoArchivoDTO datosArchivos);
         Task<ResultObject> GetArchivosDatabase(string UsuarioNombre);
         Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId);
-
         List<ArchivosVM> ListadoCarpeta(List<ArchivosSeparados> Datos, List<ArchivosVM> Carpetas, int index);
     }
 }

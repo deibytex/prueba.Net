@@ -20,8 +20,8 @@ namespace Syscaf.ApiCore.DTOs
                 _pagina = (value <= 0) ? MinimoPagina : value;
             }
         }
-        private int recordsPorPagina = 10;
-        private readonly int cantidadMaximaRecordsPorPagina = 50;
+        private int recordsPorPagina = -1;
+        private readonly int cantidadMaximaRecordsPorPagina = -1;
         private readonly int MinimoPagina = 1;
 
         public int RecordsPorPagina
