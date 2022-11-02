@@ -79,7 +79,9 @@ namespace Syscaf.Service.Portal
             
                 var plantilla =  await _notificacionService.GetPlantillaBySigla(PlantillaCorreo.MOV_PREOP.ToString());
                 if (plantilla != null) {
-                    string asunto = plantilla.Asunto.Replace("{placa}", p.Encabezado.Vehiculo).Replace("{fecha}",  Constants.GetFechaServidorFecha(p.Encabezado.FechaHora));
+                    string asunto = plantilla.Asunto.Replace("{placa}", p.Encabezado.Vehiculo).
+                        Replace("{fecha}",  Constants.GetFechaServidorFecha(p.Encabezado.FechaHora));
+
                     string textodinamico = p.Respuestas.Where(
                         w =>  w.Respuesta != null &&  w.Respuesta.Trim().Equals(w.ValorRedLine?.Trim(), StringComparison.CurrentCultureIgnoreCase)
                         ).Select(s => plantilla.DynamicText.Replace("{pregunta}", s.Pregunta).Replace("{respuesta}", s.Respuesta))
@@ -89,7 +91,8 @@ namespace Syscaf.Service.Portal
                     // buscamos el nombre o la informacion basica del cusuarii
 
                     string nombre = _ctx.Users.Find(p.Encabezado.UserId)?.Nombres;
-                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).Replace("{placa}", p.Encabezado.Vehiculo).Replace("{conductor}", nombre);
+                    string cuerpo = plantilla.Cuerpo.Replace("{rows}", textodinamico).
+                        Replace("{placa}", p.Encabezado.Vehiculo).Replace("{conductor}", nombre);
 
                     var noti =    await _notificacionService.MOVCrearNotificacionPreoperacional(Enums.TipoNotificacion.Sistem, asunto, cuerpo, 4);
 
@@ -111,7 +114,7 @@ namespace Syscaf.Service.Portal
                 var plantilla = await _notificacionService.GetPlantillaBySigla(PlantillaCorreo.MOV_PREOPC.ToString());
                 if (plantilla != null)
                 {
-                    string apto = (p.Encabezado.EstadoPreoperacional == 1) ? "No apto, una notificación será enviada a su gestor." : "";
+                    string apto =  (p.Encabezado.EstadoPreoperacional == 1) ? "No apto, una notificación será enviada a su gestor." : "Apto.";
                     string asunto = plantilla.Asunto.Replace("{placa}", p.Encabezado.Vehiculo).Replace("{fecha}", Constants.GetFechaServidorFecha(p.Encabezado.FechaHora));
                    
                     string cuerpo = plantilla.Cuerpo.Replace("{apto}", apto).Replace("{placa}", p.Encabezado.Vehiculo);                 

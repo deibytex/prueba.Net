@@ -31,13 +31,25 @@ namespace Syscaf.Service.Drive
         public async Task<ResultObject> SetInsertarArchivo(NuevoArchivoDTO datosArchivos)
         {
             var r = new ResultObject();
+
+            var propiedades = datosArchivos.GetType().GetProperties().Where(w => w.Name != "archivo");
+
+            Type t = typeof(NuevoArchivoDTO);
+           
+           IDictionary<string, object > d = new Dictionary<string, object>();
+
+            foreach (var p in propiedades) {
+
+                d.Add(p.Name, p.GetValue(datosArchivos));
+            }
+
             try
             {
               
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await _conn.Insert<string>(ArchivosQueryHelper._Insert, datosArchivos, commandType: CommandType.StoredProcedure);
+                    var result = await _conn.Insert<string>(ArchivosQueryHelper._Insert, d, commandType: CommandType.StoredProcedure);
                     r.Mensaje = result;
                     r.Exitoso = (result == "Operación Éxitosa") ? true : false;
                     r.success();

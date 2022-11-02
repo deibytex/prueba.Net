@@ -20,7 +20,8 @@ namespace Syscaf.Service.Drive.Models
 
         public int? AreaId { get; set; }
         public string UsuarioId { get; set; }
-        public string DatosAdicionales { get; set; }  
+        public string DatosAdicionales { get; set; }
+        public DateTime? FechaSistema { get; set; }
 
     }
     public class NuevoArchivoPeticionDTO : NuevoArchivoDTO    {

@@ -214,7 +214,7 @@ namespace Syscaf.ApiTx.Controllers
                 dynamic.Add(kvp.Key, kvp.Value);
             }
             var resultado = await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
-            if (paginacionDTO != null)
+            if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
             {
                 await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
                 resultado = resultado.AsQueryable().Paginar(paginacionDTO).ToList();

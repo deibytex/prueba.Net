@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Syscaf.Common.Helpers;
 using Syscaf.Common.Models.ARCHIVOS;
 using Syscaf.Service.Drive;
 using Syscaf.Service.Drive.Models;
@@ -34,12 +35,13 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="UsuarioId"></param>
         /// <returns></returns>
         [HttpPost("SetArchivo")]
-        public async Task<ResultObject> SetArchivo([FromBody] NuevoArchivoPeticionDTO datosArchivos, [FromQuery] string contenedor)
+        public async Task<ResultObject> SetArchivo([FromForm] NuevoArchivoPeticionDTO datosArchivos, [FromQuery] string contenedor)
         {
 
             var serviceClient = new BlobServiceClient(BlobConnexion);
             var containerClient = serviceClient.GetBlobContainerClient(contenedor);
-            var fileName = datosArchivos.NombreArchivo;
+            var fileName = $"{Constants.GetFechaServidor().ToString(Constants.FormatoyyyyMMdd)}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}";
+            
 
             var blobClient = containerClient.GetBlobClient(fileName);
 
@@ -61,7 +63,8 @@ namespace Syscaf.ApiCore.Controllers
             }
             //   return blobClient.Uri.AbsolutePath;
 
-            datosArchivos.Src = blobClient.Uri.AbsolutePath;
+            datosArchivos.Src = fileName;
+            datosArchivos.FechaSistema = Constants.GetFechaServidor();
             return await _Drive.SetInsertarArchivo(datosArchivos);
         }
         /// <summary>
@@ -93,9 +96,7 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<string> BlobService([FromForm] FileDataDTO datos)
         {
 
-            var connectionString = "DefaultEndpointsProtocol=https;AccountName=neptunodataaccount;AccountKey=ONCwJMNPn4N9a960rBu8ontFlcQTbiGtK2inKFQo80BUAgO7n75n97B07rNhCeU6Wc8Coi5kozj4+AStIFkGkw==;EndpointSuffix=core.windows.net";
-
-            var serviceClient = new BlobServiceClient(connectionString);
+           var serviceClient = new BlobServiceClient(BlobConnexion);
             var containerClient = serviceClient.GetBlobContainerClient(datos.contenedor);
 
             var fileName = $"{datos.src}/{datos.archivo.FileName}";
@@ -124,9 +125,8 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo, string container)
         {
 
-            var connectionString = "DefaultEndpointsProtocol=https;AccountName=neptunodataaccount;AccountKey=ONCwJMNPn4N9a960rBu8ontFlcQTbiGtK2inKFQo80BUAgO7n75n97B07rNhCeU6Wc8Coi5kozj4+AStIFkGkw==;EndpointSuffix=core.windows.net";
-
-            var serviceClient = new BlobServiceClient(connectionString);
+       
+            var serviceClient = new BlobServiceClient(BlobConnexion);
             var containerClient = serviceClient.GetBlobContainerClient(container);
             var blobClient = containerClient.GetBlobClient(nombrearchivo);
             MemoryStream stream = new MemoryStream();
@@ -139,9 +139,8 @@ namespace Syscaf.ApiCore.Controllers
         public  List<dynamic> getDirectorio(string container, string? filter)
         {
 
-            var connectionString = "DefaultEndpointsProtocol=https;AccountName=neptunodataaccount;AccountKey=ONCwJMNPn4N9a960rBu8ontFlcQTbiGtK2inKFQo80BUAgO7n75n97B07rNhCeU6Wc8Coi5kozj4+AStIFkGkw==;EndpointSuffix=core.windows.net";
-
-            var serviceClient = new BlobServiceClient(connectionString);
+       
+            var serviceClient = new BlobServiceClient(BlobConnexion);
             var containerClient = serviceClient.GetBlobContainerClient(container);
             var blobs =  containerClient.GetBlobs().Where(w => (filter == null ||  w.Name.Contains(filter ?? "",StringComparison.CurrentCultureIgnoreCase)) ).ToList();
             int i = 0;

@@ -68,7 +68,7 @@ namespace Syscaf.Data.Helpers.Portal
                                                        , @Longitud
                                                        , @Velocidad)";
 
-        public static string getConsultasByClaseyNombre = @"  SELECT Consulta      
+        public static string getConsultasByClaseyNombre = @"  SELECT Consulta , Tipo    
                                                               FROM PORTAL.ConsultasPortalPorTipo
                                                               where Clase = @Clase and NombreConsulta = @NombreConsulta";
         public static string getTokenPorTipo = @"  select Token,ExpirationDate  from PORTAL.Tokens
