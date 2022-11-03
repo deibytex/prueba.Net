@@ -183,9 +183,12 @@ namespace Syscaf.ApiCore.Controllers
                               || e.Email.ToLower().Contains(Search.ToLower()))
                                  select e);
                 }
+
                 await HttpContext.InsertarParametrosPaginacionEnCabeceraAsync(queryable);
-                var usuarios = await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
-                return usuarios;
+              
+                if (paginacionDTO.RecordsPorPagina != -1)
+                    return await queryable.OrderBy(x => x.Email).Paginar(paginacionDTO).ToListAsync();
+                return await queryable.OrderBy(x => x.Email).ToListAsync();
             }
             catch (Exception ex)
             {
