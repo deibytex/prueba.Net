@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
+using Syscaf.Service.Auth;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,10 +18,12 @@ namespace Syscaf.ApiCore.Auth
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        public AuthService(UserManager<ApplicationUser> _userManager, IConfiguration _configuration)
+        private readonly IUsuarioService _usuarioService;
+        public AuthService(UserManager<ApplicationUser> _userManager, IConfiguration _configuration, IUsuarioService _usuarioService)
         {
             this._userManager = _userManager;
             this._configuration = _configuration;
+              this._usuarioService = _usuarioService;
         }
         public async Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales)
         {
@@ -27,6 +31,7 @@ namespace Syscaf.ApiCore.Auth
 
             var usuario = await _userManager.FindByNameAsync(credenciales.UserName);
             var claimsDB = await _userManager.GetClaimsAsync(usuario);
+            var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(usuario.Id);
             var claims = new List<Claim>()
             {
                 new Claim("username", credenciales.UserName),
@@ -36,6 +41,38 @@ namespace Syscaf.ApiCore.Auth
 
             };
             claims.AddRange(claimsDB);
+            // adicionamos el menu
+            claims.Add(new Claim("menu", JsonConvert.SerializeObject(MenuDesagregadoDTO.Where(w => w.EsReact).GroupBy(g => new
+            {
+                g.UserName,
+                g.NombreOpcion,
+                g.Accion,
+                g.Controlador,
+                g.Logo,
+                g.EsVisible,
+                g.OpcionId,
+                g.OpcionPadreId,
+                g.Orden,
+                g.ParametrosAdicionales,
+                g.EsReact
+
+            }).Select(
+                    s => new
+                    {
+                        s.Key.UserName,
+                        s.Key.NombreOpcion,
+                        s.Key.Accion,
+                        s.Key.Controlador,
+                        s.Key.Logo,
+                        s.Key.EsVisible,
+                        s.Key.OpcionId,
+                        s.Key.OpcionPadreId,
+                        s.Key.Orden,
+                        s.Key.ParametrosAdicionales,
+                        s.Key.EsReact,
+                        lstOperacion = s.Select(s => new { s.NombreOperacion, s.Operacion })
+                    }
+                    ))));
             if (usuario.usuarioIdS.HasValue)
                 claims.Add(new Claim("usuarioIds", usuario.usuarioIdS.ToString()));
          
