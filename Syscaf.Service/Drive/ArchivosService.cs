@@ -32,7 +32,7 @@ namespace Syscaf.Service.Drive
         {
             var r = new ResultObject();
 
-            var propiedades = datosArchivos.GetType().GetProperties().Where(w => w.Name != "archivo");
+            var propiedades = datosArchivos.GetType().GetProperties().Where(w => w.Name != "archivo" );
 
             Type t = typeof(NuevoArchivoDTO);
            

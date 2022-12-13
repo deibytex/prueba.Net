@@ -14,6 +14,7 @@ namespace Syscaf.Service.Auth.Models
     public class MenuDesagregadoDTO : OpcionesUsuario
     {
         public string Operacion { get; set; }
+        
 
     }
 
@@ -36,6 +37,6 @@ namespace Syscaf.Service.Auth.Models
         public string NombreOperacion { get; set; }
 
         public string ParametrosAdicionales { get; set; }
-
+        public bool EsReact { get; set; }
     }
 }

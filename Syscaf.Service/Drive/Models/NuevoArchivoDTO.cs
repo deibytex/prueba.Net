@@ -9,6 +9,7 @@ namespace Syscaf.Service.Drive.Models
 {
     public class NuevoArchivoDTO
     {
+        public int? ArchivoId { get; set; }
         public string NombreArchivo { get; set; }
         public string Descripcion { get; set; }
         public string DescripcionLog { get; set; }

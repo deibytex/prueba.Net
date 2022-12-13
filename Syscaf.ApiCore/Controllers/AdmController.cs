@@ -213,7 +213,7 @@ namespace Syscaf.ApiTx.Controllers
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            var resultado = await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            var resultado = await _GruposSeguridad.getDynamicValueCore(Clase, NombreConsulta, dynamic);
             if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
             {
                 await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
@@ -232,7 +232,7 @@ namespace Syscaf.ApiTx.Controllers
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            return await _GruposSeguridad.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            return await _GruposSeguridad.getDynamicValueCore(Clase, NombreConsulta, dynamic);
         }
 
         [HttpPost("ExecProcedureByTipoConsulta")]
@@ -244,7 +244,7 @@ namespace Syscaf.ApiTx.Controllers
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            int r = await _GruposSeguridad.setDynamicValueDWH(Clase, NombreConsulta, dynamic);
+            int r = await _GruposSeguridad.setDynamicValueCore(Clase, NombreConsulta, dynamic);
             return new ResultObject() { Exitoso = (r > 0), Mensaje = (r < 0) ? "No se actaulizaron registros." : "Actualizado exitosamente."};
         }
 

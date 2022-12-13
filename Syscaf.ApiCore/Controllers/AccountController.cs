@@ -236,7 +236,8 @@ namespace Syscaf.ApiCore.Controllers
                     g.OpcionId,
                     g.OpcionPadreId,
                     g.Orden,
-                    g.ParametrosAdicionales
+                    g.ParametrosAdicionales,
+                    g.EsReact
 
                 }).Select(
                     s => new
@@ -251,6 +252,7 @@ namespace Syscaf.ApiCore.Controllers
                         s.Key.OpcionPadreId,
                         s.Key.Orden,
                         s.Key.ParametrosAdicionales,
+                        s.Key.EsReact,
                         lstOperacion = s.Select(s => new { s.NombreOperacion, s.Operacion })
                     }
                     ).ToList<dynamic>();

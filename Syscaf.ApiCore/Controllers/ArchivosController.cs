@@ -38,32 +38,35 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<ResultObject> SetArchivo([FromForm] NuevoArchivoPeticionDTO datosArchivos, [FromQuery] string contenedor)
         {
 
-            var serviceClient = new BlobServiceClient(BlobConnexion);
-            var containerClient = serviceClient.GetBlobContainerClient(contenedor);
-            var fileName = $"{Constants.GetFechaServidor().ToString(Constants.FormatoyyyyMMdd)}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}";
-            
-
-            var blobClient = containerClient.GetBlobClient(fileName);
-
-            // comvertimos los datos en imemory stream
-            if (datosArchivos.archivo.Length > 0)
+            if (contenedor != "-1")
             {
-                using (var ms = new MemoryStream())
+                var serviceClient = new BlobServiceClient(BlobConnexion);
+                var containerClient = serviceClient.GetBlobContainerClient(contenedor);
+                var fileName = $"{Constants.GetFechaServidor().ToString("yyyyMM")}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}";
+
+
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                // comvertimos los datos en imemory stream
+                if (datosArchivos.archivo.Length > 0)
                 {
-                    datosArchivos.archivo.CopyTo(ms);
-                    //   var fileBytes = ms.ToArray();
-                    // string s = Convert.ToBase64String(fileBytes);
-                    //  await blobClient.DeleteAsync();
-                    ms.Position = 0;
-                    if (!blobClient.Exists())
-                        await blobClient.UploadAsync(ms);
+                    using (var ms = new MemoryStream())
+                    {
+                        datosArchivos.archivo.CopyTo(ms);
+                        //   var fileBytes = ms.ToArray();
+                        // string s = Convert.ToBase64String(fileBytes);
+                        //  await blobClient.DeleteAsync();
+                        ms.Position = 0;
+                        if (!blobClient.Exists())
+                            await blobClient.UploadAsync(ms);
+                    }
+
+
                 }
+                //   return blobClient.Uri.AbsolutePath;
 
-
+                datosArchivos.Src = fileName;
             }
-            //   return blobClient.Uri.AbsolutePath;
-
-            datosArchivos.Src = fileName;
             datosArchivos.FechaSistema = Constants.GetFechaServidor();
             return await _Drive.SetInsertarArchivo(datosArchivos);
         }
