@@ -22,6 +22,7 @@ namespace Syscaf.ApiCore.Utilidades
             services.AddTransient<IListaDetalleService, ListaDetalleService>();
             services.AddTransient<IMovilService, MovilService>();
             services.AddTransient<IArchivosService, ArchivosService>();
+            services.AddTransient<IAdmService, AdmService>();
         }
     }
 }

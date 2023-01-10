@@ -755,11 +755,11 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                var consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
-                if (consulta != null && consulta.Length > 0)
+                if (consulta != null)
                     //Se ejecuta el procedimiento almacenado.
-                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta, lstparams, commandType: CommandType.Text));
+                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta.Consulta, lstparams, commandType: (consulta.Tipo == 2 ? CommandType.Text : CommandType.StoredProcedure)));
 
                 else
                     throw new Exception("La consulta no se ha encontrado");
@@ -775,11 +775,11 @@ namespace Syscaf.Service.Portal
         {
             try
             {
-                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+                var consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
 
-                if (consulta != null && consulta.Length > 0)
+                if (consulta != null)
                     //Se ejecuta el procedimiento almacenado.
-                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta, lstparams));
+                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consulta.Consulta, lstparams, (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
 
                 else
                     throw new Exception("La consulta no se ha encontrado");

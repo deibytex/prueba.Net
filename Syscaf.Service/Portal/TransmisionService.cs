@@ -37,7 +37,7 @@ namespace Syscaf.Service.Portal
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("usuarioIdS", Usuario);
-                parametros.Add("ClienteId",ClienteId);
+                parametros.Add("ClienteId", ClienteId);
 
                 try
                 {
@@ -150,19 +150,10 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
-                var parametros = new Dapper.DynamicParameters();
-
-                try
-                {
-                    //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_conn.Insert<int>(TransmisionQueryHelper._SetSnapshotUnidadesActivas, parametros, commandType: CommandType.StoredProcedure));
-                    r.Exitoso = true;
-                    r.Mensaje = "Operación Éxitosa.";
-                }
-                catch (Exception ex)
-                {
-                    r.error(ex.Message);
-                }
+                //Se ejecuta el procedimiento almacenado.
+                var result = await _conn.ExecuteAsync(TransmisionQueryHelper._SetSnapshotUnidadesActivas, new { Fecha = Constants.GetFechaServidor() }, commandType: CommandType.StoredProcedure);
+                r.Exitoso = true;
+                r.Mensaje = "Operación Éxitosa.";
             }
             catch (Exception ex)
             {
@@ -259,7 +250,7 @@ namespace Syscaf.Service.Portal
             try
             {
                 DateTime Fecha = json[0].Fecha;
-                var jsonconvert =  JsonConvert.SerializeObject(json);
+                var jsonconvert = JsonConvert.SerializeObject(json);
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("JSON_STR", jsonconvert);
                 parametros.Add("Fecha", Fecha);
@@ -343,11 +334,11 @@ namespace Syscaf.Service.Portal
 
 
 
-        
+
     }
-   
+
 }
-public interface ITransmisionService 
+public interface ITransmisionService
 {
     Task<ResultObject> GetReporteTransmision(int Usuario, long? clienteId);
     Task<ResultObject> GetSnapShotTransmision(string Usuario, DateTime? Fecha, long? ClienteId);

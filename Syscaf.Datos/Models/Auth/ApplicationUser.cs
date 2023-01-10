@@ -14,5 +14,7 @@ namespace Syscaf.Data.Models.Auth
         public long ClienteId { get; set; }
         public int? usuarioIdS { get; set; }
         public bool? esMigrado { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
     }
 }

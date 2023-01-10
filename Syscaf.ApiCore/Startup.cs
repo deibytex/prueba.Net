@@ -61,7 +61,8 @@ namespace Syscaf.ApiCore
 
                 var frontend_url = Configuration.GetValue<string>("frontend_url");
                 c.AddDefaultPolicy(b => {
-                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader().WithExposedHeaders(new string[] { "totalregistros" });
+                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader().
+                    WithExposedHeaders(new string[] { "totalregistros", "IS-TOKEN-EXPIRED" });
 
                 });
             });
@@ -103,17 +104,33 @@ namespace Syscaf.ApiCore
                 .AddDefaultTokenProviders();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-                options => options.TokenValidationParameters = new TokenValidationParameters { 
-                 ValidateIssuer = false,
-                 ValidateAudience = false,
-                 ValidateLifetime= true,
-                 ValidateIssuerSigningKey = true,
-                 IssuerSigningKey = new SymmetricSecurityKey(
-                     Encoding.UTF8.GetBytes(Configuration["llavejwt"])
-                     ),
-                 ClockSkew = TimeSpan.Zero
+                options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                       Encoding.UTF8.GetBytes(Configuration["llavejwt"])
+                       ),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                     options.Events = new JwtBearerEvents
+                     {
+                         OnAuthenticationFailed = context => {
+                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                             {
+                                 context.Response.Headers.Add("IS-TOKEN-EXPIRED", "true");
+                             }
+                             return Task.CompletedTask;
+                         }
+                     };
                 }
                 );
+            
+            ;
 
             services.AddCors(options =>
              {

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Syscaf.Common.Helpers;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
 using Syscaf.Service.Auth;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,17 +25,19 @@ namespace Syscaf.ApiCore.Auth
         {
             this._userManager = _userManager;
             this._configuration = _configuration;
-              this._usuarioService = _usuarioService;
+            this._usuarioService = _usuarioService;
         }
         public async Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales)
         {
-          
+
+
 
             var usuario = await _userManager.FindByNameAsync(credenciales.UserName);
             var claimsDB = await _userManager.GetClaimsAsync(usuario);
             var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(usuario.Id);
             var claims = new List<Claim>()
             {
+                new Claim(ClaimTypes.Name, credenciales.UserName),
                 new Claim("username", credenciales.UserName),
                 new Claim("Id", usuario.Id),
                 new Claim("Nombres", usuario.Nombres),
@@ -75,12 +79,12 @@ namespace Syscaf.ApiCore.Auth
                     ))));
             if (usuario.usuarioIdS.HasValue)
                 claims.Add(new Claim("usuarioIds", usuario.usuarioIdS.ToString()));
-         
+
 
             var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["llavejwt"]));
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
 
-            var expiracion = DateTime.UtcNow.AddDays(1);
+            var expiracion = Constants.GetFechaServidor().AddHours(1);
 
             var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
                 expires: expiracion, signingCredentials: creds);
@@ -88,16 +92,55 @@ namespace Syscaf.ApiCore.Auth
             return new ResponseAccount()
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Expiracion = expiracion
+                Expiracion = expiracion,
+                RefreshToken = GenerateRefreshToken()
             };
         }
 
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
 
+
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token, string keyConfiguration)
+        {
+            var Key = Encoding.UTF8.GetBytes(keyConfiguration);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Key),
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+
+            return principal;
+        }
 
     }
+
 
     public interface IAuthService
     {
         Task<ResponseAccount> ConstruirToken(UsuarioDTO credenciales);
+
+        ClaimsPrincipal GetPrincipalFromExpiredToken(string token, string keyConfiguration);
     }
 }

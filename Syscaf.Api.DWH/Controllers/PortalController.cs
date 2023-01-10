@@ -227,11 +227,12 @@ namespace Syscaf.Api.DWH.Controllers
         }
 
         [HttpPost("GetConsultasDinamicasProced")]
-        public async Task<List<dynamic>> GetConsultasDinamicasProcedure([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        public async Task<List<dynamic>> GetConsultasDinamicasProcedure([FromBody] Dictionary<string, string>? parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
         {
 
 
             var dynamic = new Dapper.DynamicParameters();
+            if(parametros !=  null)
             foreach (var kvp in parametros)
             {
                 dynamic.Add(kvp.Key, kvp.Value);

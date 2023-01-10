@@ -1,4 +1,6 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Helpers;
@@ -11,6 +13,7 @@ namespace Syscaf.ApiCore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ArchivosController : ControllerBase
     {
         private readonly IArchivosService _Drive;

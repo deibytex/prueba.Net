@@ -21,6 +21,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Auth;
+using Syscaf.Service.Portal;
+using Syscaf.Common.Helpers;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -37,13 +39,14 @@ namespace Syscaf.ApiCore.Controllers
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IAdmService _admService;
 
         public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration _configuration,
             SyscafBDCore _ctx,
             ISyscafConn _ctxDwh,
-            IMapper mapper, IAuthService _authService, IUsuarioService _usuarioService)
+            IMapper mapper, IAuthService _authService, IUsuarioService _usuarioService, IAdmService _admService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -53,6 +56,7 @@ namespace Syscaf.ApiCore.Controllers
             this._mapper = mapper;
             this._authService = _authService;
             this._usuarioService = _usuarioService;
+            this._admService = _admService;
         }
 
         [HttpPost("Crear")]
@@ -175,7 +179,7 @@ namespace Syscaf.ApiCore.Controllers
             try
             {
                 var queryable = _ctx.Users.AsQueryable().Where(w => (UsuarioId == null || w.Id == UsuarioId) && (UsuarioIds == null || w.usuarioIdS == UsuarioIds));
-
+               
                 if (Search != null)
                 {
                     queryable = (from e in queryable
@@ -218,14 +222,14 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpGet("GetMenuUsuario")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<dynamic>>> GetMenuUsuario(string UserId)
         {
             try
             {
                 var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(UserId);
 
-                return MenuDesagregadoDTO.GroupBy(g => new
+                return MenuDesagregadoDTO.Where(w => !w.EsReact).GroupBy(g => new
                 {
                     g.UserName,
                     g.NombreOpcion,
@@ -272,12 +276,20 @@ namespace Syscaf.ApiCore.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<ResponseAccount>> Login([FromBody] UsuarioDTO credenciales)
         {
+
+            var user = await userManager.FindByNameAsync(credenciales.UserName);
             var resultado = await signInManager.PasswordSignInAsync(credenciales.UserName, credenciales.Password,
                 isPersistent: false, lockoutOnFailure: true);
 
             if (resultado.Succeeded)
+
             {
-                return await _authService.ConstruirToken(credenciales);
+                var token = await _authService.ConstruirToken(credenciales);
+                user.RefreshToken = token.RefreshToken;
+                user.RefreshTokenExpiryTime = Constants.GetFechaServidor().AddDays(1);
+
+                await userManager.UpdateAsync(user);
+                return token;
             }
             else
             {
@@ -315,6 +327,47 @@ namespace Syscaf.ApiCore.Controllers
             return BadRequest("Usuario no encontrado en el sistema");
         }
 
-     
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<ActionResult<ResponseAccount>> RefreshToken(TokenModel tokenModel)
+        {
+            if (tokenModel is null)
+            {
+                return BadRequest("Cliente inválido");
+            }
+
+            string? accessToken = tokenModel.AccessToken;
+            string? refreshToken = tokenModel.RefreshToken;
+
+            var principal = _authService.GetPrincipalFromExpiredToken(accessToken, _configuration["llavejwt"]);
+            if (principal == null)
+            {
+                return BadRequest("Acceso inválido o Token de refresco inválido");
+            }
+
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            string username = principal.Identity.Name;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            var user = await userManager.FindByNameAsync(username);
+
+            if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= Constants.GetFechaServidor())
+            {
+                return BadRequest("Acceso inválido o Token de refresco inválido");
+            }
+
+            var newAccessToken = await _authService.ConstruirToken(new UsuarioDTO() { UserName = user.UserName});
+           
+
+            user.RefreshToken = newAccessToken.RefreshToken;
+            user.RefreshTokenExpiryTime = Constants.GetFechaServidor().AddDays(1);
+            await userManager.UpdateAsync(user);
+
+            return newAccessToken;
+        }
+
+
     }
 }

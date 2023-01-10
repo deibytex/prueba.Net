@@ -21,11 +21,13 @@ namespace Syscaf.ApiTx.Controllers
     public class AdmController : ControllerBase
     {
         private readonly IGruposSeguridadService _GruposSeguridad;
+        private readonly IAdmService _admService;
         
-        public AdmController(IGruposSeguridadService _GruposSeguridad)
+
+        public AdmController(IGruposSeguridadService _GruposSeguridad, IAdmService _admService)
         {
             this._GruposSeguridad = _GruposSeguridad;
-           
+            this._admService = _admService;
         }
         /// <summary>
         /// Obtiene la lista de organizaciones.
@@ -208,18 +210,15 @@ namespace Syscaf.ApiTx.Controllers
         [HttpPost("GetConsultasDinamicas")]
         public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] PaginacionDTO? paginacionDTO)
         {
-            var dynamic = new Dapper.DynamicParameters();
-            foreach (var kvp in parametros)
-            {
-                dynamic.Add(kvp.Key, kvp.Value);
-            }
-            var resultado = await _GruposSeguridad.getDynamicValueCore(Clase, NombreConsulta, dynamic);
-            if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
-            {
-                await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
-                resultado = resultado.AsQueryable().Paginar(paginacionDTO).ToList();
-            }
-            return resultado;
+           
+            return await _getConsultasDinamicas(parametros, Clase, NombreConsulta, paginacionDTO);
+        }
+        [HttpPost("auth/GetConsultasDinamicas")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<List<dynamic>> GetConsultasDinamicasConAutorizacion([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] PaginacionDTO? paginacionDTO)
+        {
+
+            return await _getConsultasDinamicas(parametros, Clase, NombreConsulta, paginacionDTO);
         }
         [HttpPost("GetConsultasDinamicasString")]
         public async Task<List<dynamic>> GetConsultasDinamicas([FromBody] string parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
@@ -232,31 +231,48 @@ namespace Syscaf.ApiTx.Controllers
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            return await _GruposSeguridad.getDynamicValueCore(Clase, NombreConsulta, dynamic);
+            return await _admService.getDynamicValueCore(Clase, NombreConsulta, dynamic);
         }
 
         [HttpPost("ExecProcedureByTipoConsulta")]
         public async Task<ResultObject> ExecProcedureByTipoConsulta([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
         {
-           
+            return await _execProcedureByTipoConsulta(parametros, Clase, NombreConsulta);
+        }
+
+        [HttpPost("auth/ExecProcedureByTipoConsulta")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ResultObject> ExecProcedureByTipoConsultaConAutorizacion([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta)
+        {
+            return await _execProcedureByTipoConsulta(parametros, Clase, NombreConsulta);
+        }
+
+        private async Task<List<dynamic>> _getConsultasDinamicas(Dictionary<string, string> parametros,  string Clase,  string NombreConsulta,  PaginacionDTO? paginacionDTO) {
             var dynamic = new Dapper.DynamicParameters();
             foreach (var kvp in parametros)
             {
                 dynamic.Add(kvp.Key, kvp.Value);
             }
-            int r = await _GruposSeguridad.setDynamicValueCore(Clase, NombreConsulta, dynamic);
-            return new ResultObject() { Exitoso = (r > 0), Mensaje = (r < 0) ? "No se actaulizaron registros." : "Actualizado exitosamente."};
+            var resultado = await _admService.getDynamicValueCore(Clase, NombreConsulta, dynamic);
+            if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
+            {
+                await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
+                resultado = resultado.AsQueryable().Paginar(paginacionDTO).ToList();
+            }
+            return resultado;
+        }
+
+        private async Task<ResultObject> _execProcedureByTipoConsulta(Dictionary<string, string> parametros, string Clase, string NombreConsulta)
+        {
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+            int r = await _admService.setDynamicValueCore(Clase, NombreConsulta, dynamic);
+            return new ResultObject() { Exitoso = (r > 0), Mensaje = (r < 0) ? "No se actaulizaron registros." : "Actualizado exitosamente." };
         }
 
 
-        /*
-         select distinct uu.Nombres, u.UserId, RU.UserId, RolId from adm.TB_UsuarioOrganizacion u
-left outer join ( select * from adm.TB_RolesUsuario 
-where rolid = 4
-) RU  on u.userid = RU.Userid
-inner join dbo.AspNetUsers uu on uu.id = u.UserId
-where OrganizacionId = 1 
-
-         */
-    }
+        }
 }

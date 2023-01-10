@@ -26,6 +26,13 @@ namespace Syscaf.Data.Helpers.Auth.DTOs
         public string UserName { get; set; }
         public string NewPassword { get; set; }
         public string token { get; set; }
+        public int ExpirationDay { get; set; }
         public bool EmailConfirm { get; set; }
+    }
+
+    public class TokenModel
+    {
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }
