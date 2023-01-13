@@ -14,7 +14,7 @@ namespace Syscaf.ApiCore.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ArchivosController : ControllerBase
+    public class ArchivosController : BaseController
     {
         private readonly IArchivosService _Drive;
         private readonly IConfiguration _configuration;
@@ -130,6 +130,9 @@ namespace Syscaf.ApiCore.Controllers
         [HttpGet("DownloadFileFromBlob")]
         public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo, string container)
         {
+
+            // guardamos el log de descarga de archivo
+
 
        
             var serviceClient = new BlobServiceClient(BlobConnexion);

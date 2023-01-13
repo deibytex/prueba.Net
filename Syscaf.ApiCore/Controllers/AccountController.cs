@@ -28,7 +28,7 @@ namespace Syscaf.ApiCore.Controllers
 {
     [Route("api/account")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseController
     {
         private readonly UserManager<ApplicationUser> userManager;
 
@@ -222,14 +222,67 @@ namespace Syscaf.ApiCore.Controllers
         }
 
         [HttpGet("GetMenuUsuario")]
-     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+       // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<dynamic>>> GetMenuUsuario(string UserId)
         {
+           
             try
             {
                 var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(UserId);
 
                 return MenuDesagregadoDTO.Where(w => !w.EsReact).GroupBy(g => new
+                {
+                    g.UserName,
+                    g.NombreOpcion,
+                    g.Accion,
+                    g.Controlador,
+                    g.Logo,
+                    g.EsVisible,
+                    g.OpcionId,
+                    g.OpcionPadreId,
+                    g.Orden,
+                    g.ParametrosAdicionales,
+                    g.EsReact
+
+                }).Select(
+                    s => new
+                    {
+                        s.Key.UserName,
+                        s.Key.NombreOpcion,
+                        s.Key.Accion,
+                        s.Key.Controlador,
+                        s.Key.Logo,
+                        s.Key.EsVisible,
+                        s.Key.OpcionId,
+                        s.Key.OpcionPadreId,
+                        s.Key.Orden,
+                        s.Key.ParametrosAdicionales,
+                        s.Key.EsReact,
+                        lstOperacion = s.Select(s => new { s.NombreOperacion, s.Operacion })
+                    }
+                    ).ToList<dynamic>();
+
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+
+        }
+
+
+        [HttpGet("react/GetMenuUsuario")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<List<dynamic>>> GetMenuUsuario(bool EsReact)
+        {
+            try
+            {
+                var MenuDesagregadoDTO = await _usuarioService.GetMenuUsuario(this.UserId);
+
+                return MenuDesagregadoDTO.Where(w => w.EsReact == EsReact).GroupBy(g => new
                 {
                     g.UserName,
                     g.NombreOpcion,
