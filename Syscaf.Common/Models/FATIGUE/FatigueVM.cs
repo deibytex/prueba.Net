@@ -32,4 +32,13 @@ namespace Syscaf.Common.Models.FATIGUE
 		public int? ConfiguracionAlertaId { get; set; }
 
 	}
+
+	public class GetFatigueVM
+	{
+		public string? Nombre { get; set; }
+		public string? ClienteId { get; set; }
+		public bool? EsActivo { get; set; }
+
+
+	}
 }

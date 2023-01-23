@@ -42,10 +42,10 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="EsActivo"></param>
         /// <returns></returns>
         [HttpPost("GetConfiguracionAlerta")]
-        public async Task<ResultObject> GetConfiguracionAlerta(string? Nombre, string? ClienteId, bool? EsActivo)
+        public async Task<ResultObject> GetConfiguracionAlerta([FromBody] GetFatigueVM Data)
         {
             //Se llama al servicio
-            return await _Fatigue.GetConfiguracionAlerta(Nombre, ClienteId, EsActivo);
+            return await _Fatigue.GetConfiguracionAlerta(Data.Nombre, Data.ClienteId, Data.EsActivo);
         }
     }
 }
