@@ -8,6 +8,7 @@ using Syscaf.Common.Models.ARCHIVOS;
 using Syscaf.Service.Drive;
 using Syscaf.Service.Drive.Models;
 using Syscaf.Service.Helpers;
+using Syscaf.Service.Portal;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -16,15 +17,16 @@ namespace Syscaf.ApiCore.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ArchivosController : BaseController
     {
-        private readonly IArchivosService _Drive;
+        private readonly IArchivosService _archivoService;
         private readonly IConfiguration _configuration;
+        private readonly IAdmService _admService;
 
         public string BlobConnexion { get; set; }
-        public ArchivosController(IArchivosService _Drive, IConfiguration _configuration)
+        public ArchivosController(IArchivosService _archivoService, IConfiguration _configuration, IAdmService _admService)
         {
-            this._Drive = _Drive;
+            this._archivoService = _archivoService;
             this._configuration = _configuration;
-
+            this._admService = _admService;
             BlobConnexion = _configuration.GetSection("Neptuno")["conexion"];
         }
         /// <summary>
@@ -46,7 +48,7 @@ namespace Syscaf.ApiCore.Controllers
                 var serviceClient = new BlobServiceClient(BlobConnexion);
                 var containerClient = serviceClient.GetBlobContainerClient(contenedor);
                 var fileName = $"{Constants.GetFechaServidor().ToString("yyyyMM")}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}";
-
+               
 
                 var blobClient = containerClient.GetBlobClient(fileName);
 
@@ -71,7 +73,7 @@ namespace Syscaf.ApiCore.Controllers
                 datosArchivos.Src = fileName;
             }
             datosArchivos.FechaSistema = Constants.GetFechaServidor();
-            return await _Drive.SetInsertarArchivo(datosArchivos);
+            return await _archivoService.SetInsertarArchivo(datosArchivos);
         }
         /// <summary>
         /// Archivos listado
@@ -81,7 +83,7 @@ namespace Syscaf.ApiCore.Controllers
         [HttpPost("GetArchivosDatabase")]
         public async Task<ResultObject> GetArchivosDatabase(string? UsuarioNombre)
         {
-            return await _Drive.GetArchivosDatabase(UsuarioNombre);
+            return await _archivoService.GetArchivosDatabase(UsuarioNombre);
         }
         /// <summary>
         /// Se realiza el guardado de logs general para neptuno
@@ -95,7 +97,7 @@ namespace Syscaf.ApiCore.Controllers
         [HttpPost("SetLog")]
         public async Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId)
         {
-            return await _Drive.SetLog(Descripcion, MovimientoId, ArchivoId, UsuarioId, AreaId);
+            return await _archivoService.SetLog(Descripcion, MovimientoId, ArchivoId, UsuarioId, AreaId);
         }
 
         [HttpPost("BlobService")]
@@ -131,20 +133,31 @@ namespace Syscaf.ApiCore.Controllers
         public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo, string container)
         {
 
-            // guardamos el log de descarga de archivo
+            // traemos la informacionn del archivo a descargar
+            Dapper.DynamicParameters d = new Dapper.DynamicParameters();
+            d.Add("Src", nombrearchivo);
+            var archivo = await _admService.getDynamicValueCore("NEPQueryHelper", "GetArchivoPorSrc", d);
 
+            if (archivo.Count > 0)
+            {
+                var archivoInd = archivo[0]; 
+                var serviceClient = new BlobServiceClient(BlobConnexion);
+                var containerClient = serviceClient.GetBlobContainerClient(container);
+                var blobClient = containerClient.GetBlobClient(nombrearchivo);
+                MemoryStream stream = new MemoryStream();
+                await blobClient.DownloadToAsync(stream);
+                stream.Position = 0;
 
-       
-            var serviceClient = new BlobServiceClient(BlobConnexion);
-            var containerClient = serviceClient.GetBlobContainerClient(container);
-            var blobClient = containerClient.GetBlobClient(nombrearchivo);
-            MemoryStream stream = new MemoryStream();
-            await blobClient.DownloadToAsync(stream);
-            stream.Position = 0;
-            return stream;
-        }
+                // guardamos el log
+                await _archivoService.SetLog(archivoInd.Nombre, 3, archivoInd.ArchivoId, this.UserId, archivoInd.AreaId);
 
-        [HttpGet("getDirectorio")]
+                return stream;
+
+            }
+             return null;
+            }
+
+            [HttpGet("getDirectorio")]
         public  List<dynamic> getDirectorio(string container, string? filter)
         {
 
@@ -154,7 +167,7 @@ namespace Syscaf.ApiCore.Controllers
             var blobs =  containerClient.GetBlobs().Where(w => (filter == null ||  w.Name.Contains(filter ?? "",StringComparison.CurrentCultureIgnoreCase)) ).ToList();
             int i = 0;
            
-            return _Drive.ListadoCarpeta(blobs.Select(s => new ArchivosSeparados() 
+            return _archivoService.ListadoCarpeta(blobs.Select(s => new ArchivosSeparados() 
             { 
                 ArchivoId = 0,
                 Orden = blobs.IndexOf(s), 

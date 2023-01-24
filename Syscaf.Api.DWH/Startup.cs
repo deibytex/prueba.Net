@@ -71,7 +71,11 @@ namespace Syscaf.Api.DWH
             services.Configure<PegVariablesConn>(
                Configuration.GetSection("PegVariablesConn"));
 
-           
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = int.MaxValue;
+            });
+
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();

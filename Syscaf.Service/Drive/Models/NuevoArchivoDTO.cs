@@ -15,6 +15,7 @@ namespace Syscaf.Service.Drive.Models
         public string DescripcionLog { get; set; }
         public string Tipo { get; set; }
         public string Src { get; set; }
+        public string Extension { get; set; }
         public int MovimientoId { get; set; }
         public int Peso { get; set; }
         public int Orden { get; set; }
