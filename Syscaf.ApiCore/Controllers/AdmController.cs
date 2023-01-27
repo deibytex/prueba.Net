@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Syscaf.ApiCore.Controllers;
 using Syscaf.ApiCore.DTOs;
 using Syscaf.ApiCore.Utilidades;
 using Syscaf.Common.Models.PORTAL;
@@ -18,12 +19,11 @@ namespace Syscaf.ApiTx.Controllers
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class AdmController : ControllerBase
+    public class AdmController : BaseController
     {
         private readonly IGruposSeguridadService _GruposSeguridad;
         private readonly IAdmService _admService;
-        
-
+   
         public AdmController(IGruposSeguridadService _GruposSeguridad, IAdmService _admService)
         {
             this._GruposSeguridad = _GruposSeguridad;
@@ -246,7 +246,14 @@ namespace Syscaf.ApiTx.Controllers
         {
             return await _execProcedureByTipoConsulta(parametros, Clase, NombreConsulta);
         }
-
+        [HttpPost("auth/GetConsultasDinamicasConAutorizacionUser")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<List<dynamic>> GetConsultasDinamicasConAutorizacionUser([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] PaginacionDTO? paginacionDTO)
+        {
+            parametros.Add("UsuarioId", this.UserId);
+            return await _getConsultasDinamicas(parametros, Clase, NombreConsulta, paginacionDTO);
+        }
+       
         private async Task<List<dynamic>> _getConsultasDinamicas(Dictionary<string, string> parametros,  string Clase,  string NombreConsulta,  PaginacionDTO? paginacionDTO) {
             var dynamic = new Dapper.DynamicParameters();
             foreach (var kvp in parametros)
