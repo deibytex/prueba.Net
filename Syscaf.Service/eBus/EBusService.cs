@@ -42,7 +42,7 @@ namespace Syscaf.Service.eBus
             , INotificacionService _notificacionService, ITransmisionService _transmisionService, IPortalService _portalService
             , ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService)
         {
-            this._ieBusClass = _IeBusClass;
+            //this._ieBusClass = _IeBusClass;
             this._TransmisionService = _TransmisionService;
             this._logService = _logService;
             this._notificacionService = _notificacionService;
@@ -466,16 +466,48 @@ namespace Syscaf.Service.eBus
             throw new NotImplementedException();
         }
 
-        public ResultObject SetColumnasDatatable(ConfiguracionDatatableVM Modelo)
+        public async Task<ResultObject> SetColumnasDatatable(ConfiguracionDatatableVM Modelo)
         {
-            throw new NotImplementedException();
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Clave", Modelo.Clave);
+                parametros.Add("Columna", Modelo.Columna);
+                parametros.Add("ConfiguracionDatatableId", Modelo.ConfiguracionDatatableId);
+                parametros.Add("UsuarioIds", Modelo.UsuarioIds);
+                parametros.Add("IdTabla", Modelo.IdTabla);
+                parametros.Add("OpcionId", Modelo.OpcionId);
+                parametros.Add("FechaSistema", Modelo.FechaSistema);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetColumnasDatatable" }, commandType: CommandType.Text);
+                return await Task.FromResult(_connCore.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+            }
+            catch (Exception ex)
+            {
+                ex.ToString();
+            }
+            return result;
         }
 
-        public List<int> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
+        public async  Task<List<int>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
         {
-            throw new NotImplementedException();
+            List<int> result = new List<int>();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("OpcionId", OpcionId);
+                parametros.Add("UsuarioIds", UsuarioIds);
+                parametros.Add("IdTabla", IdTabla);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "GetColumnasDatatabe" }, commandType: CommandType.Text);
+                return await Task.FromResult(_connCore.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+            }
+            catch(Exception ex)
+            {
+                ex.ToString();
+            }
+            return result;
         }
-
+        
         public ResultObject GetOpcionesOganizacion(int OrganizacionId)
         {
             throw new NotImplementedException();
@@ -581,8 +613,8 @@ namespace Syscaf.Service.eBus
         void SetReporte(int ClienteIds, string Reporte, string ReporteIds);
         Task<ResultObject> GetDataEventosSomos(int ClienteIds, DateTime? fecha, DateTime? fecha2);
         #endregion
-        ResultObject SetColumnasDatatable(ConfiguracionDatatableVM Modelo);
-        List<int> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
+        Task<ResultObject> SetColumnasDatatable(ConfiguracionDatatableVM Modelo);
+        Task<List<int>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
         ResultObject GetOpcionesOganizacion(int OrganizacionId);
         List<ItemClass> GetListReportePowerBI(int OpcionId, int UsuarioIds);
         List<LocationsVM> GetLocations(int ClienteIds, bool? IsParqueo);
