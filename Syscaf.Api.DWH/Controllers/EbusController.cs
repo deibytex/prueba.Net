@@ -37,7 +37,7 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="IdTabla"></param>
         /// <returns></returns>
         [HttpPost("GetColumnasDatatable")]
-        public async Task<List<int>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
+        public async Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
         {
             return await _ebusService.GetColumnasDatatable(OpcionId, UsuarioIds, IdTabla);
         }

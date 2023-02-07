@@ -26,33 +26,20 @@ namespace Syscaf.Service.eBus
 {
     public class EBusService : IEBusService
     {
-        private readonly IeBusClass _ieBusClass;
-        private readonly ITransmisionService _TransmisionService;
-        private readonly ILogService _logService;
-        private readonly INotificacionService _notificacionService;
-        private readonly ITransmisionService _transmisionService;
-        private readonly IPortalService _portalService;
+      
         private readonly ISyscafConn _conprod;
         private readonly SyscafCoreConn _connCore;
-
         private readonly IClientService _clienteService;
-
-        private DateTime FechaServidor { get { return Constants.GetFechaServidor(); } }
-        public EBusService(IeBusClass _IeBusClass, ITransmisionService _TransmisionService, ILogService _logService
-            , INotificacionService _notificacionService, ITransmisionService _transmisionService, IPortalService _portalService
-            , ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService)
+        private readonly ILogService _logService;
+        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, /*IeBusClass ieBusClass,*/ ILogService logService)
         {
-            //this._ieBusClass = _IeBusClass;
-            this._TransmisionService = _TransmisionService;
-            this._logService = _logService;
-            this._notificacionService = _notificacionService;
-            this._transmisionService = _transmisionService;
-            this._portalService = _portalService;
             this._conprod = _conprod;
             this._connCore = _connCore;
             this._clienteService = _clienteService;
+          
+            this._logService = logService;
         }
-
+       
         public async Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId)
         {
             try
@@ -100,61 +87,61 @@ namespace Syscaf.Service.eBus
             }
             return result;
         }
-        public async Task<ResultObject> SetEventosActivos(string Period, int Clienteids)
-        {
-            ResultObject resultado = new ResultObject();
+        //public async Task<ResultObject> SetEventosActivos(string Period, int Clienteids)
+        //{
+        //    ResultObject resultado = new ResultObject();
 
-            try
-            {
+        //    try
+        //    {
 
-                DataTable dt = EbusDT.GetDTEventActiveViaje();
-                DataTable dtRec = EbusDT.GetDTEventActiveRecarga();
-                var cliente = (await _clienteService.GetAsync(1, clienteIds: Clienteids)).First();
+        //        DataTable dt = EbusDT.GetDTEventActiveViaje();
+        //        DataTable dtRec = EbusDT.GetDTEventActiveRecarga();
+        //        var cliente = (await _clienteService.GetAsync(1, clienteIds: Clienteids)).First();
 
-                var eventosactivos = await _ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
-
-
-
-                if (eventosactivos.EventActiveRecarga != null)
-                    eventosactivos.EventActiveRecarga.ForEach(f =>
-                    {
-                        dtRec.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.Consecutivo, f.Carga, f.AssetId, f.DriverId, f.Soc,
-                            f.Corriente, f.Voltaje, f.Potencia, f.Energia, f.ETA, f.Odometer, f.Latitud, f.Longitud, Constants.GetFechaServidor());
-                    });
-
-                if (eventosactivos.EventActiveViaje != null)
-                    eventosactivos.EventActiveViaje.ForEach(f =>
-                    {
-                        dt.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.AssetId, f.DriverId, f.Altitud, f.EnergiaRegenerada, f.EnergiaDescargada, f.Soc, f.Energia, f.PorRegeneracion
-                            , f.Distancia, f.Localizacion, f.Latitud, f.Longitud, f.Autonomia, f.VelocidadPromedio, Constants.GetFechaServidor());
-                    });
+        //        var eventosactivos = await _ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
 
 
-                var parametros = new Dapper.DynamicParameters();
-                parametros.Add("Day", Period, DbType.String);
-                parametros.Add("Clienteids", Clienteids, DbType.Int32);
-                parametros.Add($"EventosActivos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
 
-                // guardamos los eventos de viajes 
-                int result = await _conprod.ExecuteAsync("EBUS.AddEventActiveByDayAndClient", parametros);
-                // guardamos los eventos de rec argas 
-                parametros = new Dapper.DynamicParameters();
-                parametros.Add("Day", Period, DbType.String);
-                parametros.Add("Clienteids", Clienteids, DbType.Int32);
-                parametros.Add($"EventosActivos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
+        //        if (eventosactivos.EventActiveRecarga != null)
+        //            eventosactivos.EventActiveRecarga.ForEach(f =>
+        //            {
+        //                dtRec.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.Consecutivo, f.Carga, f.AssetId, f.DriverId, f.Soc,
+        //                    f.Corriente, f.Voltaje, f.Potencia, f.Energia, f.ETA, f.Odometer, f.Latitud, f.Longitud, Constants.GetFechaServidor());
+        //            });
 
-                result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient @Day ,@Clienteids,  @EventosActivos ", parametros);
-                resultado.success(null);
+        //        if (eventosactivos.EventActiveViaje != null)
+        //            eventosactivos.EventActiveViaje.ForEach(f =>
+        //            {
+        //                dt.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.AssetId, f.DriverId, f.Altitud, f.EnergiaRegenerada, f.EnergiaDescargada, f.Soc, f.Energia, f.PorRegeneracion
+        //                    , f.Distancia, f.Localizacion, f.Latitud, f.Longitud, f.Autonomia, f.VelocidadPromedio, Constants.GetFechaServidor());
+        //            });
 
-            }
-            catch (Exception ex)
-            {
-                resultado.error(ex.ToString());
-                _logService.SetLog("Ebusc - SetEventosActivos", "", ex.ToString());
-            }
 
-            return resultado;
-        }
+        //        var parametros = new Dapper.DynamicParameters();
+        //        parametros.Add("Day", Period, DbType.String);
+        //        parametros.Add("Clienteids", Clienteids, DbType.Int32);
+        //        parametros.Add($"EventosActivos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
+
+        //        // guardamos los eventos de viajes 
+        //        int result = await _conprod.ExecuteAsync("EBUS.AddEventActiveByDayAndClient", parametros);
+        //        // guardamos los eventos de rec argas 
+        //        parametros = new Dapper.DynamicParameters();
+        //        parametros.Add("Day", Period, DbType.String);
+        //        parametros.Add("Clienteids", Clienteids, DbType.Int32);
+        //        parametros.Add($"EventosActivos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
+
+        //        result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient @Day ,@Clienteids,  @EventosActivos ", parametros);
+        //        resultado.success(null);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        resultado.error(ex.ToString());
+        //        _logService.SetLog("Ebusc - SetEventosActivos", "", ex.ToString());
+        //    }
+
+        //    return resultado;
+        //}
 
         public List<T> getEventosActivosViaje<T>(int clienteids, string period, string command)
         {
@@ -323,40 +310,40 @@ namespace Syscaf.Service.eBus
                                              s.Userid,
                                              Usuario = usuarios.Where(w => w.usuarioIdS == s.UsuarioIdS || w.Id == s.Userid).FirstOrDefault().Nombres
                                          }).ToList();
-                
 
-                        if (Modelo.Buscar != null)
-                        {
-                            resultado = (from c in resultado
-                                         where (Modelo.Buscar == null)
-                                                       || c.Usuario.ToLower().Contains(Modelo.Buscar.ToLower())
-                                                       || Convert.ToString(c.ClienteUsuarioId).ToLower() == Modelo.Buscar.ToLower()
-                                         select c).ToList();
-                        }
 
-                        int fila = (resultado.Count - Modelo.start);
+                if (Modelo.Buscar != null)
+                {
+                    resultado = (from c in resultado
+                                 where (Modelo.Buscar == null)
+                                               || c.Usuario.ToLower().Contains(Modelo.Buscar.ToLower())
+                                               || Convert.ToString(c.ClienteUsuarioId).ToLower() == Modelo.Buscar.ToLower()
+                                 select c).ToList();
+                }
 
-                        var FilasMostradas = resultado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+                int fila = (resultado.Count - Modelo.start);
 
-                        var resul = (from s in FilasMostradas
-                                     select new
-                                     {
-                                         s.Usuario,
-                                         s.UsuarioIdS,
-                                         s.ClienteUsuarioId,
-                                         s.clienteIdS,
-                                         s.EsActivo,
-                                         s.FechaSistema
-                                     });
-                        Modelo.data = resul.ToList();
-                        Modelo.recordsTotal = resultado.Count;
-                        Modelo.recordsFiltered = resultado.Count;
-                 
+                var FilasMostradas = resultado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+
+                var resul = (from s in FilasMostradas
+                             select new
+                             {
+                                 s.Usuario,
+                                 s.UsuarioIdS,
+                                 s.ClienteUsuarioId,
+                                 s.clienteIdS,
+                                 s.EsActivo,
+                                 s.FechaSistema
+                             });
+                Modelo.data = resul.ToList();
+                Modelo.recordsTotal = resultado.Count;
+                Modelo.recordsFiltered = resultado.Count;
+
                 return Modelo;
             }
             catch (Exception ex)
             {
-               
+
                 _logService.SetLog("Ebusc - GetListadoParametros", "", ex.ToString());
                 throw;
             }
@@ -366,32 +353,32 @@ namespace Syscaf.Service.eBus
         {
 
             try
-            {               
-                      
-                        string[] listadoClientes = Clientes.Split(',');
+            {
+
+                string[] listadoClientes = Clientes.Split(',');
 
                 var clientes = await _clienteService.GetAsync(1);
 
                 var clientefiltrado = clientes.Where(w => listadoClientes.Any(a => a == w.clienteId.ToString())).ToList();
 
-                       
 
-                        if (Modelo.Buscar != null)
-                        {
-                        clientefiltrado = (from c in clientefiltrado
-                                           where (Modelo.Buscar == null)
-                                                       || c.clienteNombre.ToLower().Contains(Modelo.Buscar.ToLower())
-                                           select c).ToList();
-                        }
 
-                        int fila = (clientefiltrado.Count - Modelo.start);
+                if (Modelo.Buscar != null)
+                {
+                    clientefiltrado = (from c in clientefiltrado
+                                       where (Modelo.Buscar == null)
+                                                   || c.clienteNombre.ToLower().Contains(Modelo.Buscar.ToLower())
+                                       select c).ToList();
+                }
 
-                        var FilasMostradas = clientefiltrado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);                    
+                int fila = (clientefiltrado.Count - Modelo.start);
 
-                        Modelo.data = clientefiltrado.ToList();
-                        Modelo.recordsTotal = clientefiltrado.Count;
-                        Modelo.recordsFiltered = clientefiltrado.Count;
-                   
+                var FilasMostradas = clientefiltrado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+
+                Modelo.data = clientefiltrado.ToList();
+                Modelo.recordsTotal = clientefiltrado.Count;
+                Modelo.recordsFiltered = clientefiltrado.Count;
+
                 return Modelo;
             }
             catch (Exception ex)
@@ -480,7 +467,7 @@ namespace Syscaf.Service.eBus
                 parametros.Add("OpcionId", Modelo.OpcionId);
                 parametros.Add("FechaSistema", Modelo.FechaSistema);
                 dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetColumnasDatatable" }, commandType: CommandType.Text);
-                return await Task.FromResult(_connCore.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                return await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
             }
             catch (Exception ex)
             {
@@ -489,17 +476,17 @@ namespace Syscaf.Service.eBus
             return result;
         }
 
-        public async  Task<List<int>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
+        public async  Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
         {
-            List<int> result = new List<int>();
+            List<Object> result = new List<Object>();
             try
             {
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("OpcionId", OpcionId);
                 parametros.Add("UsuarioIds", UsuarioIds);
                 parametros.Add("IdTabla", IdTabla);
-                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "GetColumnasDatatabe" }, commandType: CommandType.Text);
-                return await Task.FromResult(_connCore.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "GetColumnasDatatable" }, commandType: CommandType.Text);
+                return await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
             }
             catch(Exception ex)
             {
@@ -507,7 +494,7 @@ namespace Syscaf.Service.eBus
             }
             return result;
         }
-        
+
         public ResultObject GetOpcionesOganizacion(int OrganizacionId)
         {
             throw new NotImplementedException();
@@ -586,7 +573,7 @@ namespace Syscaf.Service.eBus
 
     public interface IEBusService
     {
-        Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
+       // Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
         List<T> getEventosActivosViaje<T>(int clienteids, string period, string command);
         Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId);
         Task<List<ParqueoInteligenteVM>> GetUltimaPosicionVehiculos(int ClienteIds, string Periodo);
@@ -614,7 +601,7 @@ namespace Syscaf.Service.eBus
         Task<ResultObject> GetDataEventosSomos(int ClienteIds, DateTime? fecha, DateTime? fecha2);
         #endregion
         Task<ResultObject> SetColumnasDatatable(ConfiguracionDatatableVM Modelo);
-        Task<List<int>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
+        Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
         ResultObject GetOpcionesOganizacion(int OrganizacionId);
         List<ItemClass> GetListReportePowerBI(int OpcionId, int UsuarioIds);
         List<LocationsVM> GetLocations(int ClienteIds, bool? IsParqueo);
