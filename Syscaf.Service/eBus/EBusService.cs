@@ -31,12 +31,13 @@ namespace Syscaf.Service.eBus
         private readonly SyscafCoreConn _connCore;
         private readonly IClientService _clienteService;
         private readonly ILogService _logService;
-        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, /*IeBusClass ieBusClass,*/ ILogService logService)
+        private readonly IeBusClass ieBusClass;
+        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, IeBusClass ieBusClass, ILogService logService)
         {
             this._conprod = _conprod;
             this._connCore = _connCore;
             this._clienteService = _clienteService;
-          
+            this.ieBusClass = ieBusClass;
             this._logService = logService;
         }
        
@@ -87,61 +88,61 @@ namespace Syscaf.Service.eBus
             }
             return result;
         }
-        //public async Task<ResultObject> SetEventosActivos(string Period, int Clienteids)
-        //{
-        //    ResultObject resultado = new ResultObject();
+        public async Task<ResultObject> SetEventosActivos(string Period, int Clienteids)
+        {
+            ResultObject resultado = new ResultObject();
 
-        //    try
-        //    {
+            try
+            {
 
-        //        DataTable dt = EbusDT.GetDTEventActiveViaje();
-        //        DataTable dtRec = EbusDT.GetDTEventActiveRecarga();
-        //        var cliente = (await _clienteService.GetAsync(1, clienteIds: Clienteids)).First();
+                DataTable dt = EbusDT.GetDTEventActiveViaje();
+                DataTable dtRec = EbusDT.GetDTEventActiveRecarga();
+                var cliente = (await _clienteService.GetAsync(1, clienteIds: Clienteids)).First();
 
-        //        var eventosactivos = await _ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
-
-
-
-        //        if (eventosactivos.EventActiveRecarga != null)
-        //            eventosactivos.EventActiveRecarga.ForEach(f =>
-        //            {
-        //                dtRec.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.Consecutivo, f.Carga, f.AssetId, f.DriverId, f.Soc,
-        //                    f.Corriente, f.Voltaje, f.Potencia, f.Energia, f.ETA, f.Odometer, f.Latitud, f.Longitud, Constants.GetFechaServidor());
-        //            });
-
-        //        if (eventosactivos.EventActiveViaje != null)
-        //            eventosactivos.EventActiveViaje.ForEach(f =>
-        //            {
-        //                dt.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.AssetId, f.DriverId, f.Altitud, f.EnergiaRegenerada, f.EnergiaDescargada, f.Soc, f.Energia, f.PorRegeneracion
-        //                    , f.Distancia, f.Localizacion, f.Latitud, f.Longitud, f.Autonomia, f.VelocidadPromedio, Constants.GetFechaServidor());
-        //            });
+                var eventosactivos = await ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
 
 
-        //        var parametros = new Dapper.DynamicParameters();
-        //        parametros.Add("Day", Period, DbType.String);
-        //        parametros.Add("Clienteids", Clienteids, DbType.Int32);
-        //        parametros.Add($"EventosActivos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
 
-        //        // guardamos los eventos de viajes 
-        //        int result = await _conprod.ExecuteAsync("EBUS.AddEventActiveByDayAndClient", parametros);
-        //        // guardamos los eventos de rec argas 
-        //        parametros = new Dapper.DynamicParameters();
-        //        parametros.Add("Day", Period, DbType.String);
-        //        parametros.Add("Clienteids", Clienteids, DbType.Int32);
-        //        parametros.Add($"EventosActivos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
+                if (eventosactivos.EventActiveRecarga != null)
+                    eventosactivos.EventActiveRecarga.ForEach(f =>
+                    {
+                        dtRec.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.Consecutivo, f.Carga, f.AssetId, f.DriverId, f.Soc,
+                            f.Corriente, f.Voltaje, f.Potencia, f.Energia, f.ETA, f.Odometer, f.Latitud, f.Longitud, Constants.GetFechaServidor());
+                    });
 
-        //        result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient @Day ,@Clienteids,  @EventosActivos ", parametros);
-        //        resultado.success(null);
+                if (eventosactivos.EventActiveViaje != null)
+                    eventosactivos.EventActiveViaje.ForEach(f =>
+                    {
+                        dt.Rows.Add(f.EventId, f.Fecha, f.EventTypeId, f.AssetId, f.DriverId, f.Altitud, f.EnergiaRegenerada, f.EnergiaDescargada, f.Soc, f.Energia, f.PorRegeneracion
+                            , f.Distancia, f.Localizacion, f.Latitud, f.Longitud, f.Autonomia, f.VelocidadPromedio, Constants.GetFechaServidor());
+                    });
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        resultado.error(ex.ToString());
-        //        _logService.SetLog("Ebusc - SetEventosActivos", "", ex.ToString());
-        //    }
 
-        //    return resultado;
-        //}
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Day", Period, DbType.String);
+                parametros.Add("Clienteids", Clienteids, DbType.Int32);
+                parametros.Add($"EventosActivos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
+
+                // guardamos los eventos de viajes 
+                int result = await _conprod.ExecuteAsync("EBUS.AddEventActiveByDayAndClient", parametros);
+                // guardamos los eventos de rec argas 
+                parametros = new Dapper.DynamicParameters();
+                parametros.Add("Day", Period, DbType.String);
+                parametros.Add("Clienteids", Clienteids, DbType.Int32);
+                parametros.Add($"EventosActivos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
+
+                result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient @Day ,@Clienteids,  @EventosActivos ", parametros);
+                resultado.success(null);
+
+            }
+            catch (Exception ex)
+            {
+                resultado.error(ex.ToString());
+                _logService.SetLog("Ebusc - SetEventosActivos", "", ex.ToString());
+            }
+
+            return resultado;
+        }
 
         public List<T> getEventosActivosViaje<T>(int clienteids, string period, string command)
         {
@@ -573,7 +574,7 @@ namespace Syscaf.Service.eBus
 
     public interface IEBusService
     {
-       // Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
+       Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
         List<T> getEventosActivosViaje<T>(int clienteids, string period, string command);
         Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId);
         Task<List<ParqueoInteligenteVM>> GetUltimaPosicionVehiculos(int ClienteIds, string Periodo);
