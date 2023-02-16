@@ -67,11 +67,36 @@ namespace Syscaf.Service.Portal
             }
 
         }
+
+        public async Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams)
+        {
+            try
+            {
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+
+                if (consulta != null)
+                {
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_conDWH.GetAll<dynamic>(consulta.Consulta, lstparams, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                }
+
+
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
     }
 
     public interface IAdmService
     {
         Task<List<dynamic>> getDynamicValueCore(string Clase, string NombreConsulta, DynamicParameters lstparams);
         Task<int> setDynamicValueCore(string Clase, string NombreConsulta, DynamicParameters lstparams);
+        Task<List<dynamic>> getDynamicValueDWH(string Clase, string NombreConsulta, DynamicParameters lstparams);
     }
 }

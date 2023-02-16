@@ -46,9 +46,7 @@ namespace Syscaf.Service.eBus
             try
             {
                 string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetParametrizacionPorTipo" }, commandType: CommandType.Text);
-
-                return await _conprod.GetAllAsync<ParametrizacionVM>(consulta, new { TipoParametroId = (int)ebusEnum.TipoParametro.Tiempos_Actualizacion }, commandType: CommandType.Text);
-
+                return await _conprod.GetAllAsync<ParametrizacionVM>(consulta, new { TipoParametroId = (int)ebusEnum.TipoParametro.Tiempos_Actualizacion, ClienteIds  = ClienteId }, commandType: CommandType.Text);
             }
             catch (Exception ex)
             {
@@ -468,11 +466,12 @@ namespace Syscaf.Service.eBus
                 parametros.Add("OpcionId", Modelo.OpcionId);
                 parametros.Add("FechaSistema", Modelo.FechaSistema);
                 dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetColumnasDatatable" }, commandType: CommandType.Text);
+                result.Exitoso = true;
                 return await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
             }
             catch (Exception ex)
             {
-                ex.ToString();
+                result.Mensaje =  ex.ToString();
             }
             return result;
         }
@@ -495,7 +494,24 @@ namespace Syscaf.Service.eBus
             }
             return result;
         }
-
+        public async Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId)
+        {
+            ResultObject resul = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("usuarioids", UsuarioID.ToString());
+                parametros.Add("userid", UserId);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "getListClienteAsignados" }, commandType: CommandType.Text);
+                resul.Data = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                resul.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+                resul.Mensaje = ex.ToString();
+            }
+            return resul;
+        }
         public ResultObject GetOpcionesOganizacion(int OrganizacionId)
         {
             throw new NotImplementedException();
@@ -612,5 +628,6 @@ namespace Syscaf.Service.eBus
         ResultObject setAsignarUsuarios(ClientesUsuarioVM Modelo);
         Task<ResultObject> SetEventosHistoricalActivos(string Period, int Clienteids, DateTime fi, DateTime ff);
         List<RecargasHistoricalVM> GetReporteRecargasHistorical(int ClienteIds, string Reporte);
+        Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId);
     }
 }

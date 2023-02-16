@@ -1,6 +1,6 @@
 
 using AutoMapper;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +14,7 @@ using Syscaf.Common.Services;
 using Syscaf.Common.Utils;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
+using Syscaf.Data.Models.Auth;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
 using Syscaf.Service.Portal;
@@ -92,6 +93,35 @@ namespace Syscaf.Api.DWH
 
             // configura todas las interfaces a utilizar en la aplicacion
             InterfacesAplication.ConfigureServices(services);
+            services.AddIdentity<ApplicationUser, IdentityRole>(
+                options =>
+                {
+                    options.Password.RequiredLength = 6;
+                }
+        )
+                 .AddEntityFrameworkStores<SyscafBDCore>()
+                .AddDefaultTokenProviders();
+
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+                options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                       Encoding.UTF8.GetBytes(Configuration["llavejwt"])
+                       ),
+                        ClockSkew = TimeSpan.Zero
+                    };
+
+                }
+                );
+
+
             //Para documentacion de swagger
             services.AddSwaggerGen(c =>
             {

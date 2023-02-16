@@ -68,6 +68,7 @@ namespace Syscaf.Common.eBus.Models
         public decimal? EnergiaRegenerada { get; set; }
         public decimal? EnergiaDescargada { get; set; }
         public decimal? Soc { get; set; }
+        public decimal? SocInicial { get; set; }
         public decimal? Energia { get; set; }
         public decimal? PorRegeneracion { get; set; }
         public decimal Kms { get; set; }
