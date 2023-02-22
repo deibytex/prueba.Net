@@ -11,7 +11,7 @@ namespace Syscaf.Data.Helpers.Auth.DTOs
        
             public string Token { get; set; }
             public DateTime Expiracion { get; set; }
-         public string RefreshToken { get; set; }
+            public string RefreshToken { get; set; }
      
     }
 }
