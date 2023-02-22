@@ -253,7 +253,14 @@ namespace Syscaf.ApiTx.Controllers
             parametros.Add("UsuarioId", this.UserId);
             return await _getConsultasDinamicas(parametros, Clase, NombreConsulta, paginacionDTO);
         }
-       
+        [HttpPost("auth/GetConsultasDinamicasConAutorizacionUserDWH")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<List<dynamic>> GetConsultasDinamicasConAutorizacionUserDWH([FromBody] Dictionary<string, string> parametros, [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] PaginacionDTO? paginacionDTO)
+        {
+            parametros.Add("usuarioids", null);
+            parametros.Add("userid", this.UserId);
+            return await _getConsultasDinamicasDWH(parametros, Clase, NombreConsulta, paginacionDTO);
+        }
         private async Task<List<dynamic>> _getConsultasDinamicas(Dictionary<string, string> parametros,  string Clase,  string NombreConsulta,  PaginacionDTO? paginacionDTO) {
             var dynamic = new Dapper.DynamicParameters();
             foreach (var kvp in parametros)
@@ -261,6 +268,21 @@ namespace Syscaf.ApiTx.Controllers
                 dynamic.Add(kvp.Key, kvp.Value);
             }
             var resultado = await _admService.getDynamicValueCore(Clase, NombreConsulta, dynamic);
+            if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
+            {
+                await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());
+                resultado = resultado.AsQueryable().Paginar(paginacionDTO).ToList();
+            }
+            return resultado;
+        }
+        private async Task<List<dynamic>> _getConsultasDinamicasDWH(Dictionary<string, string> parametros, string Clase, string NombreConsulta, PaginacionDTO? paginacionDTO)
+        {
+            var dynamic = new Dapper.DynamicParameters();
+            foreach (var kvp in parametros)
+            {
+                dynamic.Add(kvp.Key, kvp.Value);
+            }
+            var resultado = await _admService.getDynamicValueDWH(Clase, NombreConsulta, dynamic);
             if (paginacionDTO != null && paginacionDTO.RecordsPorPagina != -1)
             {
                 await HttpContext.InsertarParametrosPaginacionEnCabecera(resultado.AsQueryable());

@@ -26,41 +26,27 @@ namespace Syscaf.Service.eBus
 {
     public class EBusService : IEBusService
     {
-        private readonly IeBusClass _ieBusClass;
-        private readonly ITransmisionService _TransmisionService;
-        private readonly ILogService _logService;
-        private readonly INotificacionService _notificacionService;
-        private readonly ITransmisionService _transmisionService;
-        private readonly IPortalService _portalService;
+      
         private readonly ISyscafConn _conprod;
         private readonly SyscafCoreConn _connCore;
-
         private readonly IClientService _clienteService;
-
-        private DateTime FechaServidor { get { return Constants.GetFechaServidor(); } }
-        public EBusService(IeBusClass _IeBusClass, ITransmisionService _TransmisionService, ILogService _logService
-            , INotificacionService _notificacionService, ITransmisionService _transmisionService, IPortalService _portalService
-            , ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService)
+        private readonly ILogService _logService;
+        private readonly IeBusClass ieBusClass;
+        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, IeBusClass ieBusClass, ILogService logService)
         {
-            this._ieBusClass = _IeBusClass;
-            this._TransmisionService = _TransmisionService;
-            this._logService = _logService;
-            this._notificacionService = _notificacionService;
-            this._transmisionService = _transmisionService;
-            this._portalService = _portalService;
             this._conprod = _conprod;
             this._connCore = _connCore;
             this._clienteService = _clienteService;
+            this.ieBusClass = ieBusClass;
+            this._logService = logService;
         }
-
+       
         public async Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId)
         {
             try
             {
                 string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetParametrizacionPorTipo" }, commandType: CommandType.Text);
-
-                return await _conprod.GetAllAsync<ParametrizacionVM>(consulta, new { TipoParametroId = (int)ebusEnum.TipoParametro.Tiempos_Actualizacion }, commandType: CommandType.Text);
-
+                return await _conprod.GetAllAsync<ParametrizacionVM>(consulta, new { TipoParametroId = (int)ebusEnum.TipoParametro.Tiempos_Actualizacion, ClienteIds  = ClienteId }, commandType: CommandType.Text);
             }
             catch (Exception ex)
             {
@@ -111,7 +97,7 @@ namespace Syscaf.Service.eBus
                 DataTable dtRec = EbusDT.GetDTEventActiveRecarga();
                 var cliente = (await _clienteService.GetAsync(1, clienteIds: Clienteids)).First();
 
-                var eventosactivos = await _ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
+                var eventosactivos = await ieBusClass.GetEventosActivosByClienteId(Clienteids, cliente.clienteId);
 
 
 
@@ -323,40 +309,40 @@ namespace Syscaf.Service.eBus
                                              s.Userid,
                                              Usuario = usuarios.Where(w => w.usuarioIdS == s.UsuarioIdS || w.Id == s.Userid).FirstOrDefault().Nombres
                                          }).ToList();
-                
 
-                        if (Modelo.Buscar != null)
-                        {
-                            resultado = (from c in resultado
-                                         where (Modelo.Buscar == null)
-                                                       || c.Usuario.ToLower().Contains(Modelo.Buscar.ToLower())
-                                                       || Convert.ToString(c.ClienteUsuarioId).ToLower() == Modelo.Buscar.ToLower()
-                                         select c).ToList();
-                        }
 
-                        int fila = (resultado.Count - Modelo.start);
+                if (Modelo.Buscar != null)
+                {
+                    resultado = (from c in resultado
+                                 where (Modelo.Buscar == null)
+                                               || c.Usuario.ToLower().Contains(Modelo.Buscar.ToLower())
+                                               || Convert.ToString(c.ClienteUsuarioId).ToLower() == Modelo.Buscar.ToLower()
+                                 select c).ToList();
+                }
 
-                        var FilasMostradas = resultado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+                int fila = (resultado.Count - Modelo.start);
 
-                        var resul = (from s in FilasMostradas
-                                     select new
-                                     {
-                                         s.Usuario,
-                                         s.UsuarioIdS,
-                                         s.ClienteUsuarioId,
-                                         s.clienteIdS,
-                                         s.EsActivo,
-                                         s.FechaSistema
-                                     });
-                        Modelo.data = resul.ToList();
-                        Modelo.recordsTotal = resultado.Count;
-                        Modelo.recordsFiltered = resultado.Count;
-                 
+                var FilasMostradas = resultado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+
+                var resul = (from s in FilasMostradas
+                             select new
+                             {
+                                 s.Usuario,
+                                 s.UsuarioIdS,
+                                 s.ClienteUsuarioId,
+                                 s.clienteIdS,
+                                 s.EsActivo,
+                                 s.FechaSistema
+                             });
+                Modelo.data = resul.ToList();
+                Modelo.recordsTotal = resultado.Count;
+                Modelo.recordsFiltered = resultado.Count;
+
                 return Modelo;
             }
             catch (Exception ex)
             {
-               
+
                 _logService.SetLog("Ebusc - GetListadoParametros", "", ex.ToString());
                 throw;
             }
@@ -366,32 +352,32 @@ namespace Syscaf.Service.eBus
         {
 
             try
-            {               
-                      
-                        string[] listadoClientes = Clientes.Split(',');
+            {
+
+                string[] listadoClientes = Clientes.Split(',');
 
                 var clientes = await _clienteService.GetAsync(1);
 
                 var clientefiltrado = clientes.Where(w => listadoClientes.Any(a => a == w.clienteId.ToString())).ToList();
 
-                       
 
-                        if (Modelo.Buscar != null)
-                        {
-                        clientefiltrado = (from c in clientefiltrado
-                                           where (Modelo.Buscar == null)
-                                                       || c.clienteNombre.ToLower().Contains(Modelo.Buscar.ToLower())
-                                           select c).ToList();
-                        }
 
-                        int fila = (clientefiltrado.Count - Modelo.start);
+                if (Modelo.Buscar != null)
+                {
+                    clientefiltrado = (from c in clientefiltrado
+                                       where (Modelo.Buscar == null)
+                                                   || c.clienteNombre.ToLower().Contains(Modelo.Buscar.ToLower())
+                                       select c).ToList();
+                }
 
-                        var FilasMostradas = clientefiltrado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);                    
+                int fila = (clientefiltrado.Count - Modelo.start);
 
-                        Modelo.data = clientefiltrado.ToList();
-                        Modelo.recordsTotal = clientefiltrado.Count;
-                        Modelo.recordsFiltered = clientefiltrado.Count;
-                   
+                var FilasMostradas = clientefiltrado.GetRange(Modelo.start, fila < Modelo.length ? fila : Modelo.length);
+
+                Modelo.data = clientefiltrado.ToList();
+                Modelo.recordsTotal = clientefiltrado.Count;
+                Modelo.recordsFiltered = clientefiltrado.Count;
+
                 return Modelo;
             }
             catch (Exception ex)
@@ -466,16 +452,66 @@ namespace Syscaf.Service.eBus
             throw new NotImplementedException();
         }
 
-        public ResultObject SetColumnasDatatable(ConfiguracionDatatableVM Modelo)
+        public async Task<ResultObject> SetColumnasDatatable(ConfiguracionDatatableVM Modelo)
         {
-            throw new NotImplementedException();
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("Clave", Modelo.Clave);
+                parametros.Add("Columna", Modelo.Columna);
+                parametros.Add("ConfiguracionDatatableId", Modelo.ConfiguracionDatatableId);
+                parametros.Add("UsuarioIds", Modelo.UsuarioIds);
+                parametros.Add("IdTabla", Modelo.IdTabla);
+                parametros.Add("OpcionId", Modelo.OpcionId);
+                parametros.Add("FechaSistema", Modelo.FechaSistema);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetColumnasDatatable" }, commandType: CommandType.Text);
+                result.Exitoso = true;
+                return await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+            }
+            catch (Exception ex)
+            {
+                result.Mensaje =  ex.ToString();
+            }
+            return result;
         }
 
-        public List<int> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
+        public async  Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla)
         {
-            throw new NotImplementedException();
+            List<Object> result = new List<Object>();
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("OpcionId", OpcionId);
+                parametros.Add("UsuarioIds", UsuarioIds);
+                parametros.Add("IdTabla", IdTabla);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "GetColumnasDatatable" }, commandType: CommandType.Text);
+                return await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+            }
+            catch(Exception ex)
+            {
+                ex.ToString();
+            }
+            return result;
         }
-
+        public async Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId)
+        {
+            ResultObject resul = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("usuarioids", UsuarioID.ToString());
+                parametros.Add("userid", UserId);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "getListClienteAsignados" }, commandType: CommandType.Text);
+                resul.Data = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                resul.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+                resul.Mensaje = ex.ToString();
+            }
+            return resul;
+        }
         public ResultObject GetOpcionesOganizacion(int OrganizacionId)
         {
             throw new NotImplementedException();
@@ -554,7 +590,7 @@ namespace Syscaf.Service.eBus
 
     public interface IEBusService
     {
-        Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
+       Task<ResultObject> SetEventosActivos(string Period, int Clienteids);
         List<T> getEventosActivosViaje<T>(int clienteids, string period, string command);
         Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId);
         Task<List<ParqueoInteligenteVM>> GetUltimaPosicionVehiculos(int ClienteIds, string Periodo);
@@ -581,8 +617,8 @@ namespace Syscaf.Service.eBus
         void SetReporte(int ClienteIds, string Reporte, string ReporteIds);
         Task<ResultObject> GetDataEventosSomos(int ClienteIds, DateTime? fecha, DateTime? fecha2);
         #endregion
-        ResultObject SetColumnasDatatable(ConfiguracionDatatableVM Modelo);
-        List<int> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
+        Task<ResultObject> SetColumnasDatatable(ConfiguracionDatatableVM Modelo);
+        Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
         ResultObject GetOpcionesOganizacion(int OrganizacionId);
         List<ItemClass> GetListReportePowerBI(int OpcionId, int UsuarioIds);
         List<LocationsVM> GetLocations(int ClienteIds, bool? IsParqueo);
@@ -592,5 +628,6 @@ namespace Syscaf.Service.eBus
         ResultObject setAsignarUsuarios(ClientesUsuarioVM Modelo);
         Task<ResultObject> SetEventosHistoricalActivos(string Period, int Clienteids, DateTime fi, DateTime ff);
         List<RecargasHistoricalVM> GetReporteRecargasHistorical(int ClienteIds, string Reporte);
+        Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId);
     }
 }
