@@ -8,7 +8,7 @@ namespace Syscaf.Common.Models
 {
     public class ParqueoInteligenteVM
     {
-        public Int64 LocationId { get; set; }
+        public string LocationId { get; set; }
         public double Latitud { get; set; }
         public double Longitud { get; set; }
         public DateTime AVL { get; set; }

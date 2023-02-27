@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Api.DWH.Controllers;
 using Syscaf.Common.eBus.Models;
+using Syscaf.Common.Models;
 using Syscaf.Data;
 using Syscaf.Service.eBus;
 using Syscaf.Service.Helpers;
@@ -73,16 +74,43 @@ namespace Syscaf.ApiCore.Controllers
             return   _ebusService.getEventosActivosViaje<ListaEventosViajeVM>(clienteids, period, command);
         }
         /// <summary>
+        /// Trae los eventos de las recargas
+        /// </summary>
+        /// <param name="clienteids"></param>
+        /// <param name="period"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [HttpPost("GetEventosActivosRecargaByClienteIds")]
+        public List<ListaEventosRecargaVM> GetEventosActivosRecargaByClienteIds(int clienteids, string period, string command)
+        {
+            return _ebusService.getEventosActivosViaje<ListaEventosRecargaVM>(clienteids, period, command);
+        }
+        
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="ClienteId"></param>
         /// <returns></returns>
-   
+
         [HttpPost("GetTiempoActualizacion")]
         public async Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId)
         {
             return await _ebusService.ConsultarTiempoActualizacion(ClienteId);
 
         }
+        /// <summary>
+        /// Consulta la posicion de los vehiculos
+        /// </summary>
+        /// <param name="ClienteIds"></param>
+        /// <param name="Periodo"></param>
+        /// <returns></returns>
+        [HttpPost("GetUltimaPosicionVehiculos")]
+        public async Task<List<ParqueoInteligenteVM>> GetUltimaPosicionVehiculos(int ClienteIds, string Periodo)
+        {
+            return await _ebusService.GetUltimaPosicionVehiculos(ClienteIds, Periodo);
+
+        }
+
+        
     }
 }
