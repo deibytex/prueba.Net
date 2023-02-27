@@ -61,7 +61,7 @@ namespace Syscaf.Common.eBus.Models
         public DateTime Fecha { get; set; }
         public string FechaString { get; set; }
         public long EventTypeId { get; set; }
-        public long AssetId { get; set; }
+        public string AssetId { get; set; }
         public string Driver { get; set; }
         public string Placa { get; set; }
         public decimal? Altitud { get; set; }
@@ -107,5 +107,6 @@ namespace Syscaf.Common.eBus.Models
         public string Placa { get; set; }
         public int IsDisconected { get; set; }
         public decimal? PotenciaProm { get; set; }
+        public string Ubicacion { get; set; }
     }
 }
