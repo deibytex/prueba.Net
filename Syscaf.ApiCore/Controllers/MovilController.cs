@@ -8,6 +8,11 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Identity;
 using Syscaf.Service.Drive;
+using Syscaf.Data.Helpers.Auth;
+using Syscaf.Data.Models.Auth;
+using Syscaf.Data.Helpers.Movil;
+using System.Data;
+using Syscaf.Common.Helpers;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -17,11 +22,13 @@ namespace Syscaf.ApiCore.Controllers
     {
 
         private readonly IMovilService _Movil;
-      
-        public MovilController(IMovilService _Movil)
+        
+
+        public MovilController(IMovilService _Movil, IPortalMService _portalService, IAdmService _admService)
         {
             this._Movil = _Movil;
-           
+
+
         }
         /// <summary>
         /// Setea las respuestas del usuario desde el movil
@@ -59,7 +66,9 @@ namespace Syscaf.ApiCore.Controllers
             return await _Movil.GetPreguntasPreoperacional(UsuarioId, NombrePlantilla, TipoPregunta, ClienteId);
         }
 
-       
+
+
+
 
 
     }
