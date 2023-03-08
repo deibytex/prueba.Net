@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Syscaf.Common\Syscaf.Common.csproj" />
     <ProjectReference Include="..\Syscaf.Data.Helpers\Syscaf.Data.Helpers.csproj" />
+    <ProjectReference Include="..\Syscaf.Report\Syscaf.Report.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +20,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
     <PackageReference Include="MiX.Integrate.Shared" Version="2022.1.24.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Sotramac\" />
   </ItemGroup>
 
 </Project>
