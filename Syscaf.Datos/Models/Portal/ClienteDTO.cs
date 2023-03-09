@@ -21,6 +21,7 @@ namespace Syscaf.Data.Models.Portal
         public bool Position { get; set; }
         public bool? ActiveEvent { get; set; }
         public string NombreNormalizado { get; set; }
+        public string ClienteIdString { get; set; }
 
     }
 
