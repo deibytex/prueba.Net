@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Syscaf.Common\Syscaf.Common.csproj" />
     <ProjectReference Include="..\Syscaf.PBIConn\Syscaf.PBIConn.csproj" />
+    <ProjectReference Include="..\Syscaf.Report\Syscaf.Report.csproj" />
     <ProjectReference Include="..\Syscaf.Service\Syscaf.Service.csproj" />
   </ItemGroup>
 
