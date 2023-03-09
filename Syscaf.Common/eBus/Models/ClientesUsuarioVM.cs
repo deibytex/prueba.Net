@@ -14,7 +14,7 @@ namespace Syscaf.Common.eBus.Models
     }
     public class ClienteActiveEventVM
     {
-        public int clienteIdS { get; set; }
+        public string ClienteId { get; set; }
         public bool ActiveEvent { get; set; }
     }
 }

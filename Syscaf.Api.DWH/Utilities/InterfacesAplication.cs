@@ -38,6 +38,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IeBusClass, eBusClass>();
             services.AddTransient<IFatigueService, FatigueService>();
             services.AddTransient<IEBusService, EBusService>();
+            services.AddTransient<IAdmService, AdmService>();
+            
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }
