@@ -20,9 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Syscaf.PBIConn", "Syscaf.PBIConn\Syscaf.PBIConn.csproj", "{C77B4CBD-3C03-419F-8F1C-58942958EFEB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Syscaf.Report", "Syscaf.Report\Syscaf.Report.csproj", "{1E067154-0833-4F22-B767-3A86776CC862}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Syscaf.PBIConn", "Syscaf.PBIConn\Syscaf.PBIConn.csproj", "{C77B4CBD-3C03-419F-8F1C-58942958EFEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,10 +56,6 @@ Global
 		{C77B4CBD-3C03-419F-8F1C-58942958EFEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C77B4CBD-3C03-419F-8F1C-58942958EFEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C77B4CBD-3C03-419F-8F1C-58942958EFEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E067154-0833-4F22-B767-3A86776CC862}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E067154-0833-4F22-B767-3A86776CC862}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E067154-0833-4F22-B767-3A86776CC862}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E067154-0833-4F22-B767-3A86776CC862}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

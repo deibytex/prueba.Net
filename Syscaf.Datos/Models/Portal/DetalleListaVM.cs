@@ -15,10 +15,5 @@ namespace Syscaf.Data.Models.Portal
         public string Sigla { get; set; }
         public DateTime FechaSistema { get; set; }
         public bool EsActivo { get; set; }
-
-        public static implicit operator DetalleListaVM(List<dynamic> v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
