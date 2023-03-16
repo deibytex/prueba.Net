@@ -28,6 +28,7 @@ namespace Syscaf.Data.Helpers.Portal
                                    WHERE  @tipoIdS IS NULL OR e.tipoIdS = @tipoIdS";
 
         public static string _getByEstado = @"SELECT A.AssetId,
+                                               AssetIdString = Cast(A.AssetId as Varchar(255)),
                                                A.AssetTypeId,
                                                A.Description,
                                                A.RegistrationNumber,
@@ -39,6 +40,7 @@ namespace Syscaf.Data.Helpers.Portal
             ";
 
         public static string _getByEstadoAndClienteIds = @"SELECT A.AssetId,
+                                               AssetIdString = Cast(A.AssetId as Varchar(255)),
                                                A.AssetTypeId,
                                                A.Description,
                                                A.RegistrationNumber,
