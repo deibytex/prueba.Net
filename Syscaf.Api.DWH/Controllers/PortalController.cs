@@ -242,6 +242,26 @@ namespace Syscaf.Api.DWH.Controllers
             return await _portalService.getDynamicValueProcedureDWH(Clase, NombreConsulta, dynamic);
         }
 
+        [HttpPost("GetConsultasDinamicasTablaDinamica")]
+        // permite relaizar consultas dinamicas colocando una tabla dinamica
+        // la consulta en la tabla consultas por tipos debe contener la variable {tabla} la cual sera
+        // reemplazada, eje, tabla = _ebus_914  select 1 from tabla{tabla}=> resultado select 1 from tabla_ebus_914
+        public async Task<List<dynamic>> GetConsultasDinamicasTablasDinamica([FromBody] Dictionary<string, string>? parametros,
+            [FromQuery] string Clase, [FromQuery] string NombreConsulta, [FromQuery] string tabla)
+        {
+
+
+            var dynamic = new Dapper.DynamicParameters();
+            if (parametros != null)
+                foreach (var kvp in parametros)
+                {
+                    dynamic.Add(kvp.Key, kvp.Value);
+                }
+
+
+            return await _portalService.getDynamicValueProcedureDWHTabla(Clase, NombreConsulta, dynamic, tabla);
+        }
+
 
 
     }

@@ -24,7 +24,7 @@ namespace Syscaf.ApiCore.Controllers
         private readonly IMovilService _Movil;
         
 
-        public MovilController(IMovilService _Movil, IPortalMService _portalService, IAdmService _admService)
+        public MovilController(IMovilService _Movil)
         {
             this._Movil = _Movil;
 
