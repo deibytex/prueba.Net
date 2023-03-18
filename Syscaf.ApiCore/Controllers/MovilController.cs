@@ -13,6 +13,7 @@ using Syscaf.Data.Models.Auth;
 using Syscaf.Data.Helpers.Movil;
 using System.Data;
 using Syscaf.Common.Helpers;
+using Dapper;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -22,13 +23,14 @@ namespace Syscaf.ApiCore.Controllers
     {
 
         private readonly IMovilService _Movil;
-        
+        private readonly IAdmService _admin;
 
-        public MovilController(IMovilService _Movil)
+
+
+        public MovilController(IMovilService _Movil, IAdmService _admin)
         {
             this._Movil = _Movil;
-
-
+            this._admin = _admin;
         }
         /// <summary>
         /// Setea las respuestas del usuario desde el movil
@@ -67,12 +69,40 @@ namespace Syscaf.ApiCore.Controllers
         }
 
 
+        [HttpGet("GetActualizaciones")]
+        public async Task<List<dynamic>> GetActualizaciones(string UsuarioId, string Device)
+        {
+            DynamicParameters d = new DynamicParameters();
+            d.Add("UsuarioId", UsuarioId);
+            d.Add("Device", Device);
+            d.Add("Fecha", Constants.GetFechaServidor());
+            return await _admin.getDynamicValueCore("MOVQueryHelper", "GetActualizaciones", d);
+        }
+
+
+        [HttpGet("SetActualizaciones")]
+        public async Task<int> SetActualizaciones(string UsuarioId, string Device)
+        {
+            DynamicParameters d = new DynamicParameters();
+            d.Add("UsuarioId", UsuarioId);
+            d.Add("Device", Device);
+            d.Add("Fecha",  Constants.GetFechaServidor());
+            return await _admin.setDynamicValueCore("MOVQueryHelper", "SetActualizacion", d);
+        }
+
+        [HttpGet("getAssetsPorUsuarios")]
+        public async Task<List<dynamic>> getAssetsPorUsuarios(string UsuarioId)
+        {
+            DynamicParameters d = new DynamicParameters();
+            d.Add("UsuarioId", UsuarioId);
+            return await _admin.getDynamicValueCore("MOVQueryHelper", "getAssetsByUsuario", d);
+        }
 
 
 
 
     }
 
- 
-    }
+
+}
 
