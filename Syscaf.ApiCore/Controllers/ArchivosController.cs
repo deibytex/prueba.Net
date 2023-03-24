@@ -103,7 +103,7 @@ namespace Syscaf.ApiCore.Controllers
         [HttpPost("BlobService")]
         public async Task<string> BlobService([FromForm] FileDataDTO datos)
         {
-
+            string mensaje = "Ok";
            var serviceClient = new BlobServiceClient(BlobConnexion);
             var containerClient = serviceClient.GetBlobContainerClient(datos.contenedor);
 
@@ -123,11 +123,13 @@ namespace Syscaf.ApiCore.Controllers
                     ms.Position = 0;
                     if (!blobClient.Exists())
                         await blobClient.UploadAsync(ms);
+                    else
+                        mensaje = "Ya existe un archivo con el mismo nombre en la misma carpeta. Intententelo de nuevo.";
                 }
 
 
             }
-            return blobClient.Uri.AbsolutePath;
+            return mensaje;
         }
         [HttpGet("DownloadFileFromBlob")]
         public async Task<MemoryStream> DownloadFileFromBlob(string nombrearchivo, string container)
