@@ -32,13 +32,15 @@ namespace Syscaf.Service.eBus
         private readonly IClientService _clienteService;
         private readonly ILogService _logService;
         private readonly IeBusClass ieBusClass;
-        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, IeBusClass ieBusClass, ILogService logService)
+        private readonly IAdmService _admService;
+        public EBusService(ISyscafConn _conprod, SyscafCoreConn _connCore, IClientService _clienteService, IeBusClass ieBusClass, ILogService logService, IAdmService _admService)
         {
             this._conprod = _conprod;
             this._connCore = _connCore;
             this._clienteService = _clienteService;
             this.ieBusClass = ieBusClass;
             this._logService = logService;
+            this._admService = _admService;
         }
        
         public async Task<List<ParametrizacionVM>> ConsultarTiempoActualizacion(int ClienteId)
@@ -392,24 +394,74 @@ namespace Syscaf.Service.eBus
             throw new NotImplementedException();
         }
 
-        public ResultObject GetListadoClientesUsuario(string CLientes)
+        public async Task<ResultObject> GetListadoClientesUsuario(string CLientes)
         {
-            throw new NotImplementedException();
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteIds", CLientes);
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetClientesUsuariosEsomos" }, commandType: CommandType.Text);
+                result.Data = (await _conprod.GetAllAsync<dynamic>(consulta, parametros, commandType: CommandType.Text)).ToList();
+                result.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+
+                result.Mensaje = ex.Message.ToString(); ;
+            }
+            return result;
         }
 
         public ResultObject SetAsignacionUsuarioClientes(ClientesUsuarioVM Modelo)
         {
             throw new NotImplementedException();
         }
-
-        public ResultObject SetActiveEventCliente(ClienteActiveEventVM Modelo)
+        //SE CONVIRTIO EN DINAMICA
+        public async Task<ResultObject> SetActiveEventCliente(ClienteActiveEventVM Modelo)
         {
-            throw new NotImplementedException();
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ActiveEvent", Modelo.ActiveEvent);
+                parametros.Add("ClienteId", Modelo.ClienteId);
+
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetActiveEventClientes" }, commandType: CommandType.Text);
+                result.Data =  await Task.FromResult(_conprod.GetAll<dynamic>(consulta, parametros, commandType:  CommandType.Text));
+                result.Mensaje = "Operación Éxitosa";
+                result.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+                result.Mensaje = ex.Message.ToString();
+            }
+            return result;
         }
 
-        public DataTableVM GetListaClientesActiveEvent(DataTableVM Modelo)
+        public async Task<ResultObject> GetListaClientesActiveEvent(string? ClienteId)
         {
-            throw new NotImplementedException();
+            ResultObject result = new ResultObject() { Exitoso = false };
+            try
+            {
+                string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "GetClientesEbusActiveEvent" }, commandType: CommandType.Text);
+                var resultado = (await _conprod.GetAllAsync<dynamic>(consulta, null, commandType: CommandType.Text))
+                                .Select(s => new
+                                {
+                                    s.clienteNombre,
+                                    s.fechaIngreso,
+                                    s.ClienteIdS,
+                                    clienteId = Convert.ToString(s.clienteId)
+                                }).ToList();
+
+                result.Data = resultado;
+                result.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+                result.Mensaje =  ex.Message.ToString();
+            }
+            return result;
         }
 
         public ResultObject GetClientesUsuariosSelect(int UsuarioIdS, int? ClienteIds)
@@ -522,9 +574,23 @@ namespace Syscaf.Service.eBus
             throw new NotImplementedException();
         }
 
-        public List<LocationsVM> GetLocations(int ClienteIds, bool? IsParqueo)
+        public async Task<ResultObject> GetLocations(string ClienteId, bool? IsParqueo)
         {
-            throw new NotImplementedException();
+            ResultObject resul = new ResultObject() { Exitoso = false };
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("ClienteId", ClienteId);
+                parametros.Add("IsParqueo", IsParqueo);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetLocacionesClientes" }, commandType: CommandType.Text);
+                resul.Data = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType:  CommandType.Text));
+                resul.Exitoso = true;
+            }
+            catch (Exception ex)
+            {
+                resul.Mensaje = ex.Message.ToString();
+            }
+            return resul;
         }
 
         public ResultObject SetLocations(int ClienteIds, bool IsParqueo, List<long> Locations)
@@ -539,6 +605,7 @@ namespace Syscaf.Service.eBus
 
         public ResultObject SetTiempoActualizacion(int ClienteId, string Tiempo, int UsuarioIds)
         {
+
             throw new NotImplementedException();
         }
 
@@ -586,6 +653,25 @@ namespace Syscaf.Service.eBus
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ResultObject> GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId)
+        {
+            ResultObject result = new ResultObject { Exitoso = false};
+            try
+            {
+                var parametros = new Dapper.DynamicParameters();
+                parametros.Add("UsuarioIdS", UsuarioIdS);
+                parametros.Add("OrganzacionId", OrganzacionId);
+                parametros.Add("ClienteId", ClienteId);
+                dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetUsuariosEsomos" }, commandType: CommandType.Text);
+                result.Data = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: CommandType.Text));
+            }
+            catch (Exception ex)
+            {
+                result.Mensaje =  ex.Message.ToString();
+            }
+            return result;
+        }
     }
 
     public interface IEBusService
@@ -601,10 +687,11 @@ namespace Syscaf.Service.eBus
         DataTableVM GetListaUsuariosClientes(DataTableVM Modelo);
         DataTableVM GetListaClientes(DataTableVM Modelo, string Clientes);
         List<UsuariosClientesEsomosVM> GetListadoClienteUsuario(int? UsuarioIdS, int? ClienteUsuarioId);
-        ResultObject GetListadoClientesUsuario(string CLientes);
+        Task<ResultObject> GetListadoClientesUsuario(string CLientes);
         ResultObject SetAsignacionUsuarioClientes(ClientesUsuarioVM Modelo);
-        ResultObject SetActiveEventCliente(ClienteActiveEventVM Modelo);
-        DataTableVM GetListaClientesActiveEvent(DataTableVM Modelo);
+        //SE CONVIRTIO EN DINAMICA
+        Task<ResultObject> SetActiveEventCliente(ClienteActiveEventVM Modelo);
+        Task<ResultObject> GetListaClientesActiveEvent(string? ClienteId);
         ResultObject GetClientesUsuariosSelect(int UsuarioIdS, int? ClienteIds);
         Task<ResultObject> RellenoPowerBI(int clienteids, DateTime period, DateTime? FechaInicial, DateTime? FechaFinal);
 
@@ -621,7 +708,7 @@ namespace Syscaf.Service.eBus
         Task<List<Object>> GetColumnasDatatable(int OpcionId, int UsuarioIds, string IdTabla);
         ResultObject GetOpcionesOganizacion(int OrganizacionId);
         List<ItemClass> GetListReportePowerBI(int OpcionId, int UsuarioIds);
-        List<LocationsVM> GetLocations(int ClienteIds, bool? IsParqueo);
+        Task<ResultObject> GetLocations(string ClienteId, bool? IsParqueo);
         ResultObject SetLocations(int ClienteIds, bool IsParqueo, List<long> Locations);
         ResultObject setEstadoUsuariosClientes(int ClienteUsuarioId, bool Estado, int ClienteIds);
         ResultObject SetTiempoActualizacion(int ClienteId, string Tiempo, int UsuarioIds);
@@ -629,5 +716,6 @@ namespace Syscaf.Service.eBus
         Task<ResultObject> SetEventosHistoricalActivos(string Period, int Clienteids, DateTime fi, DateTime ff);
         List<RecargasHistoricalVM> GetReporteRecargasHistorical(int ClienteIds, string Reporte);
         Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId);
+        Task<ResultObject> GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId);
     }
 }

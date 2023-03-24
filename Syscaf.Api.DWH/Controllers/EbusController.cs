@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Syscaf.Api.DWH.Controllers;
 using Syscaf.Common.eBus.Models;
 using Syscaf.Common.Models;
+using Syscaf.Common.Models.ADM;
 using Syscaf.Data;
 using Syscaf.Service.eBus;
 using Syscaf.Service.Helpers;
@@ -110,7 +111,67 @@ namespace Syscaf.ApiCore.Controllers
             return await _ebusService.GetUltimaPosicionVehiculos(ClienteIds, Periodo);
 
         }
+        /// <summary>
+        /// Trae los clientes esomos el cliente se podria filtrar por el cliente
+        /// </summary>
+        /// <param name="ClienteId"></param>
+        /// <returns></returns>
+        [HttpPost("GetListaClientesActiveEvent")]
+        public async Task<ResultObject> GetListaClientesActiveEvent(string? ClienteId)
+        {
+            return await _ebusService.GetListaClientesActiveEvent(ClienteId);
 
+        }
+        /// <summary>
+        /// Se obtiene el listado de clientes con active event
+        /// </summary>
+        /// <param name="ClienteId"></param>
+        /// <param name="ActiveEvent"></param>
+        /// <returns></returns>
+        [HttpPost("SetClientesActiveEvent")]
+        public async Task<ResultObject> GetListaClientesActiveEvent(string ClienteId, bool ActiveEvent)
+        {
+
+            var  Modelo = new ClienteActiveEventVM() { };
+            Modelo.ActiveEvent = ActiveEvent;
+            Modelo.ClienteId = ClienteId;
+            return await _ebusService.SetActiveEventCliente(Modelo);
+
+        }
+        /// <summary>
+        /// Se obtienen las locaciones por clientes
+        /// </summary>
+        /// <param name="ClienteId"></param>
+        /// <param name="IsParqueo"></param>
+        /// <returns></returns>
+        [HttpPost("GetLocations")]
+        public async Task<ResultObject> GetLocations(string ClienteId, bool IsParqueo)
+        {
+            return await _ebusService.GetLocations(ClienteId, IsParqueo);
+        }
+        /// <summary>
+        /// Se obtienen los usuarios del cliente
+        /// </summary>
+        /// <param name="UsuarioIdS"></param>
+        /// <param name="OrganzacionId"></param>
+        /// <param name="ClienteId"></param>
+        /// <returns></returns>
+        [HttpPost("GetUsuariosEsomos")]
+        public async Task<ResultObject>  GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId)
+        {
+            return await _ebusService.GetUsuariosEsomos(UsuarioIdS, OrganzacionId, ClienteId);
+        }
+        /// <summary>
+        /// Se consultan los usuarios del cliente
+        /// </summary>
+        /// <param name="Clientes"></param>
+        /// <returns></returns>
+        [HttpPost("GetListadoClientesUsuario")]
+        public async Task<ResultObject> GetListadoClientesUsuario(string Clientes)
+        {
+            return await _ebusService.GetListadoClientesUsuario(Clientes);
+        }
         
+
     }
 }

@@ -48,6 +48,7 @@ namespace Syscaf.Common.Models.MOVIL
         public string ValorRedLine { get; set; }
         public string Agrupador { get; set; }
         public bool? EsObligatorio { get; set; }
+        public string ClienteId { get; set; }
     }
     public class EncabezadoPreoperacionalVM
     {

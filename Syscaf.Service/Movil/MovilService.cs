@@ -28,8 +28,7 @@ namespace Syscaf.Service.Portal
         private readonly SyscafBDCore _ctx;
         public MovilService(SyscafCoreConn conn, ILogService _log, IMapper _mapper, IListaDetalleService _listas, INotificacionService _notificacionService, SyscafBDCore _ctx)
         {
-            _conn = conn;
-            
+            _conn = conn;            
             this._log = _log;
             this._mapper = _mapper;
             this._listas = _listas;

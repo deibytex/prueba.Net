@@ -20,6 +20,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IMixIntegrateService, MixIntegrateService>();
             services.AddTransient<IPortalService, PortalService>();
             services.AddTransient<IPortalMService,  PortalMService> ();
+
+            services.AddTransient<IAdmService, AdmService>();
             services.AddTransient<IAssetsService, AssetsService>();
             services.AddTransient<ITransmisionService, TransmisionService>();
             services.AddTransient<ISiteService, SiteService>();
@@ -36,6 +38,8 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IeBusClass, eBusClass>();
             services.AddTransient<IFatigueService, FatigueService>();
             services.AddTransient<IEBusService, EBusService>();
+            services.AddTransient<IAdmService, AdmService>();
+            
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }

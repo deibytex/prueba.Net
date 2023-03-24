@@ -791,6 +791,28 @@ namespace Syscaf.Service.Portal
             }
 
         }
+        public async Task<List<dynamic>> getDynamicValueProcedureDWHTabla(string Clase, string NombreConsulta, DynamicParameters lstparams, string tabla)
+        {
+            try
+            {
+                var consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase, NombreConsulta }, commandType: CommandType.Text);
+
+                if (consulta != null)
+                {
+                    string consultaActualizada = (consulta.Consulta as string).Replace("{tabla}", tabla);
+                    //Se ejecuta el procedimiento almacenado.
+                    return await Task.FromResult(_connDWH.GetAll<dynamic>(consultaActualizada, lstparams, (consulta.Tipo == 2) ? CommandType.Text : CommandType.StoredProcedure));
+                }
+                else
+                    throw new Exception("La consulta no se ha encontrado");
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
 
         public async Task<int> Portal_RellenoInfomesViajesEventos(int clienteIdS, DateTime FechaInicial, DateTime FechaFinal)
         {
@@ -831,5 +853,6 @@ namespace Syscaf.Service.Portal
         Task<int> Portal_GetTokenPowerBI();
         Task<int> Portal_SetTokenPowerBI(string Token, DateTime ExpirationDate, bool isExists);
         Task<ResultObject> SetDatosPortalByClienteAsync(string data, string Periodo, string tabla, int Clienteids);
+        Task<List<dynamic>> getDynamicValueProcedureDWHTabla(string Clase, string NombreConsulta, DynamicParameters lstparams, string tabla);
     }
 }

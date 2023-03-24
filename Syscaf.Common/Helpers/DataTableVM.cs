@@ -17,7 +17,7 @@ namespace Syscaf.Service.Helpers
         public object data { get; set; }
 
         public int iDisplayStart { get; set; }
-        public string Buscar { get; set; }
+        public string? Buscar { get; set; }
 
 
         //#region "Result"

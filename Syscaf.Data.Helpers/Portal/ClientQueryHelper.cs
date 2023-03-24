@@ -22,7 +22,8 @@ namespace Syscaf.Data.Helpers.Portal
            TC.Metrics,
            TC.Event,
            TC.Position,
-           TC.ActiveEvent
+           TC.ActiveEvent,
+           ClienteIdString = CAST(TC.ClienteId AS VARCHAR(100))
         FROM  PORTAL.Cliente AS TC
         WHERE ( @clienteIdS is null OR   TC.clienteIdS = @clienteIdS  ) and ( @Estado = -1 OR   TC.estadoClienteId = @Estado  ) 
         and ( @clienteId is null  OR   TC.clienteId = @clienteId )

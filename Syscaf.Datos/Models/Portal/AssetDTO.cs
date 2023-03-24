@@ -10,6 +10,7 @@ namespace Syscaf.Data.Models.Portal
     public class AssetShortDTO
     {
         public long AssetId { get; set; }
+        public string AssetIdString { get; set; }
         public int AssetTypeId { get; set; }
         public string Description { get; set; } = string.Empty;
         public string RegistrationNumber { get; set; } = string.Empty;
