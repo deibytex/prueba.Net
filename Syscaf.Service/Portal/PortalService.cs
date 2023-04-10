@@ -7,6 +7,7 @@ using MiX.Integrate.Shared.Entities.Positions;
 using MiX.Integrate.Shared.Entities.Scoring;
 using MiX.Integrate.Shared.Entities.Trips;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.PORTAL;
@@ -25,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -77,7 +79,7 @@ namespace Syscaf.Service.Portal
         {
             ResultObject result = new();
             // traemos el listado de clientes
-            var ListadoClientes = await _clientService.GetAsync(1);
+            var ListadoClientes = await _clientService.GetAsync(1, Clienteids);
             try
             {
 
@@ -114,23 +116,14 @@ namespace Syscaf.Service.Portal
 
                         if (item.Metrics)
                         {
-                            DateTime minDateMetricas = trips.Min(min => min.TripStart);
-                            minDateMetricas = minDateMetricas.Date;
-                            DateTime maxDateMetricas = trips.Max(max => max.TripEnd);
-                            maxDateMetricas = maxDateMetricas.Date;
 
-                            while (minDateMetricas <= maxDateMetricas)
-                            {
+                            trips.GroupBy(g => g.TripStart.Date)
+                                .Select(s => new { Inicio = s.Min(mn => mn.TripStart), Fin = s.Max(mx => mx.TripStart), Trips = s })
+                                .ToList().ForEach(
+                                async f => {
+                                    List<TripRibasMetrics> metricasMix = await _Mix.GetMetricasPorDriver
+                                    (f.Trips.Select(s => s.DriverId).Distinct().ToList(), f.Inicio.AddHours(-5), f.Fin.AddHours(5), item.clienteIdS);
 
-                                DateTime fechaconsulta = minDateMetricas;
-                                minDateMetricas = minDateMetricas.AddDays(1);
-                                DateTime fechaconsultaf = minDateMetricas;
-                                var totalTrips = trips.Where(w => w.TripStart >= fechaconsulta && w.TripStart <= fechaconsultaf);
-
-                                if (totalTrips.Count() > 0)
-                                {
-                                    //  treemos las metricas por rangos no superiores a  7 días dependiendo del los rangos de fechas
-                                    List<TripRibasMetrics> metricasMix = await _Mix.GetMetricasPorDriver(trips.Select(s => s.DriverId).Distinct().ToList(), fechaconsulta.AddHours(-5), fechaconsultaf.AddHours(-5), item.clienteIdS);
 
 
                                     metricasMix
@@ -138,11 +131,11 @@ namespace Syscaf.Service.Portal
                                         .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Metricas = s }).ToList().ForEach(async f =>
                                         {
 
-                                        // verifica que existan 
-                                        var ResultMetricas = await GetIdsNoIngresadosByClienteAsync(f.Metricas.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.metricas, item.clienteIdS);
+                                            // verifica que existan 
+                                            var ResultMetricas = await GetIdsNoIngresadosByClienteAsync(f.Metricas.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.metricas, item.clienteIdS);
 
-                                        // cruzamos el resultado con el listado general de eventos
-                                        var metricasFilter = f.Metricas.Where(w => ResultMetricas.Any(a => a == w.TripId)).ToList();
+                                            // cruzamos el resultado con el listado general de eventos
+                                            var metricasFilter = f.Metricas.Where(w => ResultMetricas.Any(a => a == w.TripId)).ToList();
 
                                             if (metricasFilter.Count > 0)
                                             {
@@ -158,8 +151,8 @@ namespace Syscaf.Service.Portal
                                         });
 
                                 }
-
-                            }
+                                );
+                             
 
 
                         }
@@ -831,6 +824,27 @@ namespace Syscaf.Service.Portal
             return await _connCore.ExecuteAsync(_query, new { Tipo = "PBI", Token , ExpirationDate });
         }
 
+        public  async Task<List<ClienteMetricas>> ValidateAllMetrics(string Periodo)
+        {
+            List<ClienteMetricas> resultado = new List<ClienteMetricas>();
+           
+                try
+                {
+                string _query = "PORTAL.ValidateAllMetrics";
+                //  traemos la información de los identificadores que no existen en la base de datos
+
+                return await _connDWH.GetAllAsync<ClienteMetricas>(_query, new { Period =Periodo });
+                // trae la información de eventos 
+               
+                    
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+             
+        }
+
     }
     public interface IPortalMService
     {
@@ -854,5 +868,6 @@ namespace Syscaf.Service.Portal
         Task<int> Portal_SetTokenPowerBI(string Token, DateTime ExpirationDate, bool isExists);
         Task<ResultObject> SetDatosPortalByClienteAsync(string data, string Periodo, string tabla, int Clienteids);
         Task<List<dynamic>> getDynamicValueProcedureDWHTabla(string Clase, string NombreConsulta, DynamicParameters lstparams, string tabla);
+         Task<List<ClienteMetricas>> ValidateAllMetrics(string Periodo);
     }
 }

@@ -10,6 +10,7 @@
     <Compile Remove="Integrate\LogNotificaciones\**" />
     <EmbeddedResource Remove="Integrate\LogNotificaciones\**" />
     <None Remove="Integrate\LogNotificaciones\**" />
+    <None Remove="Models\EXC_OPERACIONAL\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +36,7 @@
 
   <ItemGroup>
     <Folder Include="Dapper\" />
+    <Folder Include="Models\EXC_OPERACIONAL\" />
   </ItemGroup>
 
 </Project>

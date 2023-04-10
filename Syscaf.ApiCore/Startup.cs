@@ -61,7 +61,7 @@ namespace Syscaf.ApiCore
 
                 var frontend_url = Configuration.GetValue<string>("frontend_url");
                 c.AddDefaultPolicy(b => {
-                    b.WithOrigins(frontend_url).AllowAnyMethod().AllowAnyHeader().
+                    b.WithOrigins(frontend_url, $"{frontend_url}/").AllowAnyMethod().AllowAnyHeader().
                     WithExposedHeaders(new string[] { "totalregistros", "IS-TOKEN-EXPIRED" });
 
                 });

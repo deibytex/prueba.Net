@@ -11,6 +11,14 @@ namespace Syscaf.Common.Helpers
 {
     public static class Constants 
     {
+        public  static CultureInfo EsEN
+        {
+            get
+            {
+
+                return CultureInfo.CreateSpecificCulture("es-EN");
+            }
+        }
         private static  IConfiguration ConfigurationManager;
      
         private static DateTime? timeNull = null;

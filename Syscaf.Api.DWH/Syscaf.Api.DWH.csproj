@@ -14,6 +14,7 @@
     <PackageReference Include="MiX.Integrate.Shared" Version="2022.1.24.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+    <PackageReference Include="DotNetCore.NPOI" Version="1.2.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +23,11 @@
     <ProjectReference Include="..\Syscaf.Service\Syscaf.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Controllers\ExcOperacionalController.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

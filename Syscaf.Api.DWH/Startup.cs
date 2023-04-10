@@ -1,6 +1,7 @@
 
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -77,6 +78,13 @@ namespace Syscaf.Api.DWH
                 options.MaxRequestBodySize = int.MaxValue;
             });
 
+            services.Configure<FormOptions>(x =>
+            {
+                x.ValueLengthLimit = int.MaxValue;
+                x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart;
+                x.BufferBody = true;
+                x.KeyLengthLimit = int.MaxValue;
+            });
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
