@@ -56,12 +56,15 @@ namespace Syscaf.Service.Portal
                 var propertiesAssets = PropertyHelper.GetProperties(typeof(AssetDTO));
                 foreach (var cliente in clientes)
                 {
-                    var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
+                    var ListaAssets = await _Mix.getVehiculosAsync(-1560869875897372849, 856);
 
-                    var listConfiguracion = await _Mix.GetConfiguracionAsync(cliente.clienteId);
+                    var assetsDetails = await _Mix.getAditionalDetailAssetsAsync(-1560869875897372849, 856);
+
+                    var listConfiguracion = await _Mix.GetConfiguracionAsync(-1560869875897372849);
 
                     // mapeamos ambas listas para que nos de la final
-                    var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
+                    var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion,
+                                                                                        assetsDetails = assetsDetails});
                     // asignamos el cliente para diferenciarlos en la base de datos
                     var lstAssestMerge = resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s; }).ToList();
 

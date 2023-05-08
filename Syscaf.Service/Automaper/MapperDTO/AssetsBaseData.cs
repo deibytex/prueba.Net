@@ -13,6 +13,7 @@ namespace Syscaf.Service.Automaper.MapperDTO
     {
         public List<Asset> ListaAssets { get; set; }
         public List<ReporteConfiguracion> ListaConfiguracion{ get; set; }
+        public List<AdditionalDetails> assetsDetails { get; set; }
 
 
     }

@@ -20,6 +20,8 @@ namespace SyscafWebApi.Service
     {
         Task<List<Group>> getClientes();
         Task<List<Asset>> getVehiculosAsync(long clienteId, int ClienteIds);
+        Task<List<AdditionalDetails>> getAditionalDetailAssetsAsync(long clienteId, int ClienteIds);
+
         // trae la información de los conductores desde Mix
         Task<List<Driver>> getDrivers(long clienteId, int ClienteIds);
         Task<IList<Event>> GetEventosClientePorAssets(List<long> ll, List<long> eventosImportantes, DateTime FechaInicio, DateTime FechaFinal, int ClienteIds);
