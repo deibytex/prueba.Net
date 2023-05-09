@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MiX.Integrate.Shared.Entities.Assets;
 using MiX.Integrate.Shared.Entities.Drivers;
 using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Groups;
@@ -97,8 +98,41 @@ namespace Syscaf.Service.Automaper
 
             if (AssetBaseData.ListaAssets != null && AssetBaseData.ListaConfiguracion != null)
             {
-                resultado = (from xEntry in AssetBaseData.ListaAssets
-                             join yEntryd in AssetBaseData.ListaConfiguracion on xEntry.AssetId equals yEntryd.AssetId into VehiculosConfiguracion
+                var result = (from xEntry in AssetBaseData.ListaAssets
+                                join yEntryd in AssetBaseData.ListaConfiguracion on xEntry.AssetId equals yEntryd.AssetId
+                                into VehiculosConfiguracion
+                                from pco in VehiculosConfiguracion.DefaultIfEmpty()
+                                //join zEntry in AssetBaseData.assetsDetails on xEntry.AssetId equals zEntry.AssetId
+                             select new AssetDTO()
+                                 {
+                                     AssetId = xEntry.AssetId,
+                                     AssetImageUrl = xEntry.AssetImageUrl,
+                                     AssetTypeId = xEntry.AssetTypeId,
+                                     CreatedBy = xEntry.CreatedBy ?? "",
+                                     CreatedDate = Constants.GetFechaServidor(xEntry.CreatedDate.DateTime),
+                                     ConfigurationGroup = pco?.ConfigurationGroup ?? "",
+                                     Description = xEntry.Description,
+                                     DeviceType = pco?.DeviceType ?? "",
+                                     DriverCAN = pco?.DriverCAN ?? "",
+                                     DriverOBC = pco?.DriverOBC ?? "",
+                                     DriverOBCLoadDate = pco?.DriverOBCLoadDate ?? "",
+                                     FmVehicleId = xEntry.FmVehicleId,
+                                     GPRSContext = pco?.GPRSContext ?? "",
+                                     LastConfiguration = pco?.LastConfiguration ?? "",
+                                     Odometer = xEntry.Odometer,
+                                     RegistrationNumber = xEntry.RegistrationNumber,
+                                     SiteId = xEntry.SiteId,
+                                     UnitIMEI = pco?.UnitIMEI ?? "",
+                                     UnitSCID = pco?.UnitSCID ?? "",
+                                     UserState = xEntry.UserState ?? "",
+                                     LastTrip = pco?.LastTrip ?? "",
+                                     //AditionalDetails = "{" + zEntry.Items?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}" ?? ""
+                                 }
+                ).ToList();
+
+                resultado = (from xEntry in result
+                             join zEntry in AssetBaseData.assetsDetails on xEntry.AssetId equals zEntry.AssetId
+                             into VehiculosConfiguracion
                              from pco in VehiculosConfiguracion.DefaultIfEmpty()
                              select new AssetDTO()
                              {
@@ -106,26 +140,26 @@ namespace Syscaf.Service.Automaper
                                  AssetImageUrl = xEntry.AssetImageUrl,
                                  AssetTypeId = xEntry.AssetTypeId,
                                  CreatedBy = xEntry.CreatedBy ?? "",
-                                 CreatedDate = Constants.GetFechaServidor(xEntry.CreatedDate.DateTime),
-                                 ConfigurationGroup = pco?.ConfigurationGroup ?? "",
+                                 CreatedDate = xEntry.CreatedDate,
+                                 ConfigurationGroup = xEntry?.ConfigurationGroup ?? "",
                                  Description = xEntry.Description,
-                                 DeviceType = pco?.DeviceType ?? "",
-                                 DriverCAN = pco?.DriverCAN ?? "",
-                                 DriverOBC = pco?.DriverOBC ?? "",
-                                 DriverOBCLoadDate = pco?.DriverOBCLoadDate ?? "",
+                                 DeviceType = xEntry?.DeviceType ?? "",
+                                 DriverCAN = xEntry?.DriverCAN ?? "",
+                                 DriverOBC = xEntry?.DriverOBC ?? "",
+                                 DriverOBCLoadDate = xEntry?.DriverOBCLoadDate ?? "",
                                  FmVehicleId = xEntry.FmVehicleId,
-                                 GPRSContext = pco?.GPRSContext ?? "",
-                                 LastConfiguration = pco?.LastConfiguration ?? "",
+                                 GPRSContext = xEntry?.GPRSContext ?? "",
+                                 LastConfiguration = xEntry?.LastConfiguration ?? "",
                                  Odometer = xEntry.Odometer,
                                  RegistrationNumber = xEntry.RegistrationNumber,
                                  SiteId = xEntry.SiteId,
-                                 UnitIMEI = pco?.UnitIMEI ?? "",
-                                 UnitSCID = pco?.UnitSCID ?? "",
+                                 UnitIMEI = xEntry?.UnitIMEI ?? "",
+                                 UnitSCID = xEntry?.UnitSCID ?? "",
                                  UserState = xEntry.UserState ?? "",
-                                 LastTrip = pco?.LastTrip ?? ""
+                                 LastTrip = xEntry?.LastTrip ?? "",
+                                 AditionalDetails = "{" + pco.Items?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}" ?? ""
                              }
                 ).ToList();
-
             }
 
             return resultado;
