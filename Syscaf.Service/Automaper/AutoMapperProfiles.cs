@@ -98,11 +98,10 @@ namespace Syscaf.Service.Automaper
 
             if (AssetBaseData.ListaAssets != null && AssetBaseData.ListaConfiguracion != null)
             {
-                var result = (from xEntry in AssetBaseData.ListaAssets
+                resultado = (from xEntry in AssetBaseData.ListaAssets
                                 join yEntryd in AssetBaseData.ListaConfiguracion on xEntry.AssetId equals yEntryd.AssetId
                                 into VehiculosConfiguracion
                                 from pco in VehiculosConfiguracion.DefaultIfEmpty()
-                                //join zEntry in AssetBaseData.assetsDetails on xEntry.AssetId equals zEntry.AssetId
                              select new AssetDTO()
                                  {
                                      AssetId = xEntry.AssetId,
@@ -125,40 +124,8 @@ namespace Syscaf.Service.Automaper
                                      UnitIMEI = pco?.UnitIMEI ?? "",
                                      UnitSCID = pco?.UnitSCID ?? "",
                                      UserState = xEntry.UserState ?? "",
-                                     LastTrip = pco?.LastTrip ?? "",
-                                     //AditionalDetails = "{" + zEntry.Items?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}" ?? ""
+                                     LastTrip = pco?.LastTrip ?? ""
                                  }
-                ).ToList();
-
-                resultado = (from xEntry in result
-                             join zEntry in AssetBaseData.assetsDetails on xEntry.AssetId equals zEntry.AssetId
-                             into VehiculosConfiguracion
-                             from pco in VehiculosConfiguracion.DefaultIfEmpty()
-                             select new AssetDTO()
-                             {
-                                 AssetId = xEntry.AssetId,
-                                 AssetImageUrl = xEntry.AssetImageUrl,
-                                 AssetTypeId = xEntry.AssetTypeId,
-                                 CreatedBy = xEntry.CreatedBy ?? "",
-                                 CreatedDate = xEntry.CreatedDate,
-                                 ConfigurationGroup = xEntry?.ConfigurationGroup ?? "",
-                                 Description = xEntry.Description,
-                                 DeviceType = xEntry?.DeviceType ?? "",
-                                 DriverCAN = xEntry?.DriverCAN ?? "",
-                                 DriverOBC = xEntry?.DriverOBC ?? "",
-                                 DriverOBCLoadDate = xEntry?.DriverOBCLoadDate ?? "",
-                                 FmVehicleId = xEntry.FmVehicleId,
-                                 GPRSContext = xEntry?.GPRSContext ?? "",
-                                 LastConfiguration = xEntry?.LastConfiguration ?? "",
-                                 Odometer = xEntry.Odometer,
-                                 RegistrationNumber = xEntry.RegistrationNumber,
-                                 SiteId = xEntry.SiteId,
-                                 UnitIMEI = xEntry?.UnitIMEI ?? "",
-                                 UnitSCID = xEntry?.UnitSCID ?? "",
-                                 UserState = xEntry.UserState ?? "",
-                                 LastTrip = xEntry?.LastTrip ?? "",
-                                 AditionalDetails = "{" + pco.Items?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}" ?? ""
-                             }
                 ).ToList();
             }
 

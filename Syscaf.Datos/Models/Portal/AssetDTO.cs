@@ -56,7 +56,7 @@ namespace Syscaf.Data.Models.Portal
 
         public string LastTrip { get; set; } = string.Empty;
 
-        public string AditionalDetails { get; set; } = string.Empty;
+        public string AdditionalDetails { get; set; } = string.Empty;
     }
 
     public class AssetTypeDTO
