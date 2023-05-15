@@ -25,11 +25,11 @@ namespace Syscaf.Service.RAG
 
         public async Task<List<SafetyVM>> getInformacionSafetyByClient(int ClienteIds, DateTime? Fecha)
         {
-            return await _conProd.GetAllAsync<SafetyVM>("RAG.GetDataPowerBiByCliente", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
+            return await _conProd.GetAllAsync<SafetyVM>("RAG.GetDataPowerBiByCliente_New", new { ClienteIds, Fecha }, commandType: CommandType.StoredProcedure);
         }
         public async Task<int> setEsProcesadoTablaRAG(int clienteIdS, string Reporte, string ReporteIds)
         {
-            return await _conProd.ExecuteAsync("RAG.SETTablesPBI", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
+            return await _conProd.ExecuteAsync("RAG.SETTablesPBI_New", new { clienteIdS, Reporte, ReporteIds }, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<SafetyEventosVM>> getEventosSafety(int clienteIdS, string Reporte)
