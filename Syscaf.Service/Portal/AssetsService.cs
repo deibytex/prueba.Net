@@ -58,12 +58,24 @@ namespace Syscaf.Service.Portal
                 {
                     var ListaAssets = await _Mix.getVehiculosAsync(cliente.clienteId, cliente.clienteIdS);
 
+                    var assetsDetails = await _Mix.getAditionalDetailAssetsAsync(cliente.clienteId, cliente.clienteIdS);
+
                     var listConfiguracion = await _Mix.GetConfiguracionAsync(cliente.clienteId);
 
                     // mapeamos ambas listas para que nos de la final
                     var resultadolista = _mapper.Map<AssetResult>(new AssetBaseData() { ListaAssets = ListaAssets, ListaConfiguracion = listConfiguracion });
+
+                    //Asiganamos los detalles adicionales
+                    var lstAssetsDetalle = resultadolista.Resultado.Select(s =>
+                    {
+                        s.AdditionalDetails = assetsDetails.Where(w => w.AssetId == s.AssetId)
+                                             .Select(ss => "{" + ss.Items?.Select(sss => $"\"{sss.Label}\":\"{sss.Value}\"").Aggregate((i, j) => i + "," + j) + "}").FirstOrDefault() ; return s;
+                    }).ToList();
+
                     // asignamos el cliente para diferenciarlos en la base de datos
-                    var lstAssestMerge = resultadolista.Resultado.Select(s => { s.ClienteId = cliente.clienteId; return s; }).ToList();
+                    var lstAssestMerge = lstAssetsDetalle.Select(s => { s.ClienteId = cliente.clienteId; return s; }).ToList();
+
+
 
                     if (lstAssestMerge.Count > 0)
                     {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MiX.Integrate.Shared.Entities.Assets;
 using MiX.Integrate.Shared.Entities.Drivers;
 using MiX.Integrate.Shared.Entities.Events;
 using MiX.Integrate.Shared.Entities.Groups;
@@ -98,34 +99,34 @@ namespace Syscaf.Service.Automaper
             if (AssetBaseData.ListaAssets != null && AssetBaseData.ListaConfiguracion != null)
             {
                 resultado = (from xEntry in AssetBaseData.ListaAssets
-                             join yEntryd in AssetBaseData.ListaConfiguracion on xEntry.AssetId equals yEntryd.AssetId into VehiculosConfiguracion
-                             from pco in VehiculosConfiguracion.DefaultIfEmpty()
+                                join yEntryd in AssetBaseData.ListaConfiguracion on xEntry.AssetId equals yEntryd.AssetId
+                                into VehiculosConfiguracion
+                                from pco in VehiculosConfiguracion.DefaultIfEmpty()
                              select new AssetDTO()
-                             {
-                                 AssetId = xEntry.AssetId,
-                                 AssetImageUrl = xEntry.AssetImageUrl,
-                                 AssetTypeId = xEntry.AssetTypeId,
-                                 CreatedBy = xEntry.CreatedBy ?? "",
-                                 CreatedDate = Constants.GetFechaServidor(xEntry.CreatedDate.DateTime),
-                                 ConfigurationGroup = pco?.ConfigurationGroup ?? "",
-                                 Description = xEntry.Description,
-                                 DeviceType = pco?.DeviceType ?? "",
-                                 DriverCAN = pco?.DriverCAN ?? "",
-                                 DriverOBC = pco?.DriverOBC ?? "",
-                                 DriverOBCLoadDate = pco?.DriverOBCLoadDate ?? "",
-                                 FmVehicleId = xEntry.FmVehicleId,
-                                 GPRSContext = pco?.GPRSContext ?? "",
-                                 LastConfiguration = pco?.LastConfiguration ?? "",
-                                 Odometer = xEntry.Odometer,
-                                 RegistrationNumber = xEntry.RegistrationNumber,
-                                 SiteId = xEntry.SiteId,
-                                 UnitIMEI = pco?.UnitIMEI ?? "",
-                                 UnitSCID = pco?.UnitSCID ?? "",
-                                 UserState = xEntry.UserState ?? "",
-                                 LastTrip = pco?.LastTrip ?? ""
-                             }
+                                 {
+                                     AssetId = xEntry.AssetId,
+                                     AssetImageUrl = xEntry.AssetImageUrl,
+                                     AssetTypeId = xEntry.AssetTypeId,
+                                     CreatedBy = xEntry.CreatedBy ?? "",
+                                     CreatedDate = Constants.GetFechaServidor(xEntry.CreatedDate.DateTime),
+                                     ConfigurationGroup = pco?.ConfigurationGroup ?? "",
+                                     Description = xEntry.Description,
+                                     DeviceType = pco?.DeviceType ?? "",
+                                     DriverCAN = pco?.DriverCAN ?? "",
+                                     DriverOBC = pco?.DriverOBC ?? "",
+                                     DriverOBCLoadDate = pco?.DriverOBCLoadDate ?? "",
+                                     FmVehicleId = xEntry.FmVehicleId,
+                                     GPRSContext = pco?.GPRSContext ?? "",
+                                     LastConfiguration = pco?.LastConfiguration ?? "",
+                                     Odometer = xEntry.Odometer,
+                                     RegistrationNumber = xEntry.RegistrationNumber,
+                                     SiteId = xEntry.SiteId,
+                                     UnitIMEI = pco?.UnitIMEI ?? "",
+                                     UnitSCID = pco?.UnitSCID ?? "",
+                                     UserState = xEntry.UserState ?? "",
+                                     LastTrip = pco?.LastTrip ?? ""
+                                 }
                 ).ToList();
-
             }
 
             return resultado;

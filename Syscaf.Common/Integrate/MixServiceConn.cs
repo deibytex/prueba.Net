@@ -158,6 +158,21 @@ namespace Syscaf.Common.Services
             }
 
         }
+        // trae la información de los  campos adicionales vehiculos desde Mix
+        public async Task<MixServiceVM> getAditionalDetailsVehiculos(long clienteId)
+        {
+            try
+            {
+                var assetsClient = new AssetsClient(ApiBaseUrl, ClientSettings);
+                var result = await assetsClient.GetAdditionalDetailsByGroupAsync(clienteId);
+                return ReturnSuccess(result);
+            }
+            catch (Exception ex)
+            {
+                return ReturnError(ex.HResult, ex.ToString());
+            }
+
+        }
         // trae la información de las posiciones desde Mix
         public async Task<MixServiceVM> getPositions(List<long> assetsId)
         {
@@ -569,6 +584,7 @@ namespace Syscaf.Common.Services
         Task<MixServiceVM> getClientes();
         Task<MixServiceVM> getSitios(long groupId);
         Task<MixServiceVM> getVehiculos(long clienteId);
+        Task<MixServiceVM> getAditionalDetailsVehiculos(long clienteId);
         Task<MixServiceVM> getPositions(List<long> assetsId);
         Task<MixServiceVM> getPositionsByGroups(List<long> groupsIds);
         Task<MixServiceVM> getDrivers(long clienteId);

@@ -148,6 +148,13 @@ namespace SyscafWebApi.Service
 
         }
 
+        public async Task<List<AdditionalDetails>> getAditionalDetailAssetsAsync(long clienteId, int ClienteIds)
+        {
+            MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getAditionalDetailsVehiculos", new object[] { clienteId });
+            return (result.Exitoso) ? (List<AdditionalDetails>)result.Data : null;
+
+        }
+
         public async Task<List<Position>> getPositionsByGroups(List<long> groupsIds, int ClienteIds)
         {
             MixServiceVM result = await invokeMethodAsync(ClienteIds, AssemblyName, "getPositionsByGroups", new object[] { groupsIds });
