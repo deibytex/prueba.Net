@@ -69,7 +69,7 @@ namespace Syscaf.Service.Portal
                     var lstAssetsDetalle = resultadolista.Resultado.Select(s =>
                     {
                         s.AdditionalDetails = assetsDetails.Where(w => w.AssetId == s.AssetId)
-                                             .Select(ss => "{" + ss.Items?.Select(sss => $"\"{sss.Label}\":\"{sss.Value}\"").Aggregate((i, j) => i + "," + j) + "}").FirstOrDefault() ; return s;
+                        .Select(ss => "{" + ss.Items?.Select(sss => $"\"{sss.Label}\":\"{sss.Value}\"").Aggregate((i, j) => i + "," + j) + "}").FirstOrDefault() ; return s;
                     }).ToList();
 
                     // asignamos el cliente para diferenciarlos en la base de datos
