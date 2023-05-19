@@ -241,8 +241,5 @@ namespace Syscaf.Api.DWH.Controllers
 
             return await _portalService.getDynamicValueProcedureDWH(Clase, NombreConsulta, dynamic);
         }
-
-
-
     }
 }

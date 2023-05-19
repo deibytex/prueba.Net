@@ -8,6 +8,7 @@ using Syscaf.Service.Peg;
 using Syscaf.Service.Fatigue;
 using Syscaf.Service.eBus;
 using Syscaf.Common.eBus;
+using Syscaf.Service.FreshDesk;
 
 namespace Syscaf.Api.DWH.Utilities
 {
@@ -37,7 +38,7 @@ namespace Syscaf.Api.DWH.Utilities
             services.AddTransient<IFatigueService, FatigueService>();
             services.AddTransient<IEBusService, EBusService>();
             services.AddTransient<IAdmService, AdmService>();
-            
+            services.AddTransient<IFreshDeskService, FreshDeskService>();
             //services.AddTransient<IGruposSeguridadService, GruposSeguridadService>();
         }
     }

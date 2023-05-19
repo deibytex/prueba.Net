@@ -21,7 +21,7 @@ using Syscaf.Common.Helpers;
 using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-
+using  Util = Syscaf.Common.Utils;
 using Syscaf.Data.Models.Auth;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
@@ -33,6 +33,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Syscaf.ApiCore
 {
@@ -77,7 +78,8 @@ namespace Syscaf.ApiCore
             // variables de las credenciales de mix
             services.Configure<MixCredenciales>(
                 Configuration.GetSection("MixCredenciales"));
-
+            services.Configure<Util.FreshdeskVariablesConn>(
+               Configuration.GetSection("FreshdeskVariablesConn"));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
