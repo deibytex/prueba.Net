@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace Syscaf.Common.Models.FRESH
 {
+ 
     public class TicketsFreshDesk
     {
+      
         public string[] cc_emails { get; set; }
         public string[] fwd_emails { get; set; }
         public string[] reply_cc_emails { get; set; }
@@ -42,6 +45,7 @@ namespace Syscaf.Common.Models.FRESH
     }
     public class FreshDeskVM
     {
+       
         public Int64 id { get; set; }
         public string name { get; set; }
         public string label { get; set; }
@@ -61,6 +65,42 @@ namespace Syscaf.Common.Models.FRESH
         public DateTime updated_at { get; set; }
         public bool portal_cc { get; set; }
         public string portal_cc_to { get; set; }
-       // public List<dynamic[]> choices { get; set; }
+        
+        public object choices { get; set; }
+    }
+
+    public class AgentsVM
+    {
+        public bool available { get; set; }
+        public bool occasional { get; set; }
+        public Int64 id { get; set; }
+
+        public int ticket_scope { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
+        public DateTime? last_active_at { get; set; }
+        public string available_since { get; set; }
+        public string type { get; set; }
+        public campos contact { get; set; }
+    }
+
+    public class campos
+    {
+        //private readonly IMapper _mapper;
+        public bool active { get; set; }
+        public string email { get; set; }
+        public string job_title { get; set; }
+        public string language { get; set; }
+        public string last_login_at { get; set; }
+        public string mobile { get; set; }
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string time_zone { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+    }
+ public class resultVM
+    {
+        public List<TicketsFreshDesk> results { get; set; }
     }
 }

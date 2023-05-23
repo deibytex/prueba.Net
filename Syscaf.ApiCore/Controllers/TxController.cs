@@ -56,5 +56,18 @@ namespace Syscaf.ApiCore.Controllers
         {
             return await _FreshDesk.GetTicketsCampos();
         }
+
+        [HttpGet("GetAgentes")]
+        public async Task<ResultObject> GetAgentes()
+        {
+            return await _FreshDesk.GetListAgentes();
+        }
+
+
+        [HttpGet("GetTicketsFreshDeskSemana")]
+        public async Task<ResultObject> GetTicketsFreshDeskSemana(DateTime FechaInicial, DateTime FechaFinal)
+        {
+            return await _FreshDesk.GetListaTicketsSemana(FechaInicial, FechaFinal);
+        }
     }
 }

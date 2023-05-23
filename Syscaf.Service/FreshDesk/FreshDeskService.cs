@@ -52,11 +52,41 @@ namespace Syscaf.Service.FreshDesk
 
             return null;
         }
-        
+        public async Task<ResultObject> GetListAgentes()
+        {
+            try
+            {
+                FreshDeskServiceConn s = new FreshDeskServiceConn(_freshConn);
+                return await s.GetAgents();
+            }
+            catch (Exception ex)
+            {
+                _logService.SetLog("Obtención de listado de agentes", "", ex.ToString());
+            }
+
+            return null;
+        }
+        public async Task<ResultObject> GetListaTicketsSemana(DateTime FechaInicial, DateTime FechaFinal)
+        {
+            try
+            {
+
+                FreshDeskServiceConn s = new FreshDeskServiceConn(_freshConn);
+                return await s.GetTicketsSemana(FechaInicial, FechaFinal);
+            }
+            catch (Exception ex)
+            {
+                _logService.SetLog("Obtención de tickets", "", ex.ToString());
+            }
+
+            return null;
+        }
     }
     public interface IFreshDeskService
     {
         Task<ResultObject> GetTickets();
         Task<ResultObject> GetTicketsCampos();
+        Task<ResultObject> GetListAgentes();
+        Task<ResultObject> GetListaTicketsSemana(DateTime FechaInicial, DateTime FechaFinal);
     }
 }
