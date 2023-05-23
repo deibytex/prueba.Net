@@ -23,6 +23,10 @@ using Syscaf.Service.Helpers;
 using Syscaf.Service.Auth;
 using Syscaf.Service.Portal;
 using Syscaf.Common.Helpers;
+using Syscaf.Common.Integrate.LogNotificaciones;
+using Syscaf.Data.Models.Portal;
+using static Syscaf.Common.Helpers.Enums;
+using System.Linq;
 
 namespace Syscaf.ApiCore.Controllers
 {
@@ -40,13 +44,16 @@ namespace Syscaf.ApiCore.Controllers
         private readonly IAuthService _authService;
         private readonly IUsuarioService _usuarioService;
         private readonly IAdmService _admService;
+        private readonly INotificacionService _notificacionService;
+        private readonly IListaDetalleService _listas;
 
         public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration _configuration,
             SyscafBDCore _ctx,
             ISyscafConn _ctxDwh,
-            IMapper mapper, IAuthService _authService, IUsuarioService _usuarioService, IAdmService _admService)
+            IMapper mapper, IAuthService _authService, IUsuarioService _usuarioService, IAdmService _admService,
+            INotificacionService _notificacionService, IListaDetalleService _listas)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -57,6 +64,8 @@ namespace Syscaf.ApiCore.Controllers
             this._authService = _authService;
             this._usuarioService = _usuarioService;
             this._admService = _admService;
+            this._notificacionService = _notificacionService;
+            this._listas = _listas;
         }
 
         [HttpPost("Crear")]
@@ -169,9 +178,38 @@ namespace Syscaf.ApiCore.Controllers
 
             return BadRequest($" Correo: {correo} No existe ");
         }
-      
-      
 
+        //EnviarNotificacion
+
+        [HttpPost("SendTokenPassword")]
+        public async Task<ActionResult<ResultObject>> SendTokenPassword([FromBody] string correo)
+        {
+            // verifica que exista el usuario y manda un badrequest
+            
+             var isfind = await userManager.FindByEmailAsync(correo.ToLower());
+            if (isfind != null)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(isfind);
+                // enviamos el correo al usuario solicitante
+                var plantilla = await _notificacionService.GetPlantillaBySigla(PlantillaCorreo.E_MODPASS.ToString());
+                if (plantilla != null) // traemos la plantilla de recupercion de constrasenia 
+                {
+                    var parametros = await _listas.getDetalleListas(Enums.ListasParametros.CORREO.ToString()); // traemos la informacion de envio de correo
+
+                    string body = plantilla.Cuerpo;
+                    body = body.Replace("{nombre}", isfind.Nombres).Replace("{Dominio}", _configuration.GetSection("Correo")["Dominio"]).Replace("{UserName}",isfind.UserName).Replace("{TokenContrasena}", Constants.Base64Encode(token));
+
+
+                    // CREAMOS LA NOTIFICACION PARA QUE POSTERIOREMENTE EL GESTOR HAGA SEGUIMIENTO A LA ACTIVIDAD
+                    return _notificacionService.EnviarNotificacion((List<DetalleListaDTO>)parametros.Data, isfind.Email, "Recuperación Contraseña",body );
+
+                    
+                }
+                return BadRequest($" Plantilla:  No existe ");
+            }
+
+            return BadRequest($" Correo: {correo} No existe ");
+        }
         [HttpGet("listadoUsuarios")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<dynamic>> ListadoUsuarios([FromQuery] PaginacionDTO paginacionDTO, [FromQuery] string? Search, [FromQuery] string? UsuarioId, [FromQuery] int? UsuarioIds)
