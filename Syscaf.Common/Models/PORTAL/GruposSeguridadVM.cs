@@ -12,7 +12,7 @@ namespace Syscaf.Common.Models.PORTAL
         public string Nombre { get; set; }
         public bool? EsActivo { get; set; }
         public int? TipoSeguridadId { get; set; }
-        public List<int> Sitios { get; set; } = new List<int> { };
+        public List<int>? Sitios { get; set; } = new List<int> { };
         public bool? EsAdministrador { get; set; }
         public int? GrupoSeguridadId { get; set; }
     }

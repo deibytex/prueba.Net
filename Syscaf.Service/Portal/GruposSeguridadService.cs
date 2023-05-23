@@ -484,32 +484,24 @@ namespace Syscaf.Service.Portal
             var r = new ResultObject();
             try
             {
+                
                 int Clave = Modelo.Clave;
-                var clienteIdS = Modelo.clienteIdS;
                 var Nombre = Modelo.Nombre;
                 bool? EsActivo = Modelo.EsActivo;
-                var TipoSeguridadId = Modelo.TipoSeguridadId;
-                bool? EsAdministrador = Modelo.EsAdministrador;
                 var GrupoSeguridadId = Modelo.GrupoSeguridadId;
                 string Descripcion = Modelo.Descripcion;
-                var Sitios = JsonConvert.SerializeObject(String.Join(",", Modelo.Sitios.ToArray()));
-                string str = Regex.Replace(Sitios, "[@\\.\"'\\\\]", string.Empty);
 
                 //se crean los parametros
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Clave", Clave);
-                parametros.Add("clienteIdS", clienteIdS);
                 parametros.Add("Nombre", Nombre);
                 parametros.Add("Descripcion", Descripcion);
-                parametros.Add("TipoSeguridadId", TipoSeguridadId);
                 parametros.Add("EsActivo", EsActivo);
-                parametros.Add("EsAdministrador", EsAdministrador);
                 parametros.Add("GrupoSeguridadId", GrupoSeguridadId);
-                parametros.Add("Sitios", str);
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_connCore.Insert<string>(GruposSeguridadQueryHelper.GuardarEditarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_connCore.GetAll<dynamic>(GruposSeguridadQueryHelper.GuardarEditarGrupoSeguridad, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa";
