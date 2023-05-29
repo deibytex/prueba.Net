@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
+using Util = Syscaf.Common.Utils;
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
@@ -77,7 +77,8 @@ namespace Syscaf.ApiCore
             // variables de las credenciales de mix
             services.Configure<MixCredenciales>(
                 Configuration.GetSection("MixCredenciales"));
-
+            services.Configure<Util.FreshdeskVariablesConn>(
+               Configuration.GetSection("FreshdeskVariablesConn"));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 

@@ -7,6 +7,7 @@ using MiX.Integrate.Shared.Entities.LibraryEvents;
 using MiX.Integrate.Shared.Entities.Trips;
 using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
+using Syscaf.Common.Models.FRESH;
 using Syscaf.Data.Helpers.Auth.DTOs;
 using Syscaf.Data.Models.Auth;
 using Syscaf.Data.Models.Portal;
@@ -70,6 +71,8 @@ namespace Syscaf.Service.Automaper
                 .ForMember(f => f.NIdleTime, op => op.MapFrom(mp => mp.IdleTime))
                 .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
 
+            CreateMap<FreshDeskVM, FreshDeskVM>()
+                .ForMember(f => f.choices, op=> op.MapFrom(mp => mp.choices));
         }
 
         private string MyDictionaryToJson(Event eventFrom, EventsNew result)
@@ -171,6 +174,5 @@ namespace Syscaf.Service.Automaper
         {
             return "{" + driver.AdditionalDetailFields?.Select(s => $"\"{s.Label}\":\"{s.Value}\"").Aggregate((i, j) => i + "," + j) + "}";
         }
-
     }
 }
