@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Models.FRESH;
+using Syscaf.Common.Models.TRANSMISION;
 using Syscaf.Common.Utils;
 using Syscaf.Service.Helpers;
 using System;
@@ -77,6 +78,65 @@ namespace Syscaf.Common.Services
             }
 
         }
+
+        public async Task<ResultObject> GetStatusTickets()
+        {
+
+            var r = new ResultObject();
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Constants.Base64Encode($"{_UriVariables.Key}:{_UriVariables.Clave}"));
+                    var res = client.GetAsync(new Uri($"{_UriVariables.Dominio}/admin/ticket_fields/66000021538"));
+                    var status = res.Result.StatusCode;
+                    var result = await res.Result.Content.ReadAsStreamAsync();
+                    StreamReader readStream = new StreamReader(result, Encoding.UTF8);
+                    var texto = readStream.ReadToEnd();
+                    r.Data = texto;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                    HttpResponseHeaders h = res.Result.Headers;
+                    return r;
+                }
+                catch (Exception e)
+                {
+                    r.Mensaje = "500," + e.ToString();
+                }
+                return r;
+            }
+
+        }
+
+        public async Task<ResultObject> GetPrioridad()
+        {
+
+            var r = new ResultObject();
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Constants.Base64Encode($"{_UriVariables.Key}:{_UriVariables.Clave}"));
+                    var res = client.GetAsync(new Uri($"{_UriVariables.Dominio}/admin/ticket_fields/66000021539"));
+                    var status = res.Result.StatusCode;
+                    var result = await res.Result.Content.ReadAsStreamAsync();
+                    StreamReader readStream = new StreamReader(result, Encoding.UTF8);
+                    var texto = readStream.ReadToEnd();
+                    r.Data = texto;
+                    r.Exitoso = true;
+                    r.Mensaje = "Operación Éxitosa.";
+                    HttpResponseHeaders h = res.Result.Headers;
+                    return r;
+                }
+                catch (Exception e)
+                {
+                    r.Mensaje = "500," + e.ToString();
+                }
+                return r;
+            }
+
+        }
+
         public async Task<ResultObject> GetAgents()
         {
 
@@ -91,6 +151,7 @@ namespace Syscaf.Common.Services
                     var result = await res.Result.Content.ReadAsStreamAsync();
                     StreamReader readStream = new StreamReader(result, Encoding.UTF8);
                     var texto = readStream.ReadToEnd();
+                
                     r.Data = JsonConvert.DeserializeObject<List<AgentsVM>>(texto);
                     r.Exitoso = true;
                     r.Mensaje = "Operación Éxitosa.";

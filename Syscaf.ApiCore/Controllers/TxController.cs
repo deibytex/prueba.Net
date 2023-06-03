@@ -84,5 +84,18 @@ namespace Syscaf.ApiCore.Controllers
         {
             return await _FreshDesk.GetListaTicketsSemana(FechaInicial, FechaFinal);
         }
+        /// <summary>
+        /// Para setear los tickets.
+        /// </summary>
+        /// <param name="FechaInicial"></param>
+        /// <param name="FechaFinal"></param>
+        /// <returns></returns>
+        [HttpGet("SetTickets")]
+        public async Task<ResultObject> SetTickets(DateTime FechaInicial, DateTime FechaFinal)
+        {
+            return await _FreshDesk.SetListaTickets(FechaInicial, FechaFinal);
+        }
+
+        
     }
 }

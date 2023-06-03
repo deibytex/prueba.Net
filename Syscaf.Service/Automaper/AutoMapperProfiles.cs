@@ -71,8 +71,8 @@ namespace Syscaf.Service.Automaper
                 .ForMember(f => f.NIdleTime, op => op.MapFrom(mp => mp.IdleTime))
                 .ForMember(f => f.NIdleOccurs, op => op.MapFrom(mp => mp.IdleOccurs));
 
-            CreateMap<FreshDeskVM, FreshDeskVM>()
-                .ForMember(f => f.choices, op=> op.MapFrom(mp => mp.choices));
+            //CreateMap<FreshDeskVM, FreshDeskVM>()
+            //    .ForMember(f => f.choices, op=> op.MapFrom(mp => mp.choices));
         }
 
         private string MyDictionaryToJson(Event eventFrom, EventsNew result)

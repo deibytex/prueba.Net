@@ -66,7 +66,7 @@ namespace Syscaf.Common.Models.FRESH
         public bool portal_cc { get; set; }
         public string portal_cc_to { get; set; }
 
-        public choise choices { get; set; }
+        //public choise choices { get; set; }
     }
 
     public class AgentsVM
@@ -104,8 +104,14 @@ namespace Syscaf.Common.Models.FRESH
         public List<TicketsFreshDesk> results { get; set; }
     }
 
-    public class choise
+    public class choiseStatusVM
     {
-        public List<object> value { get; set; }
+        public List<EstadosVM> choices { get; set; }
+    }
+    public class EstadosVM
+    {
+        public string id { get; set; }
+        public string value { get; set; }
+        public string label_for_customers { get; set; }
     }
 }
