@@ -124,10 +124,10 @@ namespace Syscaf.Api.DWH.Controllers
         /// <format>textarea</format>
         /// <returns></returns>
         [HttpPost("SetSnapShotTickets")]
-        public async Task<ResultObject> SetSnapShotTickets([FromBody] List<TicketsVM> json)
+        public async Task<ResultObject> SetSnapShotTickets([FromBody] DateTime Fecha)
         {
 
-            return await _Transmision.SetSnapShotTickets(json);
+            return await _Transmision.SetSnapShotTickets(Fecha);
         }
         /// <summary>
         /// Se obtiene la lista de snapshot de tickets previamente cargados desde la opcion de carga de tickets

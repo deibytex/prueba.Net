@@ -38,7 +38,7 @@ namespace Syscaf.Common.Models.TRANSMISION
         public string TipodeTicket { get; set; }
         public string Semana { get; set; }
         public string Administrador { get; set; }
-        public  DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; }
     }
     public class GetTicketsVM : TicketsVM
     {
@@ -52,4 +52,33 @@ namespace Syscaf.Common.Models.TRANSMISION
         public int Cantidad { get; set; }
         public string Cliente { get; set; }
     }
+
+    public class AgentesVM
+    {
+        public string? name { get; set; }
+        public Int64? id { get; set; }
+        public bool? active { get; set; }
+        public string? email { get; set; }
+        public string? language { get; set; }
+        public string? phone { get; set; }
+        public string? mobile { get; set; }
+        public string? agent_level_id { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
+        public List<CamposAgentes>? contact { get; set; }
+
+    }
+
+    public class CamposAgentes {
+        public bool? active { get; set; }
+        public string email { get; set; }
+        public string language { get; set; }
+        public string phone { get; set; }
+        public string mobile { get; set; }
+        public string agent_level_id { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
+        public string name { get; set; }
+    }
+
 }

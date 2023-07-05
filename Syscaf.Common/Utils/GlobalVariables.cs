@@ -25,7 +25,6 @@ namespace Syscaf.Common.Utils
         public string PwsPeg { get; set; }
         public string UserPeg { get; set; }
     }
-
     public class FreshdeskVariablesConn
     {
         public string Key { get; set; }

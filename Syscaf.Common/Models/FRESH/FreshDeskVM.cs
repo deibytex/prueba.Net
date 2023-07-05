@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Syscaf.Common.Models.FRESH
 {
- 
+
     public class TicketsFreshDesk
     {
-      
+
         public string[] cc_emails { get; set; }
         public string[] fwd_emails { get; set; }
         public string[] reply_cc_emails { get; set; }
@@ -45,7 +45,7 @@ namespace Syscaf.Common.Models.FRESH
     }
     public class FreshDeskVM
     {
-       
+
         public Int64 id { get; set; }
         public string name { get; set; }
         public string label { get; set; }
@@ -65,8 +65,8 @@ namespace Syscaf.Common.Models.FRESH
         public DateTime updated_at { get; set; }
         public bool portal_cc { get; set; }
         public string portal_cc_to { get; set; }
-        
-        public object choices { get; set; }
+
+        //public choise choices { get; set; }
     }
 
     public class AgentsVM
@@ -99,8 +99,19 @@ namespace Syscaf.Common.Models.FRESH
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
     }
- public class resultVM
+    public class resultVM
     {
         public List<TicketsFreshDesk> results { get; set; }
+    }
+
+    public class choiseStatusVM
+    {
+        public List<EstadosVM> choices { get; set; }
+    }
+    public class EstadosVM
+    {
+        public string id { get; set; }
+        public string value { get; set; }
+        public string label_for_customers { get; set; }
     }
 }

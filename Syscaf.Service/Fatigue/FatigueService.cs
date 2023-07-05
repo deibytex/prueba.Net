@@ -58,7 +58,6 @@ namespace Syscaf.Service.Fatigue
                     var result = await Task.FromResult(_connCore.Insert<String>(FatigueQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                     r.Mensaje = result;
                     r.Exitoso = (result == "Operación Éxitosa") ? true : false;
-                    r.success();
                 }
                 catch (Exception ex)
                 {

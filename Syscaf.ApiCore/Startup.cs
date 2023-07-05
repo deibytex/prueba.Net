@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
+using Util = Syscaf.Common.Utils;
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;

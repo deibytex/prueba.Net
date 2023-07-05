@@ -244,15 +244,12 @@ namespace Syscaf.Service.Portal
             }
             return r;
         }
-        public async Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json)
+        public async Task<ResultObject> SetSnapShotTickets(DateTime Fecha)
         {
             var r = new ResultObject();
             try
             {
-                DateTime Fecha = json[0].Fecha;
-                var jsonconvert = JsonConvert.SerializeObject(json);
                 var parametros = new Dapper.DynamicParameters();
-                parametros.Add("JSON_STR", jsonconvert);
                 parametros.Add("Fecha", Fecha);
                 try
                 {
@@ -348,7 +345,7 @@ public interface ITransmisionService
     Task<ResultObject> GetAdministradores(string UsurioId, string Nombre);
     Task<ResultObject> GetSemanasAnual(int Anio);
     Task<ResultObject> GetSemanasAnualByTipo(int Anio);
-    Task<ResultObject> SetSnapShotTickets(List<TicketsVM> json);
+    Task<ResultObject> SetSnapShotTickets(DateTime Fecha);
     Task<ResultObject> GetSnapShotTickets(string Usuario, DateTime? Fecha);
     Task<ResultObject> GetSnapShotTicketsTable(string Usuario, DateTime? Fecha);
 }
