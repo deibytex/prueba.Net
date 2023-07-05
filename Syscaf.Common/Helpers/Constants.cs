@@ -186,7 +186,11 @@ namespace Syscaf.Common.Helpers
         public static string ebus_seleccion_cliente = "ebus_seleccion_cliente_{0}";
         #endregion
 
-       
+      public static string Base64Encode(string planinText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(planinText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
 
     }
 }

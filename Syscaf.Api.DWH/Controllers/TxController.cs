@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Syscaf.Common.Models.TRANSMISION;
+using Syscaf.Service.FreshDesk;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Portal;
 using System.ComponentModel.DataAnnotations;
@@ -17,11 +18,11 @@ namespace Syscaf.Api.DWH.Controllers
     {
         
         private readonly ITransmisionService _Transmision;
-       /// <summary>
-       /// Controlador de transmisión
-       /// </summary>
-       /// <param name="_Transmision">aaa</param>
-        public TxController(ITransmisionService _Transmision)
+        /// <summary>
+        /// Controlador de transmisión
+        /// </summary>
+        /// <param name="_Transmision">aaa</param>
+        public TxController(ITransmisionService _Transmision )
         {
             this._Transmision = _Transmision;
         }
@@ -150,5 +151,7 @@ namespace Syscaf.Api.DWH.Controllers
         {
             return await _Transmision.GetSnapShotTicketsTable(Usuario, Fecha);
         }
+
+       
     }
 }
