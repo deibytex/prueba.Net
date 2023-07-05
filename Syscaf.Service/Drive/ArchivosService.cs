@@ -51,8 +51,8 @@ namespace Syscaf.Service.Drive
                     //Se ejecuta el procedimiento almacenado.
                     var result = await _conn.Insert<string>(ArchivosQueryHelper._Insert, d, commandType: CommandType.StoredProcedure);
                     r.Mensaje = result;
-                    r.Exitoso = (result == "Operación Éxitosa") ? true : false;
-                    r.success();
+                    if (result == "Operación Éxitosa") r.success(); else r.error("Error al guardar informacion");
+                    
                 }
                 catch (Exception ex)
                 {
@@ -66,18 +66,19 @@ namespace Syscaf.Service.Drive
             }
             return r;
         }
-        public async Task<List<ArchivosSeparados>> GetMenuArchivo(string Nombre)
+        public async Task<List<ArchivosSeparados>> GetMenuArchivo(string Nombre, string contenedor)
         {
 
-            return await _conn.GetAllAsync<ArchivosSeparados>("NEP.GetMenuArchivos", new { Nombre });
+            return await _conn.GetAllAsync<ArchivosSeparados>("NEP.GetMenuArchivos", new { Nombre, contenedor });
         }
-        public async Task<ResultObject> GetArchivosDatabase(string UsuarioNombre)
+
+        public async Task<ResultObject> GetArchivosDatabase(string Nombre, string contenedor)
         {
             var r = new ResultObject();
             try
             {
                 //Consulto la informacion de la base de datos.
-               var MenuArchivosSeparados = await GetMenuArchivo(UsuarioNombre);
+               var MenuArchivosSeparados = await GetMenuArchivo(Nombre, contenedor);
                 r.Data = ListadoCarpeta(MenuArchivosSeparados, null,0);
                 r.Exitoso = true;
                 r.Mensaje = "Operación Éxitosa";
@@ -105,8 +106,9 @@ namespace Syscaf.Service.Drive
                 archivo.Descripcion = group.Select(s => s.Descripcion).FirstOrDefault();
                 archivo.Tipo = (group.Key.Contains(".") ? "archivo" : "carpeta");
                 archivo.Peso = group.Select(s => s.Peso).FirstOrDefault();
-                archivo.ArchivoId = random.Next(45545) * 58621;
+                archivo.ArchivoId = group.Key.Contains(".") ? group.Select(s=> s.ArchivoId).FirstOrDefault(): random.Next(45545) * 58621;
                 archivo.Hijos = ListadoCarpeta(group.ToList(), null, index + 1);
+                archivo.ContentType = group.Select(s => s.Tipo).FirstOrDefault();
                 Carpetas.Add(archivo);
                 
                 //CreateTreeRecursive(group.ToList(), newNode, index + 1);
@@ -141,7 +143,7 @@ namespace Syscaf.Service.Drive
     public interface IArchivosService
     {
         Task<ResultObject> SetInsertarArchivo(NuevoArchivoDTO datosArchivos);
-        Task<ResultObject> GetArchivosDatabase(string UsuarioNombre);
+        Task<ResultObject> GetArchivosDatabase(string Nombre, string contenedor);
         Task<ResultObject> SetLog(string Descripcion, int MovimientoId, int ArchivoId, string UsuarioId, int AreaId);
         List<ArchivosVM> ListadoCarpeta(List<ArchivosSeparados> Datos, List<ArchivosVM> Carpetas, int index);
     }

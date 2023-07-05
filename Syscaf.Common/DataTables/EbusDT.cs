@@ -31,8 +31,9 @@ namespace Syscaf.Common.DataTables
                     new DataColumn(){ ColumnName = "Energia", DataType = typeof(decimal) },
                     new DataColumn(){ ColumnName = "ETA", DataType = typeof(decimal) },
                     new DataColumn(){ ColumnName = "Odometer", DataType = typeof(decimal) },
-                    new DataColumn(){ ColumnName = "fechaSistema", DataType = typeof(DateTime) }
-                }
+                    new DataColumn(){ ColumnName = "Latitud", DataType = typeof(float) },
+                    new DataColumn(){ ColumnName = "Longitud", DataType = typeof(float) },
+                    new DataColumn(){ ColumnName = "fechaSistema", DataType = typeof(DateTime) } }
                 );
 
             return dt;

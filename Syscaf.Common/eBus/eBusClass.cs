@@ -80,8 +80,8 @@ namespace Syscaf.Common.eBus
 
          Position Posicion = eventSoc?.Position;
 
-
-         return new EventosActivosViajeVM
+         var newEntry =
+          new EventosActivosViajeVM
          {
              EventId = eventSoc?.EventId ?? defaultEventId,
              EventTypeId = lsteventos["Viaje_Soc"],
@@ -100,6 +100,8 @@ namespace Syscaf.Common.eBus
              VelocidadPromedio = 0
 
          };
+
+         return newEntry;
      }
      ).ToList();
 

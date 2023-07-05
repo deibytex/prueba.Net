@@ -16,6 +16,7 @@ namespace Syscaf.Common.Models.ARCHIVOS
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public string Tipo { get; set; }
+        public string ContentType { get; set; }
         public int? Orden { get; set; }
         public string Src { get; set; }
         public int? Peso { get; set; }

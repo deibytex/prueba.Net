@@ -39,7 +39,7 @@ namespace Syscaf.Service.Portal
         }
         // adiciona los mensajes a la tabla con el periodo seleccionado
 
-        public async Task<ResultObject> Add(List<ClienteDTO> clientes)
+        public async Task<ResultObject> Add(List<ClienteDTO> clientes, long? ClienteID)
         {
 
             var r = new ResultObject();
@@ -48,7 +48,7 @@ namespace Syscaf.Service.Portal
                 _log.SetLogError(0, "AssetsService - Add", "Inicio Actualizar Cliente");
 
                 if (clientes == null)
-                    clientes = await _clientService.GetAsync(1);
+                    clientes = await _clientService.GetAsync(1, ClienteId: ClienteID);
 
                 // obtenemos el listado de propiedades para hacer la insersi[on 
                 // o actualizacion de datos
@@ -248,7 +248,7 @@ namespace Syscaf.Service.Portal
     public interface IAssetsService
     {
 
-        Task<ResultObject> Add(List<ClienteDTO> clientes);
+        Task<ResultObject> Add(List<ClienteDTO> clientes, long? ClienteID);
         Task<ResultObject> getAssets(long ClienteId);
         Task<ResultObject> getEstadosTx(int tipoIdS);
         Task<ResultObject> updateAssets(AssetsVM assets);

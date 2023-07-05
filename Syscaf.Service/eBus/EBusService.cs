@@ -7,6 +7,7 @@ using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Integrate.PORTAL;
 using Syscaf.Common.Models;
 using Syscaf.Common.Models.ADM;
+using Syscaf.Common.Models.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers.eBus;
 using Syscaf.Data.Helpers.eBus.Gcp;
@@ -121,7 +122,7 @@ namespace Syscaf.Service.eBus
                 var parametros = new Dapper.DynamicParameters();
                 parametros.Add("Day", Period, DbType.String);
                 parametros.Add("Clienteids", Clienteids, DbType.Int32);
-                parametros.Add($"EventosActivos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
+                parametros.Add($"Eventos", dt.AsTableValuedParameter($"EBUS.UDT_ActiveEventsViaje"));
 
                 // guardamos los eventos de viajes 
                 int result = await _conprod.ExecuteAsync("EBUS.AddEventActiveByDayAndClient", parametros);
@@ -129,9 +130,9 @@ namespace Syscaf.Service.eBus
                 parametros = new Dapper.DynamicParameters();
                 parametros.Add("Day", Period, DbType.String);
                 parametros.Add("Clienteids", Clienteids, DbType.Int32);
-                parametros.Add($"EventosActivos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
+                parametros.Add($"Eventos", dtRec.AsTableValuedParameter($"EBUS.UDT_ActiveEventsRecarga"));
 
-                result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient @Day ,@Clienteids,  @EventosActivos ", parametros);
+                result = await _conprod.ExecuteAsync("EBUS.AddEventActiveRecargaByDayAndClient", parametros);
                 resultado.success(null);
 
             }
@@ -428,6 +429,9 @@ namespace Syscaf.Service.eBus
                 parametros.Add("ClienteId", Modelo.ClienteId);
 
                 string consulta = await _connCore.GetAsync<string>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EBUSQueryHelper", NombreConsulta = "SetActiveEventClientes" }, commandType: CommandType.Text);
+                // esto es para la base de datos de core
+                await Task.FromResult(_connCore.GetAll<dynamic>(consulta, parametros, commandType: CommandType.Text));
+                // esto es para la baes de datos de produccion  una es r'eplica de la otra
                 result.Data =  await Task.FromResult(_conprod.GetAll<dynamic>(consulta, parametros, commandType:  CommandType.Text));
                 result.Mensaje = "Operación Éxitosa";
                 result.Exitoso = true;
@@ -654,18 +658,38 @@ namespace Syscaf.Service.eBus
             throw new NotImplementedException();
         }
 
-        public async Task<ResultObject> GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId)
+        public async Task<ResultObject> GetUsuariosEsomos(string? userid, int? OrganzacionId, int? ClienteId)
         {
             ResultObject result = new ResultObject { Exitoso = false};
             try
             {
                 var parametros = new Dapper.DynamicParameters();
-                parametros.Add("UsuarioIdS", UsuarioIdS);
-                parametros.Add("OrganzacionId", OrganzacionId);
-                parametros.Add("ClienteId", ClienteId);
+                parametros.Add("userid", userid);
+                parametros.Add("ClienteIds", ClienteId);
+
+               
                 dynamic consulta = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "EbusQueryHelper", NombreConsulta = "GetUsuariosEsomos" }, commandType: CommandType.Text);
-                result.Data = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: CommandType.Text));
-            }
+
+               
+                dynamic consultaUsuarios = await _connCore.GetAsync<dynamic>(PortalQueryHelper.getConsultasByClaseyNombre, new { Clase = "PORTALQueryHelper", NombreConsulta = "GetUsuariosPorOrganizacion" }, commandType: CommandType.Text);
+
+                List<dynamic> consultaAsignados = await Task.FromResult(_conprod.GetAll<dynamic>(consulta.Consulta, parametros, commandType: CommandType.Text));
+                ;
+                parametros = new Dapper.DynamicParameters();
+                parametros.Add("OrganizacionId", OrganzacionId);
+
+                List<dynamic> consultatodos = await Task.FromResult(_connCore.GetAll<dynamic>(consultaUsuarios.Consulta, parametros, commandType: CommandType.Text));
+
+                var restultado =
+                    consultatodos.Select(s =>
+                    {
+                        bool EsSeleccionado = consultaAsignados.Where(f => f.Userid == s.id).Count() ==1;
+
+                        return new {  s.id, s.Nombres, EsSeleccionado };
+                    }).ToList();
+
+
+                result.Data = restultado;    }
             catch (Exception ex)
             {
                 result.Mensaje =  ex.Message.ToString();
@@ -716,6 +740,6 @@ namespace Syscaf.Service.eBus
         Task<ResultObject> SetEventosHistoricalActivos(string Period, int Clienteids, DateTime fi, DateTime ff);
         List<RecargasHistoricalVM> GetReporteRecargasHistorical(int ClienteIds, string Reporte);
         Task<ResultObject> GetClientesUsuarios(string? UsuarioID, string UserId);
-        Task<ResultObject> GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId);
+        Task<ResultObject> GetUsuariosEsomos(string? userid, int? OrganzacionId, int? ClienteId);
     }
 }

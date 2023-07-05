@@ -191,13 +191,15 @@ namespace Syscaf.ApiCore.Controllers
             {
                 var token = await userManager.GeneratePasswordResetTokenAsync(isfind);
                 // enviamos el correo al usuario solicitante
-                var plantilla = await _notificacionService.GetPlantillaBySigla(PlantillaCorreo.E_MODPASS.ToString());
+                var plantilla = await _notificacionService.GetPlantillaBySigla(PlantillaCorreo.E_MODPASSR.ToString());
                 if (plantilla != null) // traemos la plantilla de recupercion de constrasenia 
                 {
                     var parametros = await _listas.getDetalleListas(Enums.ListasParametros.CORREO.ToString()); // traemos la informacion de envio de correo
 
                     string body = plantilla.Cuerpo;
-                    body = body.Replace("{nombre}", isfind.Nombres).Replace("{Dominio}", _configuration.GetSection("Correo")["Dominio"]).Replace("{UserName}",isfind.UserName).Replace("{TokenContrasena}", Constants.Base64Encode(token));
+                    body = body.Replace("{nombre}", isfind.Nombres).Replace("{Dominio}",
+                        _configuration.GetSection("Correo")["Dominio"]).
+                        Replace("{UserName}",isfind.UserName).Replace("{TokenContrasena}", Constants.Base64Encode(token));
 
 
                     // CREAMOS LA NOTIFICACION PARA QUE POSTERIOREMENTE EL GESTOR HAGA SEGUIMIENTO A LA ACTIVIDAD

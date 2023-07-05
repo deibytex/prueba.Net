@@ -24,8 +24,8 @@ namespace Syscaf.Service.Auth
         }
         public async Task<List<MenuDesagregadoDTO>> GetMenuUsuario(string UserId)
         {
-
-            return await _conn.GetAllAsync<MenuDesagregadoDTO>("ADM.GetMenuUsuario", new { UserId });
+            List<MenuDesagregadoDTO> menu = await _conn.GetAllAsync<MenuDesagregadoDTO>("ADM.GetMenuUsuario", new { UserId });
+            return menu;
         }
     }
 

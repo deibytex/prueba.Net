@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Syscaf.Common.Helpers;
 using Syscaf.Common.Integrate.LogNotificaciones;
 using Syscaf.Common.Models.PORTAL;
-using Syscaf.Common.Services;
-using Syscaf.Common.Utils;
+using Syscaf.Service.eBus;
 using Syscaf.Service.Helpers;
 using Syscaf.Service.Peg;
 using Syscaf.Service.Portal;
 using SyscafWebApi.Service;
-using System.ComponentModel.DataAnnotations;
-using System.Dynamic;
 
 namespace Syscaf.Api.DWH.Controllers
 {
@@ -25,10 +21,12 @@ namespace Syscaf.Api.DWH.Controllers
         private readonly IMixIntegrateService _MixService;
         private readonly IClientService _clientService;
         private readonly IPegasoService _pegasoService;
-     
+        private readonly IEBusService _eBusService;
+        
+
         readonly DateTime _fechaservidor = Constants.GetFechaServidor();
         public PortalController(IPortalMService _portalService, IProcesoGeneracionService _procesoGeneracionService, INotificacionService _notificacionService
-            , IMixIntegrateService _MixService, IClientService _clientService, IPegasoService _pegasoService)
+            , IMixIntegrateService _MixService, IClientService _clientService, IPegasoService _pegasoService, IEBusService _eBusService)
         {
             this._portalService = _portalService;
             this._procesoGeneracionService = _procesoGeneracionService;
@@ -36,6 +34,7 @@ namespace Syscaf.Api.DWH.Controllers
             this._MixService = _MixService;
             this._clientService = _clientService;
            this._pegasoService = _pegasoService;
+            this._eBusService = _eBusService;
           
         }
         [HttpGet]
@@ -62,23 +61,23 @@ namespace Syscaf.Api.DWH.Controllers
             if (!result.Exitoso)
                 await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_Posiciones  {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
 
-            //// estrae la informacion del proyecto esomos
-            //string period = $"{_fechaservidor.Month}{_fechaservidor.Year}";
-            //List<int> clientesIds = new List<int>() { 914 };
-            //foreach (int clienteid in clientesIds)
-            //{
-            //    result = await _eBusClass.SetEventosActivos(period, clienteid);
-            //    if (!result.Exitoso)
-            //        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar eventos Activos {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+            // estrae la informacion del proyecto esomos
+            string period = $"{_fechaservidor.Month}{_fechaservidor.Year}";
+            List<int> clientesIds = new List<int>() { 862, 914 };
+            foreach (int clienteid in clientesIds)
+            {
+                result = await _eBusService.SetEventosActivos(period, clienteid);
+                if (!result.Exitoso)
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar eventos Activos {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
 
-            //}
+            }
 
-            //// cada 5 minutos envia notificacion
-            //if (_fechaservidor.Minute % 5 == 0)
-            //{
-            //    await _notificacionService.EnviarCorreosSistemaNotificacion();
+            // cada 5 minutos envia notificacion
+          /*  if (_fechaservidor.Minute % 5 == 0)
+            {
+                await _notificacionService.EnviarCorreosSistemaNotificacion();
 
-            //}
+            }*/
 
 
             // cada minuto 10 ejecuta la extraccion
@@ -88,6 +87,33 @@ namespace Syscaf.Api.DWH.Controllers
                 await _pegasoService.SendData();
             }
             return null;
+        }
+
+        [HttpGet("ObtenerDataEbus")]
+        public async Task<ActionResult<ResultObject>> ObtenerDataEbus(string clientes)
+        {
+            try
+            {
+                string period = $"{_fechaservidor.Month}{_fechaservidor.Year}";
+                List<int> clientesIds = clientes.Split(',').Select(s => int.Parse(s)).ToList();
+                foreach (int clienteid in clientesIds)
+                {
+                    var result = await _eBusService.SetEventosActivos(period, clienteid);
+                    if (!result.Exitoso)
+                        await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Error al cargar eventos Activos {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
+
+                }
+                Ok("Ejecutados exitosamente");
+
+            }
+            catch (Exception ex)
+            {
+                BadRequest(ex.ToString());
+            }
+           
+
+            return null;
+
         }
 
         [HttpGet("ObtenerViajesMetricas")]

@@ -157,9 +157,9 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="ClienteId"></param>
         /// <returns></returns>
         [HttpPost("GetUsuariosEsomos")]
-        public async Task<ResultObject>  GetUsuariosEsomos(int? UsuarioIdS, int? OrganzacionId, int? ClienteId)
+        public async Task<ResultObject>  GetUsuariosEsomos(string? userid, int? OrganzacionId, int? ClienteId)
         {
-            return await _ebusService.GetUsuariosEsomos(UsuarioIdS, OrganzacionId, ClienteId);
+            return await _ebusService.GetUsuariosEsomos(userid, OrganzacionId, ClienteId);
         }
         /// <summary>
         /// Se consultan los usuarios del cliente

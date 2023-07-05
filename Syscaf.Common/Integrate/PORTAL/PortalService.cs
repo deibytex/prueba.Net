@@ -92,7 +92,7 @@ namespace Syscaf.Common.Integrate.PORTAL
                 }
             });
 
-
+            task.Wait();
 
             DateTime time = DateTime.ParseExact(valor ?? "20200101000000000",
                                 "yyyyMMddHHmmssfff",
@@ -101,7 +101,7 @@ namespace Syscaf.Common.Integrate.PORTAL
             if (valor == null || valor.Length == 0 || time <= Constants.GetFechaServidor().AddDays(-7))
                 valor = DateTime.Now.AddDays(-1).Date.ToString(Constants.FormatoSinceToken);
 
-            task.Wait();
+            
 
             return valor;
         }

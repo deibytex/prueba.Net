@@ -16,6 +16,7 @@ using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.NS;
 using System.Data;
 using Syscaf.Data.Models.Portal;
+using static Syscaf.Common.Helpers.Enums;
 
 namespace Syscaf.Common.Integrate.LogNotificaciones
 {
@@ -24,6 +25,8 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
         readonly ILogService LogService;
         readonly ISyscafConn _con;
         readonly SyscafCoreConn _conCore;
+
+      
 
         // nos trae la infomación de los assets junto a sus clientesreadonly I_LogService __LogService;
         public NotificacionService(ILogService LogService, ISyscafConn _con, SyscafCoreConn _conCore)
@@ -320,8 +323,76 @@ namespace Syscaf.Common.Integrate.LogNotificaciones
 
             return result;
         }
+   /*     public async Task<ResultObject> EnviarCorreosSistemaNotificacion()
+        {
+            ResultObject r = new ResultObject();
+            Task task = Task.Run(async () =>
+            {
+                try
+                {
+                    // se coloca un foreach ay que los servicios de automatizacion de azure no permiten ejecucion minuto a minuto 
+                    // por el plan de azure
 
 
+                    // trae el listado de notificaciones
+                    List<NotificacionesCorreoDTO> notif =await  GetNotificacionesCorreo();
+
+                    if (notif.Count > 0)
+                    {
+                        // trae la plantilla para notificar
+                        PlantillaDTO plantilla = await GetPlantillaBySigla(Enums.PlantillaCorreo.P_SISTEMA.ToString());
+
+
+                        // configuracion desde el correo a trabajar
+                        string usuarioSmtp = CommonService.GetDetalleListaBySigla("USER").Valor;
+                        string contraseniaSmtp = CommonService.GetDetalleListaBySigla("PSWD").Valor;
+
+                        // agrupo las notificaciones por lista de distribucion
+                        foreach (var notificaciones in notif.GroupBy(g => g.ListaDistribucion))
+                        {
+
+                            MailNotification _mail = new MailNotification(usuarioSmtp, contraseniaSmtp, CommonService);
+
+                            // se adicionan las personas a notificar 
+                            _mail.AddRemitente(notificaciones.Key.DetalleListaCorreo.Where(w => w.EsActivo).Select(
+                                s => new ListaCorreoVM()
+                                {
+                                    Correo = s.Correo,
+                                    TipoEnvio = s.TipoEnvio.Sigla
+                                }
+                                ).ToList());
+
+
+                            string body = plantilla.Cuerpo;
+
+                            // agregamos la informacion si hay varios items se mostrara 
+                            body = body.Replace("{rows}", notificaciones.Select(s =>
+                            plantilla.DynamicText.
+                            Replace("{fecha}", s.FechaSistema.ToString(Helper.FormatoFechaHora)).
+                            Replace("{descripcion}", s.Descripcion).
+                            Replace("{origen}", s.TipoNotificacion.Nombre)
+                            ).Aggregate((i, j) => i + j));
+                            // fin de body
+
+                            var result = _mail.SendEmail(usuarioSmtp, plantilla.Asunto.Replace("{0}", Helper.GetFechaServidor().ToString(Helper.FormatoFechaHora)), body, "", LogService);
+
+                            if (result.Exitoso)
+                                SetEsNotificadoCorreos(notificaciones.Select(s => s.NotificacionCorreoId).ToList());
+
+                        }
+                    }
+                    r.success("Enviado Exitosamente");
+                }
+                catch (Exception exp)
+                {
+                    r.error(exp.Message);
+                }
+            });
+            task.Wait();
+            return r;
+        }
+
+*/
 
     }
 }

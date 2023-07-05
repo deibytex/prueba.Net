@@ -7,15 +7,15 @@ namespace Syscaf.Common.Helpers.EBUS
     {
         public static readonly Dictionary<string, long> ActiveEventoViaje_858 = new Dictionary<string, long>() {
          //   { "Viaje_Altitud", 2794663824013695887},
-            { "Viaje_EnergiaDescargada", -6256683834921575374},
-            { "Viaje_EnergiaRegenerada", 6615817389476803266},
+            { "Viaje_EnergiaDescargada", -4955769818185902753},
+            { "Viaje_EnergiaRegenerada", -9060528778127101432},
             { "Viaje_Soc", -6908409462483507142},
             { "Gun_Curr", 8658221075967970863},
             { "Gun_Voltag", -8253457625116113070},
             { "Gun_Soc", 1398873819910774944},
             { "PG_Connected", 6187456050509228463},
             { "PG_DescConnected", 1304002616010924684}  ,
-            { "Soc_Max", -1631066733938754176}
+            { "Soc_Max", 4073724728002804818}
 
         };
 

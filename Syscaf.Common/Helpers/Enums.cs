@@ -17,7 +17,8 @@
             E_NEWUSER,
             E_MODPASS,
             MOV_PREOP,
-MOV_PREOPC
+MOV_PREOPC,
+            E_MODPASSR
         }
         public enum ListaDistribucion
         {

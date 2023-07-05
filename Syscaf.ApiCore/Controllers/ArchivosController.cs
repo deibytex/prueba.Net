@@ -47,7 +47,8 @@ namespace Syscaf.ApiCore.Controllers
             {
                 var serviceClient = new BlobServiceClient(BlobConnexion);
                 var containerClient = serviceClient.GetBlobContainerClient(contenedor);
-                var fileName = $"{Constants.GetFechaServidor().ToString("yyyyMM")}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}";
+                var fileName = (datosArchivos.AreaId != 3) ? $"{Constants.GetFechaServidor().ToString("yyyyMM")}/{Guid.NewGuid()}{datosArchivos.NombreArchivo}"
+                    : datosArchivos.Src;
                
 
                 var blobClient = containerClient.GetBlobClient(fileName);
@@ -78,12 +79,13 @@ namespace Syscaf.ApiCore.Controllers
         /// <summary>
         /// Archivos listado
         /// </summary>
-        /// <param name="UsuarioNombre"></param>
+        /// <param name="Nombre"></param>
+        ///  <param name="contenedor"></param>
         /// <returns></returns>
-        [HttpPost("GetArchivosDatabase")]
-        public async Task<ResultObject> GetArchivosDatabase(string? UsuarioNombre)
+        [HttpGet("GetArchivosDatabase")]
+        public async Task<ResultObject> GetArchivosDatabase(string? Nombre, string contenedor)
         {
-            return await _archivoService.GetArchivosDatabase(UsuarioNombre);
+            return await _archivoService.GetArchivosDatabase(Nombre, contenedor);
         }
         /// <summary>
         /// Se realiza el guardado de logs general para neptuno
@@ -140,26 +142,75 @@ namespace Syscaf.ApiCore.Controllers
             d.Add("Src", nombrearchivo);
             var archivo = await _admService.getDynamicValueCore("NEPQueryHelper", "GetArchivoPorSrc", d);
 
-            if (archivo.Count > 0)
+            if (archivo.Count > 0 )
             {
-                var archivoInd = archivo[0]; 
-                var serviceClient = new BlobServiceClient(BlobConnexion);
-                var containerClient = serviceClient.GetBlobContainerClient(container);
-                var blobClient = containerClient.GetBlobClient(nombrearchivo);
-                MemoryStream stream = new MemoryStream();
-                await blobClient.DownloadToAsync(stream);
-                stream.Position = 0;
+                try
+                {
+                    
+                    var serviceClient = new BlobServiceClient(BlobConnexion);
+                    var containerClient = serviceClient.GetBlobContainerClient(container);
+                    var blobClient = containerClient.GetBlobClient(nombrearchivo);
+                    MemoryStream stream = new MemoryStream();
+                    await blobClient.DownloadToAsync(stream);
+                    stream.Position = 0;                   
+                        var archivoInd = archivo[0];
+                        // guardamos el log
+                        await _archivoService.SetLog(archivoInd.Nombre, 3, archivoInd.ArchivoId, this.UserId, archivoInd.AreaId);
+                    
+                    return stream;
+                }
+                catch (Exception ex)
+                {
 
-                // guardamos el log
-                await _archivoService.SetLog(archivoInd.Nombre, 3, archivoInd.ArchivoId, this.UserId, archivoInd.AreaId);
+                }
+                
 
-                return stream;
+               
 
             }
              return null;
             }
+        [HttpGet("DownloadFileFromBlobBase64")]
+        public async Task<string> DownloadFileFromBlobBase64(string nombrearchivo, string container)
+        {
 
-            [HttpGet("getDirectorio")]
+            // traemos la informacionn del archivo a descargar
+            Dapper.DynamicParameters d = new Dapper.DynamicParameters();
+            d.Add("Src", nombrearchivo);
+            var archivo = await _admService.getDynamicValueCore("NEPQueryHelper", "GetArchivoPorSrc", d);
+
+            if (archivo.Count > 0)
+            {
+                try
+                {
+
+                    var serviceClient = new BlobServiceClient(BlobConnexion);
+                    var containerClient = serviceClient.GetBlobContainerClient(container);
+                    var blobClient = containerClient.GetBlobClient(nombrearchivo);
+                    MemoryStream stream = new MemoryStream();
+                    await blobClient.DownloadToAsync(stream);
+                    stream.Position = 0;
+
+
+                    var archivoInd = archivo[0];
+                    // guardamos el log
+                    await _archivoService.SetLog(archivoInd.Nombre, 3, archivoInd.ArchivoId, this.UserId, archivoInd.AreaId);
+
+                    return Convert.ToBase64String(stream.ToArray());
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+
+            }
+            return null;
+        }
+
+        [HttpGet("getDirectorio")]
         public  List<dynamic> getDirectorio(string container, string? filter)
         {
 
@@ -175,10 +226,11 @@ namespace Syscaf.ApiCore.Controllers
                 Orden = blobs.IndexOf(s), 
                 Src = s.Name,
                 Nombre = s.Name.Split("/").Last(),
-                Peso = (int?)s.Properties.ContentLength 
+                Peso = (int?)s.Properties.ContentLength
             }).ToList(), null, 0).ToList<dynamic>();
          
         }
+        
     }
 
     }
