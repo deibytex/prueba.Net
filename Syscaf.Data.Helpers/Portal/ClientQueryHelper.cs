@@ -13,7 +13,7 @@ namespace Syscaf.Data.Helpers.Portal
         SELECT 
            TC.ClienteIdS,
            TC.ClienteId,
-           TC.clienteNombre,
+           clienteNombre = isnull(TC.NombreNormalizado, TC.clienteNombre),
            TC.fechaIngreso,
            TC.estadoClienteId,
            TC.notificacion,
@@ -27,6 +27,7 @@ namespace Syscaf.Data.Helpers.Portal
         FROM  PORTAL.Cliente AS TC
         WHERE ( @clienteIdS is null OR   TC.clienteIdS = @clienteIdS  ) and ( @Estado = -1 OR   TC.estadoClienteId = @Estado  ) 
         and ( @clienteId is null  OR   TC.clienteId = @clienteId )
+        order by isnull(TC.NombreNormalizado, TC.clienteNombre)
        ";
 
         public static string _Insert = @"PORTAL.AddClientes    ";
