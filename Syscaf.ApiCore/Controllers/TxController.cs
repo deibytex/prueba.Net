@@ -68,24 +68,7 @@ namespace Syscaf.ApiCore.Controllers
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("GetCamposTicketsFreshDesk")]
-        public async Task<ResultObject> GetCamposTicketsFreshDesk()
-        {
-            return await _FreshDesk.GetTicketsCampos();
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("GetAgentes")]
-        public async Task<ResultObject> GetAgentes()
-        {
-            return await _FreshDesk.GetListAgentes();
-        }
+      
         /// <summary>
         /// 
         /// </summary>

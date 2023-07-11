@@ -52,6 +52,8 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("actualizarVehiculos")]
         public async Task<ActionResult<ResultObject>> GetAssetsMixByGroup()
         {
+          
+
             return await _asset.Add(null);
         }
 
