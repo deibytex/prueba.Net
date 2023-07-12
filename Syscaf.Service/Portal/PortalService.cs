@@ -521,7 +521,7 @@ namespace Syscaf.Service.Portal
                 {
                     _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
                     _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, $"ClienteId = {  item.clienteNombre } " + ex.Message, null, (int)Enums.EstadoProcesoGeneracionDatos.SW_NOEXEC);
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre } Error { ex.ToString()}" , Enums.ListaDistribucion.LSSISTEMA);
                     result.error(ex.Message);
                 }
             }
