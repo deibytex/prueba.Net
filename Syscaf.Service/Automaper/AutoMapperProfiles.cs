@@ -56,13 +56,16 @@ namespace Syscaf.Service.Automaper
                  .ForMember(f => f.Duration, op => op.MapFrom(mp => Decimal.ToInt32(mp.Duration)));
 
             CreateMap<Event, EventsNew>()
+                .ForMember(f => f.FuelUsedLitres, op => op.MapFrom(mp=> MapearDecimalNull( mp.FuelUsedLitres)))
+                .ForMember(f => f.SpeedKilometresPerHour, op => op.MapFrom(mp => (int) Math.Round(mp.StartPosition.SpeedKilometresPerHour ?? 0, MidpointRounding.AwayFromZero)))
+                .ForMember(f => f.Value, op => op.MapFrom(mp => MapearDoubleNull(mp.Value)))
                 .ForMember(f => f.Latitude, op => op.MapFrom(MapearLatitudLongitudFields))
                 .ForMember(f => f.Longitude, op => op.MapFrom(MapearLongitudFields))
                 .ForMember(f => f.EndDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.EndDateTime, false)))
-                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime)))
+                .ForMember(f => f.StartDateTime, op => op.MapFrom(mp => Constants.GetFechaServidor(mp.StartDateTime, false)))
                 .ForMember(f => f.MediaUrls, op => op.MapFrom(MyDictionaryToJson))
-                .ForMember(f => f.SpeedKilometresPerHour, op => op.MapFrom(mp=> mp.StartPosition.SpeedKilometresPerHour))
-                .ForMember(f => f.AltitudMeters, op => op.MapFrom(mp => mp.StartPosition.AltitudeMetres));
+               
+                .ForMember(f => f.AltitudMeters, op => op.MapFrom(mp => mp.StartPosition.AltitudeMetres)    );
 
            
 
@@ -86,13 +89,21 @@ namespace Syscaf.Service.Automaper
             return null;
 
         }
-        private double? MapearLatitudLongitudFields(Event driver, EventsNew result)
+        private decimal? MapearLatitudLongitudFields(Event driver, EventsNew result)
         {
-            return driver.StartPosition?.Latitude;
+            return MapearDoubleNull(driver.StartPosition?.Latitude);
         }
-        private double? MapearLongitudFields(Event driver, EventsNew result)
+        private decimal? MapearLongitudFields(Event driver, EventsNew result)
         {
-            return driver.StartPosition?.Longitude;
+            return MapearDoubleNull(driver.StartPosition?.Longitude);
+        }
+        private decimal? MapearDecimalNull(float? value)
+        {
+            return value.HasValue ? new Decimal(value.Value) : null; 
+        }
+        private decimal? MapearDoubleNull(double? value)
+        {
+            return value.HasValue ? new Decimal(value.Value) : null;
         }
         /*Metodo que mapea el listado de assets y su configuración, haciendo un leftjoin de los  assets*/
         private List<AssetDTO> MapearAssetDTO(AssetBaseData AssetBaseData, AssetResult AssetResult)

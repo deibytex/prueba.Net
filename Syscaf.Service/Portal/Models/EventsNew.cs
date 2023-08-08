@@ -17,10 +17,10 @@ namespace Syscaf.Service.Portal.Models
         public int TotalOccurances { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
-        public float? FuelUsedLitres { get; set; }
-        public double? Value { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
+        public decimal? FuelUsedLitres { get; set; }
+        public decimal? Value { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
         public decimal? StartOdometerKilometres { get; set; }
         public decimal? EndOdometerKilometres { get; set; }
         public int? AltitudMeters { get; set; }
@@ -34,7 +34,7 @@ namespace Syscaf.Service.Portal.Models
             }
         }
         public string MediaUrls { get; set; }
-        public float? SpeedKilometresPerHour { get; set; }
+        public int? SpeedKilometresPerHour { get; set; }
 
     }
 }

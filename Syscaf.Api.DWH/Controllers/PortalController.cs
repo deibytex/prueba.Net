@@ -43,11 +43,11 @@ namespace Syscaf.Api.DWH.Controllers
         {
 
             // extrae informacion de trace cada minuto esto por la cantidad de datos que extrae
-            var result = await _portalService.Get_EventosPorClientes(909, null,  null);
+            var result = await _portalService.Get_EventosPorClientes(909, null,  null, null, null);
             if (!result.Exitoso)
                 await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_eventos TRACE {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
 
-            result = await _portalService.Get_EventosPorClientes(914, null, null);
+            result = await _portalService.Get_EventosPorClientes(914, null, null, null, null);
             if (!result.Exitoso)
                 await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"ObtenerDatosPortal_eventos ESOMOS F {result.Mensaje}", Enums.ListaDistribucion.LSSISTEMA);
 
@@ -104,13 +104,14 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("ObtenerEventos")]
         public async Task<ActionResult<ResultObject>> GetEventosMix(int? ClienteIds)
         {
-            return await _portalService.Get_EventosPorClientes(ClienteIds, null, null);
+            return await _portalService.Get_EventosPorClientes(ClienteIds, null, null, null, null);
         }
 
         [HttpGet("ObtenerEventosHistorico")]
-        public async Task<ActionResult<ResultObject>> GetEventosMixHistorico(int ClienteIds, DateTime FechaInicial, DateTime FechaFinal)
+        public async Task<ActionResult<ResultObject>> GetEventosMixHistorico(int? ClienteIds, DateTime FechaInicial, DateTime FechaFinal,
+             int? TipoPreferencia, bool? GeneraIMG)
         {
-            return await _portalService.Get_EventosPorClientes(ClienteIds, FechaInicial, FechaFinal);
+            return await _portalService.Get_EventosPorClientes(ClienteIds, FechaInicial, FechaFinal, TipoPreferencia, GeneraIMG);
         }
 
         [HttpGet("ObtenerEventosActivos")]

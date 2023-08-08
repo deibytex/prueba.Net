@@ -37,7 +37,8 @@ namespace Syscaf.ApiCore.Auth
                 new Claim("username", credenciales.UserName),
                 new Claim("Id", usuario.Id),
                 new Claim("Nombres", usuario.Nombres),
-                new Claim("email", usuario.Email)
+                new Claim("email", usuario.Email),
+                new Claim("perfil", usuario.PerfilId.ToString())
 
             };
             claims.AddRange(claimsDB);
@@ -50,7 +51,7 @@ namespace Syscaf.ApiCore.Auth
             var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["llavejwt"]));
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
 
-            var expiracion = DateTime.Now.AddHours(3);
+            var expiracion = DateTime.Now.AddHours(24);
 
             var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
                 expires: expiracion, signingCredentials: creds);
