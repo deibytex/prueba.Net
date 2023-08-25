@@ -55,7 +55,7 @@ namespace Syscaf.Service.Fatigue
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_connCore.Insert<String>(FatigueQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conProd.Insert<String>(FatigueQueryHelper._Insert, parametros, commandType: CommandType.StoredProcedure));
                     r.Mensaje = result;
                     r.Exitoso = (result == "Operación Éxitosa") ? true : false;
                 }
@@ -86,7 +86,7 @@ namespace Syscaf.Service.Fatigue
                 try
                 {
                     //Se ejecuta el procedimiento almacenado.
-                    var result = await Task.FromResult(_connCore.GetAll<FatigueVM>(FatigueQueryHelper.GetDatos, parametros, commandType: CommandType.StoredProcedure));
+                    var result = await Task.FromResult(_conProd.GetAll<FatigueVM>(FatigueQueryHelper.GetDatos, parametros, commandType: CommandType.StoredProcedure));
                     r.Data = result;
                     r.Mensaje = "Operación Éxitosa";
                     r.Exitoso = (result.Count() > 0) ? true : false;
