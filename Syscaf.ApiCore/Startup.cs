@@ -66,7 +66,7 @@ namespace Syscaf.ApiCore
 
                 });
             });
-
+           
             services.AddOptions();
             // variables para ITS ebus
             services.Configure<PubsubOptions>(
@@ -124,14 +124,7 @@ namespace Syscaf.ApiCore
             
             ;
 
-            services.AddCors(options =>
-             {
-                 var frontendURL = Configuration.GetValue<string>("frontend_url");
-                 options.AddDefaultPolicy(builder => { 
-                  builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
-                 });
-
-            });
+            
 
             //services.AddAuthorization(opciones =>
             //{
