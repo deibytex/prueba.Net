@@ -25,7 +25,7 @@ namespace Syscaf.Data
             using IDbConnection db = new SqlConnection(_connectionstring);
             return db.Execute(sp, parms, commandType: commandType);
         }
-
+      
         public async Task<int> ExecuteAsync(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
             using IDbConnection db = new SqlConnection(_connectionstring);

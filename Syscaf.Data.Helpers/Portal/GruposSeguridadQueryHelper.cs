@@ -23,7 +23,7 @@ namespace Syscaf.Data.Helpers.Portal
         public static string ConsultarGrupoSeguridadClientes = "ADM.ConsultarGrupoSeguridadClientes";
         public static string ConsultarSitiosGrupoSeguridadCliente = "ADM.ConsultarSitiosGrupoSeguridadCliente";
         public static string AsignarUsuarioAgrupoSeguridad = "ADM.AsignarUsuarioAgrupoSeguridad";
-        public static string GuardarEditarGrupoSeguridad = "ADM.CrudGruposSeguridad";
+        public static string GuardarEditarGrupoSeguridad = "ADM.CrudGruposSeguridadNew";
 
 
     }

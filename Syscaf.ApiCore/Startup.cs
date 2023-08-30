@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
+using Util = Syscaf.Common.Utils;
 using Syscaf.ApiCore.ApiBehavior;
 using Syscaf.ApiCore.Auth;
 using Syscaf.ApiCore.Filters;
@@ -21,7 +21,6 @@ using Syscaf.Common.Helpers;
 using Syscaf.Common.PORTAL;
 using Syscaf.Data;
 using Syscaf.Data.Helpers;
-
 using Syscaf.Data.Models.Auth;
 using Syscaf.PBIConn.Services;
 using Syscaf.Service.Automaper;
@@ -33,6 +32,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Syscaf.ApiCore
 {
@@ -66,7 +66,7 @@ namespace Syscaf.ApiCore
 
                 });
             });
-
+           
             services.AddOptions();
             // variables para ITS ebus
             services.Configure<PubsubOptions>(
@@ -77,7 +77,8 @@ namespace Syscaf.ApiCore
             // variables de las credenciales de mix
             services.Configure<MixCredenciales>(
                 Configuration.GetSection("MixCredenciales"));
-
+            services.Configure<Util.FreshdeskVariablesConn>(
+               Configuration.GetSection("FreshdeskVariablesConn"));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -123,14 +124,7 @@ namespace Syscaf.ApiCore
             
             ;
 
-            services.AddCors(options =>
-             {
-                 var frontendURL = Configuration.GetValue<string>("frontend_url");
-                 options.AddDefaultPolicy(builder => { 
-                  builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
-                 });
-
-            });
+            
 
             //services.AddAuthorization(opciones =>
             //{

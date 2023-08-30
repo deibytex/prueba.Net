@@ -303,5 +303,26 @@ namespace Syscaf.ApiTx.Controllers
         }
 
 
+        [HttpPost("auth/Core/EjecutaConsultaSinParametros")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // metodo pensado para ejecutar consultas de ejecución periodica para rutinas repetitivas
+        public async Task<List<dynamic>> EjecutaConsultaSinParametrosConAutorizacionUser([FromQuery] string Clase, [FromQuery] string NombreConsulta
+           )
+        {
+            
+            return await _admService.getDynamicValueCore(Clase, NombreConsulta, null);
         }
+        [HttpPost("auth/DWH/EjecutaConsultaSinParametros")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // metodo pensado para ejecutar consultas de ejecución periodica para rutinas repetitivas
+        public async Task<List<dynamic>> EjecutaConsultaSinParametrosConAutorizacionUserDWH([FromQuery] string Clase, [FromQuery] string NombreConsulta
+
+          )
+        {
+
+            return await _admService.getDynamicValueCore(Clase, NombreConsulta, null);
+        }
+
+
+    }
 }

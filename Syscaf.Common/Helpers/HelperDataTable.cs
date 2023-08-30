@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Syscaf.Common.Helpers.EBUS;
 
 namespace Syscaf.Service.DataTableSql
 {
@@ -16,6 +18,9 @@ namespace Syscaf.Service.DataTableSql
             DataTable dataTable = new DataTable();
             PropertyDescriptorCollection propertyDescriptorCollection =
                 TypeDescriptor.GetProperties(typeof(T));
+
+         
+            
             for (int i = 0; i < propertyDescriptorCollection.Count; i++)
             {
                 PropertyDescriptor propertyDescriptor = propertyDescriptorCollection[i];
@@ -28,6 +33,7 @@ namespace Syscaf.Service.DataTableSql
                 dataTable.Columns.Add(propertyDescriptor.Name, type);
             }
             object[] values = new object[propertyDescriptorCollection.Count];
+
             foreach (T iListItem in iList)
             {
                 for (int i = 0; i < values.Length; i++)
@@ -38,6 +44,7 @@ namespace Syscaf.Service.DataTableSql
             }
             return dataTable;
         }
+
         public static DataTable GetDataTableEventos()
         {
             var dt = new DataTable();

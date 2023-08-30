@@ -15,6 +15,7 @@ using Syscaf.Common.Services;
 using Syscaf.Common.Utilities;
 using Syscaf.Common.Utils;
 using Syscaf.Data;
+using Syscaf.Data.Helpers.eBus.Models;
 using Syscaf.Data.Helpers.Portal;
 using Syscaf.Data.Models.Portal;
 using Syscaf.Service.DataTableSql;
@@ -102,12 +103,14 @@ namespace Syscaf.Service.Portal
                                                   //// verifica que existan y se manda la fecha desde el cual elsistema empieza a validar si existen
                                                   var ResultTrips = await GetIdsNoIngresadosByClienteAsync(f.Viajes.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.viajes, item.clienteIdS);
                                                   //// cruzamos el resultado con el listado general de eventos
-                                                  var tripsFilters = f.Viajes.Where(w => ResultTrips.Any(a => a == w.TripId)).ToList();
+                                                      
+                                                  var tripsFilters = f.Viajes.Where(w => ResultTrips == null || ResultTrips.Any(a => a == w.TripId)).ToList();
 
                                                       if (tripsFilters.Count > 0)
                                                       {
 
                                                           var tripsInserts = _mapper.Map<List<TripsNew>>(tripsFilters);
+                                                          
                                                           result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(tripsInserts), f.Period, "Trips", item.clienteIdS);
                                                           if (!result.Exitoso)
                                                               _logService.SetLogError(0, "Inserta Trips ", $"Cliente: {item.clienteNombre} , {result.Mensaje}");
@@ -135,7 +138,7 @@ namespace Syscaf.Service.Portal
                                             var ResultMetricas = await GetIdsNoIngresadosByClienteAsync(f.Metricas.Select(s => s.TripId).ToList(), f.Period, (int)Enums.PortalTipoValidacion.metricas, item.clienteIdS);
 
                                             // cruzamos el resultado con el listado general de eventos
-                                            var metricasFilter = f.Metricas.Where(w => ResultMetricas.Any(a => a == w.TripId)).ToList();
+                                            var metricasFilter = f.Metricas.Where(w => ResultMetricas.Any(a => ResultMetricas is null || a == w.TripId)).ToList();
 
                                             if (metricasFilter.Count > 0)
                                             {
@@ -171,19 +174,25 @@ namespace Syscaf.Service.Portal
             return result;
         }
 
-        public async Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal)
+        public async Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal
+            , int? TipoPreferencia, bool? GeneraIMG)
         {
             ResultObject result = new();
             string _Clientenombre = "";
+
+       
             try
             {
                 // traemos el listado de clientes
                 var ListadoClientes = await _clientService.GetAsync(1, ClienteIds);
-               
+                ListadoClientes = ListadoClientes.Where(w => (GeneraIMG.HasValue == false ||  w.GeneraIMG  == GeneraIMG)).ToList();
+
+
                 foreach (var item in ListadoClientes)
                 {
-                                       // si tienen configurado al menos un evento que extraer
-                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS);
+                    // si tienen configurado al menos un evento que extraer
+                    var getEventos = GetPreferenciasDescargarEventos(item.clienteIdS).
+                        Where(w => (TipoPreferencia.HasValue == false || w.TipoPreferencia == TipoPreferencia)).ToList();
                     _Clientenombre = item.clienteNombre;
                     if (getEventos != null && getEventos.Count > 0)
                     {
@@ -203,33 +212,42 @@ namespace Syscaf.Service.Portal
                         // filtramos por los eventos que necesitamos consultar
                         if (eventos != null && eventos.Count > 0)
                         {
-                            eventos = eventos.Where(w => w.StartDateTime != null).ToList();
-                            eventos.
-                                GroupBy(g => new { Constants.GetFechaServidor(g.StartDateTime, false)?.Month, Constants.GetFechaServidor(g.StartDateTime, false)?.Year })
-                                .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
-                                {
+                            eventos = eventos.Where(w => w.StartDateTime != null ).ToList();
 
-                                     
-                                        var listEventosInsertar = _mapper.Map<List<EventsNew>>(f.Eventos);
-                                        listEventosInsertar = listEventosInsertar.Select(s =>
-                                        {
-                                            s.isebus = getEventos.
-                                               Where(w => (w.Parametrizacion ?? "").Contains("75") && w.EventTypeId == s.EventTypeId).Count() > 0;
-                                         
-                                            return s;
-                                        }).ToList();
+                            Task task = Task.Run(() => {
+                                eventos.
+                                  GroupBy(g => new { Constants.GetFechaServidor(g.StartDateTime, false)?.Month, Constants.GetFechaServidor(g.StartDateTime, false)?.Year })
+                                  .Select(s => new { Period = s.Key.Month.ToString() + s.Key.Year.ToString(), Eventos = s }).ToList().ForEach(async f =>
+                                  {
 
-                                        var resultevento = await SetDatosPortalByClienteAsync(JsonConvert.SerializeObject(listEventosInsertar), f.Period, "Event", item.clienteIdS);
+                                      var listEventosInsertar = _mapper.Map<List<EventsNew>>(f.Eventos).ToList();
 
-                                        if (!resultevento.Exitoso)
-                                            _logService.SetLogError(0, "Portal.GetEventos", resultevento.Mensaje);
+                                      listEventosInsertar = listEventosInsertar.Select(s =>
+                                          {
+                                              s.isebus = getEventos.
+                                                 Where(w => (w.Parametrizacion ?? "").Contains("75") && w.EventTypeId == s.EventTypeId).Count() > 0;
 
-                                    
-                                });
+                                              return s;
+                                          }).ToList();
+
+                                      result = await SetDatosPortalByClienteAsync(HelperDatatable.ToDataTable(listEventosInsertar), f.Period, "Event", item.clienteIdS);
+
+                                      if (!result.Exitoso)
+                                      {
+                                          _logService.SetLogError(0, "Portal.GetEventos", result.Mensaje);
+
+                                      }
+
+
+
+                                  });
+                            });
+
+                            task.Wait();
                         }
                                             }
 
-                    result.success($"Cliente { item.clienteNombre } cargado satisfactoriametne  { Constants.GetFechaServidor()}");
+                    result.Mensaje += $"Cliente { item.clienteNombre } { Constants.GetFechaServidor()}";
                 }
 
               
@@ -363,10 +381,9 @@ namespace Syscaf.Service.Portal
                     parametros.Add("Period", Periodo, DbType.String);
                     parametros.Add($"Data{tabla}", data.AsTableValuedParameter($"PORTAL.UDT_{tabla}"));
 
-                    //  traemos la información de los identificadores que no existen en la base de datos                   
-                    await Task.FromResult(_connDWH.Execute(PortalQueryHelper._guardaTablasPortal(tabla), parametros, commandType: CommandType.StoredProcedure));
-
-                    resultado.success(null);
+                //  traemos la información de los identificadores que no existen en la base de datos                   
+                var restuly = await _connDWH.ExecuteAsync(PortalQueryHelper._guardaTablasPortal(tabla), parametros, 1200, commandType: CommandType.StoredProcedure);
+                resultado.success(null);
                 
             }
             catch (Exception ex)
@@ -521,7 +538,7 @@ namespace Syscaf.Service.Portal
                 {
                     _logService.SetLogError(-1, "PortalService." + MethodBase.GetCurrentMethod(), ex.ToString());
                     _procesoGeneracionService.SetLogDetalleProcesoGeneracionDatos(ProcesoGeneracionDatosId, $"ClienteId = {  item.clienteNombre } " + ex.Message, null, (int)Enums.EstadoProcesoGeneracionDatos.SW_NOEXEC);
-                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre }", Enums.ListaDistribucion.LSSISTEMA);
+                    await _notificacionService.CrearLogNotificacion(Enums.TipoNotificacion.Sistem, $"Posiciones al cargar posiciones, Cliente = { item.clienteNombre } Error { ex.ToString()}" , Enums.ListaDistribucion.LSSISTEMA);
                     result.error(ex.Message);
                 }
             }
@@ -849,7 +866,7 @@ namespace Syscaf.Service.Portal
     public interface IPortalMService
     {
         Task<ResultObject> Get_ViajesMetricasPorClientes(int? Clienteids, DateTime? FechaInicial, DateTime? FechaFinal);
-        Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
+        Task<ResultObject> Get_EventosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal, int? TipoPreferencia, bool? GeneraIMG);
 
         Task<ResultObject> Get_EventosActivosPorClientes(int? ClienteIds, DateTime? FechaInicial, DateTime? FechaFinal);
 

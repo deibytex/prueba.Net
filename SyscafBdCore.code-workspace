@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "SyscafBdCore",
+			"path": "../Syscaf Database Projects/SyscafBdCore"
+		},
+		{
+			"name": "SyscafBdProd",
+			"path": "../Syscaf Database Projects/SyscafBdProd"
+		}
+	]
+}

@@ -52,11 +52,12 @@ namespace Syscaf.Api.DWH.Controllers
         [HttpGet("actualizarVehiculos")]
         public async Task<ActionResult<ResultObject>> GetAssetsMixByGroup()
         {
-            return await _asset.Add(null, null);
+          
+
+            return await _asset.Add(null);
         }
 
-
-        [HttpGet("actualizarVehiculosPorCliente")]
+         [HttpGet("actualizarVehiculosPorCliente")]
         public async Task<ActionResult<ResultObject>> GetAssetsMixByGroup(long clienteid)
         {
             return await _asset.Add(null, clienteid);

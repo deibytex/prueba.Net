@@ -19,5 +19,11 @@ namespace Syscaf.Data.Helpers.TX
         public static string _PostSnapShotTickets = "TX.SetSnapShotTickets";
         public static string _GetSnapShotTickets = "TX.GetSnapshotTickets";
         public static string _GetSnapShotTicketsTable = "TX.GetSnapshotTicketsTablas";
+        public static string _SetAgents = "TX.SetAgentes";
+        public static string _SetEstados = "TX.SetEstados";
+        public static string _SetTicket = "TX.SetTickets";
+        public static string _SetFields = "TX.SetFields";
+        public static string _SetPrioridad = "TX.SetPrioridad";
+
     }
 }

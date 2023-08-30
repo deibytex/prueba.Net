@@ -28,12 +28,12 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="EsActivo"></param>
         /// <param name="ConfiguracionAlertaId"></param>
         /// <returns></returns>
-        [HttpPost("SetConfiguracionAlerta")]
-        public async Task<ResultObject> SetConfiguracionAlerta([FromBody] SetFatigueVM Data)
-        {
-            //Se llama al servicio
-            return await _Fatigue.SetConfiguracionAlerta(Data.Clave, Data.Nombre, Data.Tiempo, Data.Condicion, Data.Columna, Data.ClienteId, Data.EsActivo, Data.ConfiguracionAlertaId);
-        }
+        //[HttpPost("SetConfiguracionAlerta")]
+        //public async Task<ResultObject> SetConfiguracionAlerta([FromBody] SetFatigueVM Data)
+        //{
+        //    //Se llama al servicio
+        //    return await _Fatigue.SetConfiguracionAlerta(Data.Clave, Data.Nombre, Data.Tiempo, Data.Condicion, Data.Columna, Data.ClienteId, Data.EsActivo, Data.ConfiguracionAlertaId);
+        //}
         /// <summary>
         /// Se obtienen las conficuraciones
         /// </summary>
@@ -41,11 +41,11 @@ namespace Syscaf.ApiCore.Controllers
         /// <param name="ClienteId"></param>
         /// <param name="EsActivo"></param>
         /// <returns></returns>
-        [HttpPost("GetConfiguracionAlerta")]
-        public async Task<ResultObject> GetConfiguracionAlerta([FromBody] GetFatigueVM Data)
-        {
-            //Se llama al servicio
-            return await _Fatigue.GetConfiguracionAlerta(Data.Nombre, Data.ClienteId, Data.EsActivo);
-        }
+        //[HttpPost("GetConfiguracionAlerta")]
+        //public async Task<ResultObject> GetConfiguracionAlerta([FromBody] GetFatigueVM Data)
+        //{
+        //    //Se llama al servicio
+        //    return await _Fatigue.GetConfiguracionAlerta(Data.Nombre, Data.ClienteId, Data.EsActivo);
+        //}
     }
 }
