@@ -20,6 +20,7 @@ namespace Syscaf.Common.Models.FATIGUE
 		public int ConfiguracionAlertaId { get; set; }
         public int MinAmber { get; set; }
         public int MaxAmber { get; set; }
+		public string Contactos { get; set; }
 
     }
 	public class SetFatigueVM
