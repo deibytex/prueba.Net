@@ -54,7 +54,7 @@ namespace Syscaf.Api.DWH.Controllers
         {
           
 
-            return await _asset.Add(null);
+            return await _asset.Add(null,null);
         }
 
          [HttpGet("actualizarVehiculosPorCliente")]
