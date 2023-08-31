@@ -18,8 +18,11 @@ namespace Syscaf.Common.Models.FATIGUE
 		public string clienteNombre { get; set; }
 		public int ClienteIdS { get; set; }
 		public int ConfiguracionAlertaId { get; set; }
+        public int MinAmber { get; set; }
+        public int MaxAmber { get; set; }
+		public string Contactos { get; set; }
 
-	}
+    }
 	public class SetFatigueVM
 	{
 		public int? Clave { get; set; }
