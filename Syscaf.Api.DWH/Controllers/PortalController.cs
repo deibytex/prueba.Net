@@ -292,12 +292,9 @@ namespace Syscaf.Api.DWH.Controllers
 
         // valida que todas las metricas se encuentren descargaadas
         [HttpGet("ValidacionMetricasHistorical")]
-        public async Task<ResultObject> ValidacionMetricasHistorical(int? ClienteId, DateTime? FechaInicial, DateTime? FechaFinal)
+        public async Task<ResultObject> ValidacionMetricasHistorical()
         {
-            DateTime fi = _fechaservidor;
-            string Periodo = (_fechaservidor.Day >= 1 && _fechaservidor.Day <= 5) ?
-                $"{(_fechaservidor.Month - 1)}{_fechaservidor.Year}":
-                $"{(_fechaservidor.Month)}{_fechaservidor.Year}";
+            string Periodo = null;
                // obtenemos los viajes y metricas de las fechas seleecionadas
             var Pendientes = await _portalService.ValidateAllMetrics(Periodo);
 
